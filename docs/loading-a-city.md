@@ -38,7 +38,8 @@ that the city stays unloaded. The application already renders that honestly.
      boulevard; another city may use three zones, or none)
    - statutory holidays, and how many days a collection moves when one lands
      on its day
-3. **Write the migration.** `V23` onward (`V22` is Sainte-Therese). Insert the sectors into
+3. **Write the migration.** `V25` onward (`V22` and `V23` are Sainte-Therese, `V24` a Blainville
+   search fix that loading it made necessary). Insert the sectors into
    `municipality_sector`, the rules into `collection_schedule_rule`, the
    holidays into `collection_holiday`, and the guide into `sorting_item` and
    its three child tables. Set `calendar_verified` and `guide_verified` on the
@@ -50,14 +51,16 @@ that the city stays unloaded. The application already renders that honestly.
    migration before believing it.
 5. **Run everything.** `mvn test -Pintegration-test` needs a real MySQL and
    Redis; see `docs/deployment.md`. All green before and after: 216 before
-   Sainte-Therese, 230 after it.
+   Sainte-Therese, 243 after its calendar and guide. Then run
+   `docs/verification/guide_rank_sweep.py` for every city already loaded, before
+   and after, and compare (see below).
 
 ## Loaded so far
 
 | City | Calendar | Guide | Migration |
 |---|---|---|---|
 | Blainville | yes | yes | V15, V17 |
-| Sainte-Therese | yes, 2026 grids | no | V22 |
+| Sainte-Therese | yes, 2026 grids | yes, regulation 1373 | V22, V23 |
 | Boisbriand | no | no | |
 | Rosemere | no | no | |
 
@@ -132,3 +135,43 @@ It is a downloader, not a parser. It follows only links on the city's own host
 that look like they are about collection, honours robots.txt, and waits two
 seconds between requests. What it saves is the input to step 2 above, not a
 substitute for it.
+
+## What Sainte-Therese's guide added
+
+- **The city's guide may not be on the city's site.** Sainte-Therese's
+  "Matieres acceptees" buttons open RECYC-QUEBEC's "Ca va ou?" app. Its
+  waste-management regulation (1373 N.S.) has the binding lists in annexes A
+  to E, and V23 is built from those. Look for the regulation before following
+  a link off the city's domain.
+- **Generate the guide; do not type it.** `docs/verification/generate_v23_sainte_therese_guide.py`
+  writes V23 and checks the keyword length rule as it goes.
+- **Loading one city's guide can move another city's answers.** MySQL scores
+  full-text matches with word statistics from the whole index, and the
+  city filter is applied after scoring. V23 cut Blainville's lead for
+  "Where does soiled cardboard go?" from 10.7 vs 8.3 to 6.10 vs 6.09, and one
+  test run in two then gave the wrong card; V24 gave that entry the keywords
+  of its own name. `docs/verification/guide_rank_sweep.py` searches every
+  entry by its own name and reports lost top spots and halved leads: run it
+  for each loaded city before and after loading a new one.
+- **The search has three blind spots that look like data problems:**
+  - it does not stem, so `oeuf` never matches `oeufs`; add plurals;
+  - keyword scores are summed per entry, so a word repeated across one
+    entry's keywords ("pet food", "dog food", "cat food") pulls every
+    question containing it to that entry;
+  - the query normaliser strips function words, including the English "can"
+    and words under three letters, so "Food can" searched as "food" and
+    "Plastique no 7" as "plastique". Name entries with words that survive.
+  `SainteThereseGuideIntegrationTest.everyEntryIsTheTopAnswerForItsOwnName`
+  checks all three for a whole guide at once; copy it for the next city.
+- **When the city's documents disagree, say so instead of choosing quietly.**
+  The regulation and the collections page give different branch sizes for
+  the brown bin, and different homes for appliances. V23's header records
+  both and which one each entry follows.
+- **Correct your own earlier migration in the next one, not in place.** V22
+  said the page gives no rule for bulky items; it does ("le 1er lundi du
+  mois"). Editing an applied migration breaks Flyway's checksum, so V23 says
+  so and loads the dates.
+- **Each test class adds a database pool.** Spring keeps one context per
+  integration test class, and each held ten connections; at seventeen classes
+  that is more than MySQL's default 151. `IntegrationEnvironment` now caps
+  test pools at four.
