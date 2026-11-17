@@ -13,7 +13,8 @@ const BLAINVILLE: Municipality = {
   sectors: [
     { code: "all", nameFr: "Tout le territoire", nameEn: "Whole city", nameZh: "全市" },
     { code: "north", nameFr: "Nord", nameEn: "North", nameZh: "北" }
-  ]
+  ],
+  hasStreetDirectory: false
 };
 
 /** Offered, but nothing read from its own calendar yet, so no sectors either. */
@@ -23,7 +24,8 @@ const ROSEMERE: Municipality = {
   sourceUrl: null,
   calendarVerified: false,
   guideVerified: false,
-  sectors: []
+  sectors: [],
+  hasStreetDirectory: false
 };
 
 describe("municipality store", () => {
@@ -32,13 +34,29 @@ describe("municipality store", () => {
     setActivePinia(createPinia());
   });
 
-  it("keeps a sector the chosen city actually has", () => {
+  it("keeps a sector the chosen city actually has, and never falls back to the wildcard", () => {
     const store = useMunicipalityStore();
     const preferences = usePreferenceStore();
     store.all = [BLAINVILLE];
     store.loaded = true;
 
     preferences.setSector("south"); // Blainville has no south in this fixture
+    store.ensureValidSector();
+
+    // Not "all", although it is listed first: a resident on "all" sees only
+    // city-wide collections. This test used to expect "all", which is how the
+    // defect passed review - switching to Sainte-Therese or Boisbriand left
+    // residents without their garbage and recycling days.
+    expect(preferences.sector).toBe("north");
+  });
+
+  it("uses the wildcard only when the city has nothing more specific", () => {
+    const store = useMunicipalityStore();
+    const preferences = usePreferenceStore();
+    store.all = [{ ...BLAINVILLE, sectors: [BLAINVILLE.sectors[0]!] }];
+    store.loaded = true;
+
+    preferences.setSector("south");
     store.ensureValidSector();
 
     expect(preferences.sector).toBe("all");

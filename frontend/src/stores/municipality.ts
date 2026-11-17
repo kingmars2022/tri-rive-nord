@@ -70,7 +70,14 @@ export const useMunicipalityStore = defineStore("municipalities", {
         return;
       }
       if (!sectors.some((s) => s.code === preferences.sector)) {
-        preferences.setSector(sectors[0].code);
+        // Never "all" when the city has anything more specific. Every city
+        // lists "all" first, and a resident left on it matches only
+        // city-wide collections: in Sainte-Therese that hid every garbage and
+        // recycling day, in Boisbriand everything. The server's
+        // defaultSectorOf already skips it for new accounts; switching city
+        // here did not.
+        const specific = sectors.find((s) => s.code !== "all");
+        preferences.setSector((specific ?? sectors[0]).code);
       }
     }
   }
