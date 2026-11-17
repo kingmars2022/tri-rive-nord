@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createPinia, setActivePinia } from "pinia";
 import { flushPromises, mount } from "@vue/test-utils";
 import AdminView from "./AdminView.vue";
+import { usePreferenceStore } from "../stores/preferences";
 
 const get = vi.fn();
 const post = vi.fn();
@@ -39,6 +40,23 @@ vi.mock("../api/agent", () => ({
  * A form that loaded three fields per language and sent three back would have
  * silently emptied every card's examples on the first edit.
  */
+
+/** Sainte-Therese as V22 loads it: a city-wide row and zones A to D. */
+const sainteTherese = {
+  slug: "sainte-therese",
+  name: "Sainte-Therese",
+  sourceUrl: null,
+  calendarVerified: true,
+  guideVerified: false,
+  sectors: [
+    { code: "all", nameFr: "Tout le territoire", nameEn: "Whole city", nameZh: "全市" },
+    { code: "a", nameFr: "Zone A", nameEn: "Zone A", nameZh: "A 区" },
+    { code: "b", nameFr: "Zone B", nameEn: "Zone B", nameZh: "B 区" },
+    { code: "c", nameFr: "Zone C", nameEn: "Zone C", nameZh: "C 区" },
+    { code: "d", nameFr: "Zone D", nameEn: "Zone D", nameZh: "D 区" }
+  ]
+};
+
 describe("AdminView editing", () => {
   const sortingItem = {
     id: 7,
@@ -117,6 +135,32 @@ describe("AdminView editing", () => {
 
   const saveButton = (section: ReturnType<typeof panel>) =>
     section.findAll("form button").find((button) => button.text() === "Enregistrer")!;
+
+  it("offers the current city's zones in the schedule form", async () => {
+    usePreferenceStore().setMunicipality("sainte-therese");
+    const base = get.getMockImplementation()!;
+    get.mockImplementation(async (path: string) =>
+      path === "/municipalities" ? [sainteTherese] : base(path)
+    );
+    const wrapper = await mountAdmin();
+    const schedule = panel(wrapper, "Calendrier des collectes");
+
+    const select = schedule.findAll("form select").find((candidate) =>
+      candidate.findAll("option").some((option) => option.attributes("value") === "all")
+    )!;
+    expect(select.findAll("option").map((option) => option.attributes("value")))
+      .toEqual(["all", "a", "b", "c", "d"]);
+
+    await schedule.find('input[type="date"]').setValue("2027-05-01");
+    await select.setValue("d");
+    await schedule.find("form").trigger("submit");
+    await flushPromises();
+
+    expect(post).toHaveBeenCalledWith("/admin/collections", expect.objectContaining({
+      collectionDate: "2027-05-01",
+      sector: "d"
+    }));
+  });
 
   it("creates with POST while nothing is being edited", async () => {
     const wrapper = await mountAdmin();

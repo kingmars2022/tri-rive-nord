@@ -2,11 +2,13 @@ package com.tririvenord.collection;
 
 import com.tririvenord.collection.dto.CollectionEventRequest;
 import com.tririvenord.common.Sector;
+import com.tririvenord.municipality.MunicipalityService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
@@ -19,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,12 +33,15 @@ class CollectionServiceTest {
     @Mock
     private CollectionEventMapper mapper;
 
+    @Mock
+    private MunicipalityService municipalities;
+
     private CollectionService service;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        service = new CollectionService(mapper);
+        service = new CollectionService(mapper, municipalities);
     }
 
     @Test
@@ -83,5 +89,32 @@ class CollectionServiceTest {
                 .hasMessageContaining("not found");
 
         verify(mapper, never()).delete(99L);
+    }
+
+    @Test
+    void createRejectsASectorTheCityDoesNotHaveBeforeWritingAnything() {
+        doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "This city has no sector 'north'"))
+                .when(municipalities).requireSectorForWrite(MUNI, Sector.of("north"));
+
+        assertThatThrownBy(() -> service.create(MUNI, new CollectionEventRequest(
+                LocalDate.now(), Sector.of("north"), CollectionType.organic, BinColor.brown,
+                null, null, null, null)))
+                .isInstanceOf(ResponseStatusException.class)
+                .hasMessageContaining("no sector 'north'");
+
+        verify(mapper, never()).insert(any());
+    }
+
+    @Test
+    void updateChecksTheSectorAgainstTheStoredRowsCity() {
+        long otherCity = 7L;
+        when(mapper.findById(5L)).thenReturn(Optional.of(new CollectionEvent(
+                5L, otherCity, LocalDate.now(), Sector.of("a"), CollectionType.garbage, BinColor.black,
+                null, null, null, null)));
+
+        service.update(5L, new CollectionEventRequest(
+                LocalDate.now(), Sector.of("c"), CollectionType.garbage, BinColor.black, null, null, null, null));
+
+        verify(municipalities).requireSectorForWrite(otherCity, Sector.of("c"));
     }
 }

@@ -4,6 +4,7 @@ import com.tririvenord.collection.dto.CollectionEventRequest;
 import com.tririvenord.common.Page;
 import com.tririvenord.common.Sector;
 import com.tririvenord.config.CacheConfig;
+import com.tririvenord.municipality.MunicipalityService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
@@ -19,10 +20,12 @@ import java.util.Map;
 @Service
 public class CollectionService {
     private final CollectionEventMapper mapper;
+    private final MunicipalityService municipalities;
     private final Clock clock;
 
-    public CollectionService(CollectionEventMapper mapper) {
+    public CollectionService(CollectionEventMapper mapper, MunicipalityService municipalities) {
         this.mapper = mapper;
+        this.municipalities = municipalities;
         this.clock = Clock.systemDefaultZone();
     }
 
@@ -96,6 +99,7 @@ public class CollectionService {
     // to evict. The cache refills on the next request.
     @CacheEvict(cacheNames = CacheConfig.UPCOMING_COLLECTIONS, allEntries = true)
     public CollectionEvent create(long municipalityId, CollectionEventRequest request) {
+        municipalities.requireSectorForWrite(municipalityId, request.sector());
         Map<String, Object> params = new HashMap<>();
         params.put("municipalityId", municipalityId);
         params.put("collectionDate", request.collectionDate());
@@ -114,7 +118,9 @@ public class CollectionService {
 
     @CacheEvict(cacheNames = CacheConfig.UPCOMING_COLLECTIONS, allEntries = true)
     public CollectionEvent update(Long id, CollectionEventRequest request) {
-        requireExists(id);
+        // Checked against the stored row's city: an edit cannot move a
+        // collection to another city, so that is the city the sector must be in.
+        municipalities.requireSectorForWrite(requireExists(id).municipalityId(), request.sector());
         mapper.update(
                 id,
                 request.collectionDate(),
@@ -135,8 +141,8 @@ public class CollectionService {
         mapper.delete(id);
     }
 
-    private void requireExists(Long id) {
-        mapper.findById(id).orElseThrow(() ->
+    private CollectionEvent requireExists(Long id) {
+        return mapper.findById(id).orElseThrow(() ->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Collection event " + id + " not found"));
     }
 }

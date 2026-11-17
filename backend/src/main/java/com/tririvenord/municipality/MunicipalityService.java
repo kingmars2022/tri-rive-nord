@@ -105,4 +105,26 @@ public class MunicipalityService {
                     "%s has no sector '%s'".formatted(municipality.name(), sector.code()));
         }
     }
+
+    /**
+     * The same membership check, for a sector an administrator is writing.
+     *
+     * <p>Takes the city's id because the write paths have only that: an edit
+     * resolves its city from the stored row, not from the request. It answers
+     * 400 rather than 404 because the sector is a value in the request body,
+     * not the thing being addressed.
+     *
+     * <p>Without it, the admin console stored any well-formed code, so a
+     * {@code north} holiday saved against Sainte-Therese -- whose zones are
+     * {@code a} to {@code d} -- was accepted and then matched no collection
+     * in that city.
+     */
+    public void requireSectorForWrite(long municipalityId, Sector sector) {
+        boolean known = mapper.findSectors(municipalityId).stream()
+                .anyMatch(s -> s.code().equals(sector.code()));
+        if (!known) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "This city has no sector '%s'".formatted(sector.code()));
+        }
+    }
 }

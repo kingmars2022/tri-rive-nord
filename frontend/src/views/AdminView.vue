@@ -3,6 +3,8 @@ import { computed, onMounted, reactive, ref } from "vue";
 import { useI18n } from "../useI18n";
 import { api, ApiError } from "../api/client";
 import { executeAgentPlan, planWithAgent, type AgentExecution, type AgentPlan } from "../api/agent";
+import type { MunicipalitySector } from "../api/municipalities";
+import { useMunicipalityStore } from "../stores/municipality";
 
 type Notice = {
   id: number;
@@ -259,12 +261,40 @@ async function deleteHoliday(id: number) {
   await loadEvents();
 }
 
-function sectorLabel(sector: string) {
-  return {
-    all: t("admin.sectorAll"),
-    north: t("admin.sectorNorth"),
-    south: t("admin.sectorSouth")
-  }[sector] ?? sector;
+// --- Sectors ---------------------------------------------------------------
+//
+// The choices come from the city being administered, the way the settings
+// page does it. They used to be Blainville's north and south written into the
+// template, which left an administrator with no way to pick one of
+// Sainte-Therese's zones A to D.
+
+const municipalities = useMunicipalityStore();
+
+/**
+ * Every sector of the current city, with `all` first.
+ *
+ * Every loaded city has an `all` row, so the guard is for one that has none on
+ * file yet: both forms default to a city-wide entry, and a select whose value
+ * is not among its options shows blank while still submitting it.
+ */
+const sectorOptions = computed<MunicipalitySector[]>(() => {
+  const sectors = municipalities.current?.sectors ?? [];
+  if (sectors.some((sector) => sector.code === "all")) {
+    return sectors;
+  }
+  const all = t("admin.sectorAll");
+  return [{ code: "all", nameFr: all, nameEn: all, nameZh: all }, ...sectors];
+});
+
+function sectorName(sector: MunicipalitySector) {
+  return { fr: sector.nameFr, en: sector.nameEn, zh: sector.nameZh }[language.value];
+}
+
+function sectorLabel(code: string) {
+  const sector = sectorOptions.value.find((candidate) => candidate.code === code);
+  // A code the city no longer lists is shown as stored rather than hidden: the
+  // row is still there, and the administrator needs to see what it says.
+  return sector ? sectorName(sector) : code;
 }
 
 function holidayName(holiday: Holiday) {
@@ -591,6 +621,10 @@ function sortingName(item: SortingItem) {
 }
 
 onMounted(() => {
+  // App.vue loads the cities too; load() returns at once when it has. Here so
+  // the sector choices do not depend on how the console was reached. A
+  // failure leaves the city-wide choice, which the forms can still save.
+  municipalities.load().catch(() => undefined);
   loadNotices();
   loadHolidays();
   loadEvents();
@@ -702,9 +736,9 @@ onMounted(() => {
           <label>
             {{ t("admin.sector") }}
             <select v-model="eventDraft.sector">
-              <option value="north">north</option>
-              <option value="south">south</option>
-              <option value="all">all</option>
+              <option v-for="sector in sectorOptions" :key="sector.code" :value="sector.code">
+                {{ sectorName(sector) }}
+              </option>
             </select>
           </label>
           <label>
@@ -766,7 +800,7 @@ onMounted(() => {
           <tbody>
             <tr v-for="event in events" :key="event.id">
               <td>{{ event.collectionDate }}</td>
-              <td>{{ event.sector }}</td>
+              <td>{{ sectorLabel(event.sector) }}</td>
               <td>{{ event.collectionType }}</td>
               <td>{{ event.binColor }}</td>
               <td class="admin-row-actions">
@@ -1069,9 +1103,9 @@ onMounted(() => {
           <label>
             {{ t("admin.sector") }}
             <select v-model="holidayDraft.sector">
-              <option value="all">{{ t("admin.sectorAll") }}</option>
-              <option value="north">{{ t("admin.sectorNorth") }}</option>
-              <option value="south">{{ t("admin.sectorSouth") }}</option>
+              <option v-for="sector in sectorOptions" :key="sector.code" :value="sector.code">
+                {{ sectorName(sector) }}
+              </option>
             </select>
           </label>
           <label>

@@ -2,6 +2,7 @@ package com.tririvenord.collection;
 
 import com.tririvenord.collection.dto.CollectionHolidayRequest;
 import com.tririvenord.config.CacheConfig;
+import com.tririvenord.municipality.MunicipalityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -32,6 +33,7 @@ public class CollectionHolidayService {
     private final CollectionEventMapper events;
     private final CollectionScheduleRuleMapper rules;
     private final CollectionCalendarTopUp topUp;
+    private final MunicipalityService municipalities;
     private final CacheManager cacheManager;
     private final Clock clock;
 
@@ -41,9 +43,10 @@ public class CollectionHolidayService {
             CollectionEventMapper events,
             CollectionScheduleRuleMapper rules,
             CollectionCalendarTopUp topUp,
+            MunicipalityService municipalities,
             CacheManager cacheManager
     ) {
-        this(holidays, events, rules, topUp, cacheManager, Clock.systemDefaultZone());
+        this(holidays, events, rules, topUp, municipalities, cacheManager, Clock.systemDefaultZone());
     }
 
     /** The clock is injectable so a test can rebuild the calendar at a date it chooses. */
@@ -52,6 +55,7 @@ public class CollectionHolidayService {
             CollectionEventMapper events,
             CollectionScheduleRuleMapper rules,
             CollectionCalendarTopUp topUp,
+            MunicipalityService municipalities,
             CacheManager cacheManager,
             Clock clock
     ) {
@@ -59,6 +63,7 @@ public class CollectionHolidayService {
         this.events = events;
         this.rules = rules;
         this.topUp = topUp;
+        this.municipalities = municipalities;
         this.cacheManager = cacheManager;
         this.clock = clock;
     }
@@ -69,6 +74,7 @@ public class CollectionHolidayService {
 
     @Transactional
     public CollectionHoliday create(long municipalityId, CollectionHolidayRequest request) {
+        municipalities.requireSectorForWrite(municipalityId, request.sector());
         holidays.insert(from(municipalityId, null, request));
         rebuildFrom(municipalityId, request.holidayDate());
         CollectionHoliday saved = holidays.findByDateAndSector(
@@ -85,6 +91,7 @@ public class CollectionHolidayService {
         // The city comes from the stored row, not the request: moving a
         // holiday between cities is not an edit, it is two edits.
         long municipalityId = existing.municipalityId();
+        municipalities.requireSectorForWrite(municipalityId, request.sector());
         if (holidays.update(from(municipalityId, id, request)) == 0) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Holiday not found");
         }
