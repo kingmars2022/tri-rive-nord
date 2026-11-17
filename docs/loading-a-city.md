@@ -74,7 +74,9 @@ that the city stays unloaded. The application already renders that honestly.
 The municipal sites are not reachable from the default environment. A session
 that needs them has to be started on the **Municipal data (North Shore)**
 environment, which allows `blainville.ca`, `ville.sainte-therese.qc.ca`,
-`boisbriand.qc.ca` and `ville.rosemere.qc.ca`. Failing that, the documents can
+`boisbriand.qc.ca` and `ville.rosemere.qc.ca` -- though Sainte-Therese's site
+is actually `www.sainte-therese.ca`, which that environment does not allow;
+`ville.sainte-therese.qc.ca` times out. Failing that, the documents can
 be downloaded by hand and uploaded, which is how Blainville's were read.
 
 ### Fetching the documents through GitHub Actions
