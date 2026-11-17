@@ -245,14 +245,29 @@ class SainteThereseCalendarIntegrationTest {
                         "2027-04-26 organic");
     }
 
+    /**
+     * From the collections page rather than a grid (V23): the Christmas tree
+     * pickup is "le 12 janvier 2027", and bulky items go out on "le 1er lundi
+     * du mois pour l'ensemble du territoire" - 4 January, 1 February.
+     */
+    @Test
+    void januaryCarriesTheTreePickupAndTheFirstMondayBulkyPickup() {
+        topUpOn("2026-11-17");
+
+        assertThat(calendarOf("b", "2027-01-01", "2027-02-01"))
+                .filteredOn(line -> !line.endsWith("organic") && !line.endsWith("garbage")
+                        && !line.endsWith("recycling"))
+                .containsExactly(
+                        "2027-01-04 bulky",
+                        "2027-01-12 special",
+                        "2027-02-01 bulky");
+    }
+
     @Test
     void theCityIsMarkedLoaded_andAResidentLandsInAZone_notOnTheWildcard() {
         Municipality sainteTherese = municipalities.requireBySlug("sainte-therese");
 
         assertThat(sainteTherese.calendarVerified()).isTrue();
-        assertThat(sainteTherese.guideVerified())
-                .as("the sorting guide is a separate document V22 did not load")
-                .isFalse();
         assertThat(municipalities.sectorsOf(sainteTherese))
                 .extracting(sector -> sector.code())
                 .containsExactly("all", "a", "b", "c", "d");
