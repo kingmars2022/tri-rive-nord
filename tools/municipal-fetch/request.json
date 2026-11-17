@@ -1,0 +1,14 @@
+{
+  "max_pages": 40,
+  "max_depth": 3,
+  "cities": [
+    {
+      "slug": "sainte-therese",
+      "name": "Sainte-Therese",
+      "start_urls": [
+        "https://www.sainte-therese.ca/",
+        "https://ville.sainte-therese.qc.ca/"
+      ]
+    }
+  ]
+}

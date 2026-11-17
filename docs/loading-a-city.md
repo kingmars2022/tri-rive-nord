@@ -76,3 +76,19 @@ that needs them has to be started on the **Municipal data (North Shore)**
 environment, which allows `blainville.ca`, `ville.sainte-therese.qc.ca`,
 `boisbriand.qc.ca` and `ville.rosemere.qc.ca`. Failing that, the documents can
 be downloaded by hand and uploaded, which is how Blainville's were read.
+
+### Fetching the documents through GitHub Actions
+
+When neither works, `.github/workflows/fetch-municipal-sources.yml` downloads
+them from a GitHub runner, which can reach the cities' sites. List the city and
+some candidate start URLs in `tools/municipal-fetch/request.json` and push. The
+workflow runs on any branch where that file changed (it can also be started by
+hand from the Actions tab), and commits the raw pages and PDFs back to the same
+branch under `data/municipal-sources/<slug>/<date>/`, along with a
+`manifest.json` that gives each file's source URL and sha256. `git pull`
+afterwards.
+
+It is a downloader, not a parser. It follows only links on the city's own host
+that look like they are about collection, honours robots.txt, and waits two
+seconds between requests. What it saves is the input to step 2 above, not a
+substitute for it.
