@@ -18,6 +18,14 @@
       "bytes": 204423,
       "sha256": "72c64a1fa3d5bc3d0f0d76926c49c59f2bbb17ddc1c1446719ee043a97b4a968",
       "obtained": "image embedded in that page: page 1 of the 2026 calendar only"
+    },
+    {
+      "file": "manual_CalendrierCollectes_2025.pdf",
+      "url": null,
+      "content_type": "application/pdf",
+      "bytes": 8315163,
+      "sha256": "3fa359752b1ba4a1b73ed4bf638809384d003acdd40574ab37acbecb8af401cd",
+      "obtained": "downloaded by hand and uploaded on 2026-11-17; the URL it came from was not recorded. It is the 2025 edition (every page headed 'CALENDRIER DES COLLECTES 2025', created 2024-12-02), not the 2026 one the collections page links to. V25 projects 2026 from it at the owner's direction."
     }
   ],
   "still_needed": [

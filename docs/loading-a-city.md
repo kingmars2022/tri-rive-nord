@@ -38,8 +38,8 @@ that the city stays unloaded. The application already renders that honestly.
      boulevard; another city may use three zones, or none)
    - statutory holidays, and how many days a collection moves when one lands
      on its day
-3. **Write the migration.** `V25` onward (`V22` and `V23` are Sainte-Therese, `V24` a Blainville
-   search fix that loading it made necessary). Insert the sectors into
+3. **Write the migration.** `V26` onward (`V22` and `V23` are Sainte-Therese, `V24` a Blainville
+   search fix that loading it made necessary, `V25` Boisbriand). Insert the sectors into
    `municipality_sector`, the rules into `collection_schedule_rule`, the
    holidays into `collection_holiday`, and the guide into `sorting_item` and
    its three child tables. Set `calendar_verified` and `guide_verified` on the
@@ -51,7 +51,7 @@ that the city stays unloaded. The application already renders that honestly.
    migration before believing it.
 5. **Run everything.** `mvn test -Pintegration-test` needs a real MySQL and
    Redis; see `docs/deployment.md`. All green before and after: 216 before
-   Sainte-Therese, 243 after its calendar and guide. Then run
+   Sainte-Therese, 243 after its calendar and guide, 248 after Boisbriand. Then run
    `docs/verification/guide_rank_sweep.py` for every city already loaded, before
    and after, and compare (see below).
 
@@ -61,7 +61,7 @@ that the city stays unloaded. The application already renders that honestly.
 |---|---|---|---|
 | Blainville | yes | yes | V15, V17 |
 | Sainte-Therese | yes, 2026 grids | yes, regulation 1373 | V22, V23 |
-| Boisbriand | no -- site refuses automated requests, see below | no | |
+| Boisbriand | **projected from the 2025 calendar** -- not checked against 2026, see below | no | V25 |
 | Rosemere | no -- site does not answer automated requests | no | |
 
 ## What Sainte-Therese added to the list of things to get wrong
@@ -197,3 +197,25 @@ substitute for it.
   integration test class, and each held ten connections; at seventeen classes
   that is more than MySQL's default 151. `IntegrationEnvironment` now caps
   test pools at four.
+
+## Boisbriand: loaded against the rule, on purpose
+
+V25 is the one city loaded without its own document for the period. The 2026
+calendar PDF could not be obtained (the site serves automated clients an Azure
+WAF challenge, and the copy downloaded by hand was the 2025 edition), and the
+owner chose on 2026-11-17 to load from 2025 rather than wait. So:
+
+- The structure (sectors A and B, weekday by street, which bins share a week,
+  winter organics, holidays a day earlier) is the 2025 calendar's.
+- The phase is the end of 2025 carried forward a fortnight at a time. If the
+  city restarted its cycle in 2026, every date is a week off, and nothing
+  available here can tell.
+- Every resident-facing note says the schedule comes from the 2025 calendar
+  and points to boisbriand.ca.
+- `BoisbriandCalendarIntegrationTest` checks that the migration does what the
+  2025 calendar describes. It cannot check 2026.
+- Residents pick "Secteur A, mardi" and so on, but the street-to-sector table
+  that tells them which one is theirs is only in the 2025 PDF, not in the app.
+
+**First thing to do when the 2026 (or 2027) calendar is in hand:** read it
+against V25 and replace the rules. That is the step this city skipped.
