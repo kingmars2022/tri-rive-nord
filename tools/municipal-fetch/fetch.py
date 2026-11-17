@@ -216,7 +216,10 @@ def crawl(city: dict, out_root: Path, max_pages: int, max_depth: int,
         parser = LinkParser()
         parser.feed(body.decode("utf-8", "replace"))
         for href, text in parser.links:
-            nxt = urllib.parse.urljoin(final_url, href)
+            nxt = urllib.parse.urljoin(final_url, href.strip())
+            # Hrefs written with raw spaces or accents are common on city
+            # sites; urllib refuses them unless they are percent-encoded.
+            nxt = urllib.parse.quote(nxt, safe=":/?#[]@!$&'()*+,;=%~")
             p = urllib.parse.urlparse(nxt)
             if p.scheme not in ("http", "https") or p.netloc not in hosts:
                 continue
