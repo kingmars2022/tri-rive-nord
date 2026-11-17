@@ -1,19 +1,30 @@
 import { defineStore } from "pinia";
 import type { Language } from "../i18n/messages";
 
-export type Sector = "north" | "south";
+/**
+ * A sector code, not a fixed set.
+ *
+ * <p>This was `"north" | "south"`, which is Blainville's two halves of
+ * boulevard de la Seigneurie. Sectors belong to a city now, so the valid
+ * values arrive with the city rather than being known at compile time; the
+ * municipality store is what keeps this in step with the city on screen.
+ */
+export type Sector = string;
 
 type PreferenceState = {
   language: Language;
+  /** Slug of the city every page shows. */
+  municipality: string;
   sector: Sector;
   remindersEnabled: boolean;
 };
 
-const storageKey = "bienvenue-blainville.preferences";
+const storageKey = "tri-rive-nord.preferences";
 
 function loadPreferences(): PreferenceState {
   const fallback: PreferenceState = {
     language: "fr",
+    municipality: "blainville",
     sector: "north",
     remindersEnabled: true
   };
@@ -43,6 +54,10 @@ export const usePreferenceStore = defineStore("preferences", {
     },
     setLanguage(language: Language) {
       this.language = language;
+      this.save();
+    },
+    setMunicipality(municipality: string) {
+      this.municipality = municipality;
       this.save();
     },
     setSector(sector: Sector) {

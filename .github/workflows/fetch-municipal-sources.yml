@@ -1,0 +1,79 @@
+name: Fetch municipal source documents
+
+# The cities' websites are not reachable from the cloud sessions this project
+# is developed in. A GitHub runner can reach them, so this workflow downloads
+# a city's own collection pages and PDFs, unchanged, and commits them back to
+# the branch it ran on under data/municipal-sources/<slug>/<date>/.
+#
+# It does not parse anything. Turning those files into a migration is a
+# separate, checked step: docs/loading-a-city.md.
+#
+# Runs when tools/municipal-fetch/request.json changes on a pushed branch (so a
+# session can trigger it by editing that file), or by hand from the Actions tab.
+
+on:
+  push:
+    # Not main: merging a branch that edited the request would otherwise
+    # re-run that fetch and commit its output straight onto main.
+    branches-ignore:
+      - main
+    paths:
+      - tools/municipal-fetch/request.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-municipal-sources-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch the cities' own documents
+        run: |
+          python3 -I tools/municipal-fetch/fetch.py \
+            --request tools/municipal-fetch/request.json \
+            --out data/municipal-sources
+
+      - name: Summarise
+        if: always()
+        run: |
+          for m in data/municipal-sources/*/*/manifest.json; do
+            [ -f "$m" ] || continue
+            python3 - "$m" >> "$GITHUB_STEP_SUMMARY" <<'PY'
+          import json, sys
+          m = json.load(open(sys.argv[1]))
+          print(f"### {m['name']} ({m['fetched_at']})")
+          print(f"{m['pages_fetched']} fetched, {len(m['files'])} saved, {len(m['errors'])} errors\n")
+          for f in m["files"]:
+              print(f"- `{f['content_type']}` {f['url']}")
+          for e in m["errors"]:
+              print(f"- error: {e['url']}: {e['error']}")
+          PY
+          done
+
+      # Commits made with GITHUB_TOKEN do not trigger further workflow runs,
+      # so this cannot loop.
+      - name: Commit what was fetched
+        if: always()
+        run: |
+          git add data/municipal-sources
+          if git diff --cached --quiet; then
+            echo "Nothing new was fetched."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git commit -m "data: raw municipal source documents from ${GITHUB_REF_NAME}" \
+                     -m "Fetched by run ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}. Unparsed, unverified."
+          git push origin "HEAD:${GITHUB_REF_NAME}"

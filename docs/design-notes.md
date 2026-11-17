@@ -1,8 +1,8 @@
-# Blainville Waste Sorting Platform
+# Tri Rive-Nord
 
 A full-stack municipal waste sorting and collection reminder web application for residents of Blainville, Quebec.
 
-`Blainville Waste Sorting Platform` helps residents understand which bin to place outside, when collection happens, how common materials should be sorted, and where special items should be dropped off. The application is built with Vue 3, Spring Boot, MyBatis, MySQL, Flyway, Spring Security, and Docker Compose.
+`Tri Rive-Nord` helps residents understand which bin to place outside, when collection happens, how common materials should be sorted, and where special items should be dropped off. The application is built with Vue 3, Spring Boot, MyBatis, MySQL, Flyway, Spring Security, and Docker Compose.
 
 The first release is intentionally designed as a web application. Native iOS and Android apps are outside the initial scope.
 
@@ -1008,7 +1008,7 @@ Completed:
 - Docker Compose setup for MySQL, Redis, and backend.
 - Backend Dockerfile.
 - Environment-variable-based configuration (database, JWT secret, seeded admin credentials).
-- 248 tests: 112 that need nothing but the JVM, 101 that run against real infrastructure, and 35 in the browser runtime.
+- 297 tests: 122 that need nothing but the JVM, 132 that run against real infrastructure, and 43 in the browser runtime. `mvn test` runs the first 122; `mvn test -Pintegration-test` runs 254, which is those 122 plus the 132, not 254 more.
 - Successful backend Maven build.
 - Successful frontend Vite production build (including `vue-tsc` type-checking).
 - `docker compose --env-file .env.example config` validates the Compose file.
@@ -1166,10 +1166,10 @@ Long-term:
 - A transactional outbox so a publish is never half-done, with idempotent consumers on the other side.
 - A recurring calendar that extends itself without ever undoing an administrator's cancellation.
 - Photo uploads that never pass through the application, with EXIF stripped before anything is served.
-- 248 tests, of which 101 run against real infrastructure rather than mocks - which is how most of the bugs in the history of this repository were found.
+- 254 tests, of which 101 run against real infrastructure rather than mocks - which is how most of the bugs in the history of this repository were found, including both defects the multi-city change introduced: a registration that could not succeed because the default preference row named no city, and a default sector of `all`, which matches only city-wide collections and would have hidden half of what a resident needs.
 
 ## Project Positioning
 
-`Blainville Waste Sorting Platform` is a resident-facing helper tool. It is designed to make official municipal information easier to search and understand, but it does not replace Blainville's official website.
+`Tri Rive-Nord` is a resident-facing helper tool. It is designed to make official municipal information easier to search and understand, but it does not replace Blainville's official website.
 
 Before public deployment, all collection dates, sorting rules, locations, and service instructions should be reviewed against official municipal sources and maintained through the admin workflow.

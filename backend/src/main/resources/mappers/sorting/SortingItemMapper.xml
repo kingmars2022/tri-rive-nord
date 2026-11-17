@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bienvenueblainville.sorting.SortingItemMapper">
+<mapper namespace="com.tririvenord.sorting.SortingItemMapper">
     <sql id="columns">
-        id, destination_type, bin_color, source_url
+        id, municipality_id as municipalityId, item_key as itemKey,
+        destination_type, bin_color, source_url
     </sql>
 
-    <select id="findAll" resultType="com.bienvenueblainville.sorting.SortingItem">
+    <select id="findAll" resultType="com.tririvenord.sorting.SortingItem">
         select <include refid="columns"/>
         from sorting_item
+        where municipality_id = #{municipalityId}
         order by id
     </select>
 
-    <select id="findById" resultType="com.bienvenueblainville.sorting.SortingItem">
+    <select id="findById" resultType="com.tririvenord.sorting.SortingItem">
         select <include refid="columns"/>
         from sorting_item
         where id = #{id}
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="map">
-        insert into sorting_item (destination_type, bin_color, source_url)
-        values (#{destinationType}, #{binColor}, #{sourceUrl})
+        insert into sorting_item (municipality_id, item_key, destination_type, bin_color, source_url)
+        values (#{municipalityId}, #{itemKey}, #{destinationType}, #{binColor}, #{sourceUrl})
     </insert>
 
     <update id="update">

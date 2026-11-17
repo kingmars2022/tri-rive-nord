@@ -1,4 +1,5 @@
 import { api } from "./client";
+import { usePreferenceStore } from "../stores/preferences";
 import type { Language } from "../i18n/messages";
 
 export interface AssistantSource {
@@ -20,5 +21,9 @@ export interface AssistantAnswer {
 }
 
 export function askAssistant(question: string, language: Language) {
-  return api.post<AssistantAnswer>("/assistant/ask", { question, language });
+  // In the body rather than the query string, so this one does not come from
+  // the client's blanket parameter: the server reads it off the request
+  // object and validates it there with the question.
+  const { municipality } = usePreferenceStore();
+  return api.post<AssistantAnswer>("/assistant/ask", { question, language, municipality });
 }

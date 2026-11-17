@@ -1,4 +1,4 @@
-# Blainville Waste Sorting Platform: technical overview
+# Tri Rive-Nord: technical overview
 
 [← Back to the project overview](README.md)
 

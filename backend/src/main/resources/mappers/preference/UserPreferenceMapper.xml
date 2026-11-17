@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bienvenueblainville.preference.UserPreferenceMapper">
-    <select id="findByUserId" resultType="com.bienvenueblainville.preference.UserPreference">
-        select user_id, sector, language_code, reminder_enabled
+<mapper namespace="com.tririvenord.preference.UserPreferenceMapper">
+    <select id="findByUserId" resultType="com.tririvenord.preference.UserPreference">
+        select user_id, municipality_id as municipalityId, sector, language_code, reminder_enabled
         from user_preference
         where user_id = #{userId}
     </select>
 
     <insert id="insertDefault">
-        insert into user_preference (user_id, sector, language_code, reminder_enabled)
-        values (#{userId}, 'north', 'fr', true)
+        insert into user_preference (user_id, municipality_id, sector, language_code, reminder_enabled)
+        values (#{userId}, #{municipalityId}, #{sector}, 'fr', true)
     </insert>
 
     <update id="update">
         update user_preference
-        set sector = #{sector},
+        set municipality_id = #{municipalityId},
+            sector = #{sector},
             language_code = #{languageCode},
             reminder_enabled = #{reminderEnabled}
         where user_id = #{userId}

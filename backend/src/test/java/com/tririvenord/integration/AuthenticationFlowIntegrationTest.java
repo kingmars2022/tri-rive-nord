@@ -1,0 +1,265 @@
+package com.tririvenord.integration;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+
+import java.util.Map;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+/**
+ * Boots the full Spring context (real SecurityConfig, real MyBatis mappers,
+ * a real MySQL database) and drives it through MockMvc. This is what
+ * actually caught the SecurityConfig startup crash, the MyBatis generated-key
+ * bugs, and the 401/403 semantics bug from the manual verification session —
+ * none of which the mocked unit tests (e.g. AuthServiceTest) could catch,
+ * since those never construct a real Spring context or talk to a real
+ * database or security filter chain.
+ *
+ * Requires a MySQL instance reachable via the same DB_URL/DB_USERNAME/
+ * DB_PASSWORD environment variables the application itself reads — see
+ * README "Running Locally". Run with: mvn test -Pintegration-test
+ */
+@Tag("integration")
+@SpringBootTest
+@AutoConfigureMockMvc
+class AuthenticationFlowIntegrationTest {
+    private static final String CITY = "blainville";
+
+    private static final String ADMIN_EMAIL = IntegrationEnvironment.ADMIN_EMAIL;
+    private static final String ADMIN_PASSWORD = IntegrationEnvironment.ADMIN_PASSWORD;
+
+    @DynamicPropertySource
+    static void infrastructureProperties(DynamicPropertyRegistry registry) {
+        IntegrationEnvironment.register(registry);
+    }
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private String registerAndGetToken() throws Exception {
+        String email = "resident-" + UUID.randomUUID() + "@example.com";
+        MvcResult result = mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "email", email,
+                                "password", "ResidentPass123"
+                        ))))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.role").value("USER"))
+                .andReturn();
+
+        return objectMapper.readTree(result.getResponse().getContentAsString()).get("token").asText();
+    }
+
+    private String loginAdminAndGetToken() throws Exception {
+        MvcResult result = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "email", ADMIN_EMAIL,
+                                "password", ADMIN_PASSWORD
+                        ))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.role").value("ADMIN"))
+                .andReturn();
+
+        return objectMapper.readTree(result.getResponse().getContentAsString()).get("token").asText();
+    }
+
+    @Test
+    void registerCreatesAUserAccountThatCanImmediatelyAuthenticate() throws Exception {
+        String token = registerAndGetToken();
+
+        /*
+            The sector is asserted by property rather than by name.
+
+            It used to pin the literal "north", which was the constant the
+            insert wrote. That coupled the test to a value nothing guaranteed:
+            when the default became "the city's first sector" it broke, and
+            when that was corrected to skip the city-wide wildcard it broke
+            again -- twice, for a default that was allowed to be either half
+            of town.
+
+            What actually has to hold is narrower and does not move: the new
+            account gets a sector this city really has, and specifically not
+            'all'. That code means a collection covering the whole territory,
+            and a resident sitting on it matches only those, never the
+            garbage or recycling for the half they live in. Pinning the name
+            never tested that; this does.
+        */
+        String sector = objectMapper.readTree(
+                        mockMvc.perform(get("/api/preferences").header("Authorization", "Bearer " + token))
+                                .andExpect(status().isOk())
+                                .andReturn().getResponse().getContentAsString())
+                .get("sector").asText();
+
+        assertThat(sector).isNotEqualTo("all");
+        assertThat(mockMvc.perform(get("/api/municipalities/" + CITY))
+                        .andReturn().getResponse().getContentAsString())
+                .contains("\"code\":\"" + sector + "\"");
+    }
+
+    @Test
+    void thePreferenceApiCarriesOnlySettingsThatDoSomething() throws Exception {
+        String token = registerAndGetToken();
+
+        // reminder_time used to ride along here: stored, defaulted to 20:00,
+        // round-tripped on every save, and read by nothing. A settings API
+        // that accepts a reminder time is a promise to act on it, so V13
+        // dropped it rather than leaving the promise in the payload.
+        mockMvc.perform(get("/api/preferences").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.reminderEnabled").value(true))
+                .andExpect(jsonPath("$.reminderTime").doesNotExist());
+
+        // And the toggle that does do something still round-trips: it decides
+        // who gets a row in the notice inbox.
+        mockMvc.perform(put("/api/preferences")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(Map.of(
+                                "municipality", CITY,
+                                "sector", "south",
+                                "languageCode", "zh",
+                                "reminderEnabled", false))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.reminderEnabled").value(false))
+                .andExpect(jsonPath("$.sector").value("south"));
+
+        mockMvc.perform(get("/api/preferences").header("Authorization", "Bearer " + token))
+                .andExpect(jsonPath("$.reminderEnabled").value(false))
+                .andExpect(jsonPath("$.languageCode").value("zh"));
+    }
+
+    @Test
+    void duplicateRegistrationIsRejectedWithConflict() throws Exception {
+        String email = "dup-" + UUID.randomUUID() + "@example.com";
+        Map<String, String> body = Map.of("email", email, "password", "ResidentPass123");
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body)))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void unauthenticatedRequestToProtectedRouteIsRejectedWithUnauthorized() throws Exception {
+        mockMvc.perform(get("/api/preferences"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void residentCannotAccessAdminRoutesButAdminCan() throws Exception {
+        String residentToken = registerAndGetToken();
+        String adminToken = loginAdminAndGetToken();
+
+        mockMvc.perform(get("/api/admin/notices").header("Authorization", "Bearer " + residentToken))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(get("/api/admin/notices").header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void adminCanCreateAndDeleteASpecialNoticeEndToEnd() throws Exception {
+        String adminToken = loginAdminAndGetToken();
+
+        Map<String, Object> notice = Map.of(
+                "startsOn", "2026-09-07",
+                "endsOn", "2026-09-08",
+                "titleFr", "Avis integration",
+                "titleEn", "Integration notice",
+                "titleZh", "集成测试通知",
+                "bodyFr", "Corps",
+                "bodyEn", "Body",
+                "bodyZh", "内容",
+                "active", true
+        );
+
+        MvcResult created = mockMvc.perform(post("/api/admin/notices")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(notice)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        long id = objectMapper.readTree(created.getResponse().getContentAsString()).get("id").asLong();
+        assertThat(id).isPositive();
+
+        mockMvc.perform(delete("/api/admin/notices/" + id).header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void noticeWithEndsOnBeforeStartsOnIsRejected() throws Exception {
+        String adminToken = loginAdminAndGetToken();
+
+        Map<String, Object> notice = Map.of(
+                "startsOn", "2026-12-31",
+                "endsOn", "2026-01-01",
+                "titleFr", "x", "titleEn", "x", "titleZh", "x",
+                "bodyFr", "x", "bodyEn", "x", "bodyZh", "x",
+                "active", true
+        );
+
+        mockMvc.perform(post("/api/admin/notices")
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(notice)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void adminCanCreateUpdateAndDeleteASortingItemWithTranslations() throws Exception {
+        String adminToken = loginAdminAndGetToken();
+
+        Map<String, Object> translation = Map.of("name", "n", "instruction", "i");
+        Map<String, Object> item = Map.of(
+                // Shared across cities, so the same logical entry can be
+                // compared between the four guides.
+                "itemKey", "a-test-item",
+                "destinationType", "organic",
+                "binColor", "brown",
+                "fr", translation,
+                "en", translation,
+                "zh", translation
+        );
+
+        MvcResult created = mockMvc.perform(post("/api/admin/sorting-items")
+                        .param("municipality", CITY)
+                        .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(item)))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        long id = objectMapper.readTree(created.getResponse().getContentAsString()).get("id").asLong();
+
+        mockMvc.perform(delete("/api/admin/sorting-items/" + id).header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isNoContent());
+    }
+}

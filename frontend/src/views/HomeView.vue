@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useI18n } from "../useI18n";
 import { usePreferenceStore } from "../stores/preferences";
+import { useMunicipalityStore } from "../stores/municipality";
 import { api } from "../api/client";
 import { useAuthStore } from "../stores/auth";
 import {
@@ -28,6 +29,7 @@ type CollectionEvent = {
 
 const { t, language } = useI18n();
 const preferences = usePreferenceStore();
+const municipalities = useMunicipalityStore();
 
 const auth = useAuthStore();
 
@@ -91,6 +93,16 @@ const tomorrowKey = toDateKey(new Date(Date.now() + 24 * 60 * 60 * 1000));
 async function loadCollections() {
   loading.value = true;
   error.value = "";
+  events.value = [];
+
+  // A city whose calendar has not been read has nothing to ask for, and
+  // asking anyway produced the server's own 404 text on screen -- in English,
+  // naming a sector, for what is not an error at all. The panel below says
+  // what is actually true.
+  if (municipalities.loaded && !municipalities.current?.calendarVerified) {
+    loading.value = false;
+    return;
+  }
 
   try {
     events.value = await api.get<CollectionEvent[]>(
@@ -112,6 +124,26 @@ onMounted(() => {
 // notices.
 watch(() => auth.token, loadNotifications);
 watch(() => preferences.sector, loadCollections);
+// Switching city changes every date and every bin below, so the page reloads
+// rather than leaving the previous city's schedule on screen under a new name.
+watch(() => preferences.municipality, loadCollections);
+
+const city = computed(() => municipalities.current);
+
+/**
+ * True when this city is offered but its calendar has not been read from its
+ * own published document yet. Kept separate from "no collection this week",
+ * because a resident cannot tell those apart from an empty page and the two
+ * mean opposite things.
+ */
+const calendarMissing = computed(() => city.value !== null && !city.value.calendarVerified);
+
+/** The chosen sector's own name, which arrives with the city. */
+const sectorName = computed(() => {
+  const sector = city.value?.sectors.find((s) => s.code === preferences.sector);
+  if (!sector) return preferences.sector;
+  return language.value === "en" ? sector.nameEn : language.value === "zh" ? sector.nameZh : sector.nameFr;
+});
 
 const nextEvent = computed(() => events.value[0] ?? null);
 const upcomingEvents = computed(() => events.value.slice(1, 5));
@@ -134,6 +166,18 @@ function noteFor(event: CollectionEvent) {
 function formatDate(dateKey: string) {
   const date = new Date(`${dateKey}T00:00:00`);
   return date.toLocaleDateString(language.value, { weekday: "long", month: "long", day: "numeric" });
+}
+
+/**
+ * The short form the schedule column uses.
+ *
+ * <p>The long one wrapped to two lines in every row, which doubled the height
+ * of the list and broke the thing a timetable is for: dates lining up down
+ * the page so the eye can run past them.
+ */
+function formatDateShort(dateKey: string) {
+  const date = new Date(`${dateKey}T00:00:00`);
+  return date.toLocaleDateString(language.value, { weekday: "short", month: "short", day: "numeric" });
 }
 </script>
 
@@ -158,10 +202,23 @@ function formatDate(dateKey: string) {
     </section>
 
     <p v-if="loading" class="admin-note">{{ t("home.loading") }}</p>
+
+    <!--
+      Ahead of the error branch on purpose. A city with no calendar loaded can
+      still have produced a failed request on the way here, and reporting that
+      instead of this panel shows a stack of server text where the honest
+      answer is "we have not read this city's calendar yet".
+    -->
+    <section v-else-if="calendarMissing" class="not-loaded">
+      <p class="eyebrow">{{ city?.name }}</p>
+      <h1>{{ t("city.notLoaded") }}</h1>
+      <p>{{ t("city.notLoadedBody") }}</p>
+    </section>
+
     <p v-else-if="error" class="auth-error">{{ error }}</p>
 
     <template v-else-if="nextEvent">
-      <div class="notice">
+      <div class="notice" :class="nextEvent.binColor">
         <p class="eyebrow">
           {{ isToday ? t("home.today") : isTomorrow ? t("home.tomorrow") : formatDate(nextEvent.collectionDate) }}
         </p>
@@ -180,15 +237,15 @@ function formatDate(dateKey: string) {
             class="bin-card"
             :class="event.binColor"
           >
-            <span>{{ formatDate(event.collectionDate) }}</span>
+            <span>{{ formatDateShort(event.collectionDate) }}</span>
             <strong>{{ binLabel(event.binColor) }} - {{ typeLabel(event.collectionType) }}</strong>
           </article>
         </div>
       </section>
     </template>
 
-    <div v-else class="notice">
-      <p class="eyebrow">{{ t("home.sectorNote") }}: {{ t(`settings.${preferences.sector}` as MessageKey) }}</p>
+    <div v-else class="notice none">
+      <p class="eyebrow">{{ t("home.sectorNote") }}: {{ sectorName }}</p>
       <h1>{{ t("home.noCollection") }}</h1>
     </div>
   </section>

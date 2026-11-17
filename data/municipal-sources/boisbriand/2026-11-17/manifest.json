@@ -1,0 +1,28 @@
+{
+  "slug": "boisbriand",
+  "name": "Boisbriand",
+  "fetched_at": "2026-11-17T14:52:09+00:00",
+  "start_urls": [
+    "https://www.ville.boisbriand.qc.ca/",
+    "https://www.boisbriand.qc.ca/",
+    "https://boisbriand.qc.ca/"
+  ],
+  "pages_fetched": 0,
+  "page_cap_reached": false,
+  "files": [],
+  "errors": [
+    {
+      "url": "https://www.ville.boisbriand.qc.ca/",
+      "error": "HTTPError: HTTP Error 403: Forbidden"
+    },
+    {
+      "url": "https://www.boisbriand.qc.ca/",
+      "error": "URLError: <urlopen error [Errno -2] Name or service not known>"
+    },
+    {
+      "url": "https://boisbriand.qc.ca/",
+      "error": "URLError: <urlopen error [Errno -5] No address associated with hostname>"
+    }
+  ],
+  "note": "Raw copies of the city's own pages and documents. Not parsed, not verified. See docs/loading-a-city.md before using."
+}

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { createPinia, setActivePinia } from "pinia";
 import { usePreferenceStore } from "./preferences";
 
-const STORAGE_KEY = "bienvenue-blainville.preferences";
+const STORAGE_KEY = "tri-rive-nord.preferences";
 
 /**
  * Language and sector decide what every page shows, and they are read from

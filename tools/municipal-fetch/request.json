@@ -1,0 +1,15 @@
+{
+  "max_pages": 60,
+  "max_depth": 3,
+  "cities": [
+    {
+      "slug": "rosemere",
+      "name": "Rosemere",
+      "start_urls": [
+        "https://www.ville.rosemere.qc.ca/",
+        "https://ville.rosemere.qc.ca/",
+        "https://www.rosemere.ca/"
+      ]
+    }
+  ]
+}
