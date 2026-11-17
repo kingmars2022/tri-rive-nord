@@ -13,6 +13,10 @@ name: Fetch municipal source documents
 
 on:
   push:
+    # Not main: merging a branch that edited the request would otherwise
+    # re-run that fetch and commit its output straight onto main.
+    branches-ignore:
+      - main
     paths:
       - tools/municipal-fetch/request.json
   workflow_dispatch:
