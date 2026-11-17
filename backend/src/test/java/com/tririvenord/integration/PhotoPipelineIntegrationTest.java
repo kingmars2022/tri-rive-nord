@@ -57,6 +57,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 class PhotoPipelineIntegrationTest {
+    private static final String CITY = "blainville";
+
 
     @DynamicPropertySource
     static void infrastructureProperties(DynamicPropertyRegistry registry) {
@@ -171,7 +173,7 @@ class PhotoPipelineIntegrationTest {
             // come back "still being prepared": it waited for the Lambda
             // rather than giving the resident an answer about a photo that was
             // a second from ready.
-            mockMvc.perform(post("/api/photos/" + photoId + "/identify").param("language", "fr"))
+            mockMvc.perform(post("/api/photos/" + photoId + "/identify").param("language", "fr").param("municipality", CITY))
                     .andExpect(header().doesNotExist("Retry-After"));
         } finally {
             lambda.shutdownNow();
@@ -193,7 +195,7 @@ class PhotoPipelineIntegrationTest {
         // 503 says try again, which is what the browser then does.
         String photoId = uploadWithoutProcessing();
 
-        mockMvc.perform(post("/api/photos/" + photoId + "/identify").param("language", "fr"))
+        mockMvc.perform(post("/api/photos/" + photoId + "/identify").param("language", "fr").param("municipality", CITY))
                 .andExpect(status().isServiceUnavailable())
                 // Retry-After is what separates this from the other 503 this
                 // endpoint can return — a missing API key, which retrying
@@ -203,7 +205,7 @@ class PhotoPipelineIntegrationTest {
 
     @Test
     void aPhotoIdThatWasNeverUploadedIsStillNotFound() throws Exception {
-        mockMvc.perform(post("/api/photos/" + UUID.randomUUID() + "/identify").param("language", "fr"))
+        mockMvc.perform(post("/api/photos/" + UUID.randomUUID() + "/identify").param("language", "fr").param("municipality", CITY))
                 .andExpect(status().isNotFound());
     }
 

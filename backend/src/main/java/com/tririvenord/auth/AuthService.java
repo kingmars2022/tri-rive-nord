@@ -4,7 +4,7 @@ import com.tririvenord.auth.dto.AuthResponse;
 import com.tririvenord.auth.dto.LoginRequest;
 import com.tririvenord.auth.dto.RegisterRequest;
 import com.tririvenord.common.Role;
-import com.tririvenord.preference.UserPreferenceMapper;
+import com.tririvenord.preference.UserPreferenceService;
 import com.tririvenord.security.JwtService;
 import com.tririvenord.user.AppUser;
 import com.tririvenord.user.AppUserMapper;
@@ -20,20 +20,20 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class AuthService {
     private final AppUserMapper appUserMapper;
-    private final UserPreferenceMapper userPreferenceMapper;
+    private final UserPreferenceService userPreferences;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
     public AuthService(
             AppUserMapper appUserMapper,
-            UserPreferenceMapper userPreferenceMapper,
+            UserPreferenceService userPreferences,
             PasswordEncoder passwordEncoder,
             AuthenticationManager authenticationManager,
             JwtService jwtService
     ) {
         this.appUserMapper = appUserMapper;
-        this.userPreferenceMapper = userPreferenceMapper;
+        this.userPreferences = userPreferences;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
@@ -55,7 +55,9 @@ public class AuthService {
         AppUser created = appUserMapper.findByEmail(normalizedEmail)
                 .orElseThrow(() -> new IllegalStateException("User was not persisted"));
 
-        userPreferenceMapper.insertDefault(created.id());
+        // Through the service, so a new account gets the default city and a
+        // sector that city has, rather than the constants this used to write.
+        userPreferences.insertDefaultFor(created.id());
 
         String token = jwtService.generateToken(created.id(), created.email(), created.role());
         return new AuthResponse(token, created.id(), created.email(), created.role());

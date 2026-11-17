@@ -31,6 +31,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 class CorsIntegrationTest {
+    private static final String CITY = "blainville";
+
 
     private static final String ALLOWED = "https://blainville.example";
     private static final String ALSO_ALLOWED = "http://localhost:5173";
@@ -81,7 +83,8 @@ class CorsIntegrationTest {
         // this the browser hides it from the script, `retryAfter` comes back
         // null, and the retry silently never happens - in a deployment, never
         // in development, where Vite proxies the API onto the same origin.
-        mockMvc.perform(get("/api/sorting-items").header("Origin", ALLOWED))
+        mockMvc.perform(get("/api/sorting-items")
+                        .param("municipality", CITY).header("Origin", ALLOWED))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Access-Control-Expose-Headers", "Retry-After"));
     }

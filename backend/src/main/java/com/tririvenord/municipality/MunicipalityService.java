@@ -27,6 +27,31 @@ public class MunicipalityService {
         return mapper.findAll();
     }
 
+    /**
+     * The city a new account starts on, before the resident has chosen.
+     *
+     * <p>The first by name rather than a hard-coded slug, so this stays
+     * correct if Blainville is ever not the one loaded. It is a starting
+     * point, not an answer: the resident changes it in the switcher, and
+     * every read is scoped to whatever they chose.
+     */
+    public Municipality defaultMunicipality() {
+        List<Municipality> all = mapper.findAll();
+        if (all.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "No municipality is configured");
+        }
+        return all.get(0);
+    }
+
+    /** That city's first sector, or the city-wide one when it has none on file. */
+    public Sector defaultSectorOf(Municipality municipality) {
+        return mapper.findSectors(municipality.id()).stream()
+                .findFirst()
+                .map(s -> Sector.of(s.code()))
+                .orElse(Sector.ALL);
+    }
+
     public Municipality requireBySlug(String slug) {
         if (slug == null || slug.isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A municipality is required");

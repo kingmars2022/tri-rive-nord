@@ -4,7 +4,7 @@ import com.tririvenord.auth.dto.AuthResponse;
 import com.tririvenord.auth.dto.LoginRequest;
 import com.tririvenord.auth.dto.RegisterRequest;
 import com.tririvenord.common.Role;
-import com.tririvenord.preference.UserPreferenceMapper;
+import com.tririvenord.preference.UserPreferenceService;
 import com.tririvenord.security.JwtProperties;
 import com.tririvenord.security.JwtService;
 import com.tririvenord.user.AppUser;
@@ -32,7 +32,7 @@ class AuthServiceTest {
     @Mock
     private AppUserMapper appUserMapper;
     @Mock
-    private UserPreferenceMapper userPreferenceMapper;
+    private UserPreferenceService userPreferences;
     @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
@@ -45,11 +45,11 @@ class AuthServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         jwtService = new JwtService(new JwtProperties(
-                "bienvenue-a-blainville-test",
+                "tri-rive-nord-test",
                 "unit-test-secret-key-must-be-long-enough-for-hmac-sha",
                 60
         ));
-        authService = new AuthService(appUserMapper, userPreferenceMapper, passwordEncoder, authenticationManager, jwtService);
+        authService = new AuthService(appUserMapper, userPreferences, passwordEncoder, authenticationManager, jwtService);
     }
 
     @Test
@@ -70,7 +70,10 @@ class AuthServiceTest {
         assertThat(response.userId()).isEqualTo(7L);
         assertThat(response.role()).isEqualTo(Role.USER);
         verify(appUserMapper).insert("new@example.com", "hashed", Role.USER);
-        verify(userPreferenceMapper).insertDefault(7L);
+        // Through the service, which resolves the default city and a sector
+        // that city has; the mapper's old two-constant insert is what broke
+        // every registration once municipality_id became NOT NULL.
+        verify(userPreferences).insertDefaultFor(7L);
     }
 
     @Test

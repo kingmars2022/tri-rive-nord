@@ -31,3 +31,6 @@ venv/
 # The built frontend, copied into the backend by the Docker build so one image
 # serves both. Generated, never edited, and 150 KB of minified noise in a diff.
 backend/src/main/resources/static/
+
+# Redis writes this where it is started from; it is not part of the project.
+dump.rdb

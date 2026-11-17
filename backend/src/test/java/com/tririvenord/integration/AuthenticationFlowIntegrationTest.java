@@ -40,6 +40,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 class AuthenticationFlowIntegrationTest {
+    private static final String CITY = "blainville";
+
     private static final String ADMIN_EMAIL = IntegrationEnvironment.ADMIN_EMAIL;
     private static final String ADMIN_PASSWORD = IntegrationEnvironment.ADMIN_PASSWORD;
 
@@ -111,6 +113,7 @@ class AuthenticationFlowIntegrationTest {
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
+                                "municipality", CITY,
                                 "sector", "south",
                                 "languageCode", "zh",
                                 "reminderEnabled", false))))
@@ -220,6 +223,7 @@ class AuthenticationFlowIntegrationTest {
         );
 
         MvcResult created = mockMvc.perform(post("/api/admin/sorting-items")
+                        .param("municipality", CITY)
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(item)))

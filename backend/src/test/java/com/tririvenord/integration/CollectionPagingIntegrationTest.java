@@ -42,6 +42,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 class CollectionPagingIntegrationTest {
+    private static final String CITY = "blainville";
+
 
     @DynamicPropertySource
     static void infrastructureProperties(DynamicPropertyRegistry registry) {
@@ -66,6 +68,7 @@ class CollectionPagingIntegrationTest {
         List<Integer> seen = new ArrayList<>();
         for (int page = 0; page * size < total; page++) {
             JsonNode body = objectMapper.readTree(mockMvc.perform(get("/api/admin/collections")
+                        .param("municipality", CITY)
                             .param("page", String.valueOf(page))
                             .param("size", String.valueOf(size))
                             .header("Authorization", "Bearer " + token))
@@ -90,6 +93,7 @@ class CollectionPagingIntegrationTest {
         long total = jdbc.queryForObject("select count(*) from collection_event", Long.class);
 
         mockMvc.perform(get("/api/admin/collections")
+                        .param("municipality", CITY)
                         .param("size", "3")
                         .header("Authorization", "Bearer " + adminToken()))
                 .andExpect(status().isOk())
@@ -103,6 +107,7 @@ class CollectionPagingIntegrationTest {
     @Test
     void aPageBeyondTheEndIsEmptyRatherThanAnError() throws Exception {
         mockMvc.perform(get("/api/admin/collections")
+                        .param("municipality", CITY)
                         .param("page", "9999")
                         .header("Authorization", "Bearer " + adminToken()))
                 .andExpect(status().isOk())
@@ -114,11 +119,13 @@ class CollectionPagingIntegrationTest {
         // The point of paging is that the query is bounded. A size the caller
         // picks freely is not bounded, however politely it is asked for.
         mockMvc.perform(get("/api/admin/collections")
+                        .param("municipality", CITY)
                         .param("size", "100000")
                         .header("Authorization", "Bearer " + adminToken()))
                 .andExpect(status().isBadRequest());
 
         mockMvc.perform(get("/api/admin/collections")
+                        .param("municipality", CITY)
                         .param("page", "-1")
                         .header("Authorization", "Bearer " + adminToken()))
                 .andExpect(status().isBadRequest());
@@ -126,7 +133,8 @@ class CollectionPagingIntegrationTest {
 
     @Test
     void stillRefusesAResidentEntirely() throws Exception {
-        mockMvc.perform(get("/api/admin/collections").param("size", "5"))
+        mockMvc.perform(get("/api/admin/collections")
+                        .param("municipality", CITY).param("size", "5"))
                 .andExpect(status().isUnauthorized());
     }
 

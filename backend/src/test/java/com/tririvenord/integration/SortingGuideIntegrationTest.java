@@ -30,6 +30,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 class SortingGuideIntegrationTest {
+    private static final String CITY = "blainville";
+
 
     @DynamicPropertySource
     static void infrastructureProperties(DynamicPropertyRegistry registry) {
@@ -122,7 +124,8 @@ class SortingGuideIntegrationTest {
     }
 
     private JsonNode fetchGuide() throws Exception {
-        return objectMapper.readTree(mockMvc.perform(get("/api/sorting-items"))
+        return objectMapper.readTree(mockMvc.perform(get("/api/sorting-items")
+                        .param("municipality", CITY))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8));
     }

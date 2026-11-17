@@ -41,6 +41,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 class AssistantIntegrationTest {
+    private static final String CITY = "blainville";
+
     private static final int RATE_LIMIT = 5;
 
     @DynamicPropertySource
@@ -158,6 +160,7 @@ class AssistantIntegrationTest {
         mockMvc.perform(post("/api/assistant/ask")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
+                                "municipality", CITY,
                                 "question", "x".repeat(301),
                                 "language", "en"))))
                 .andExpect(status().isBadRequest());
@@ -227,6 +230,7 @@ class AssistantIntegrationTest {
         mockMvc.perform(post("/api/assistant/ask")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
+                                "municipality", CITY,
                                 "question", "Where does soiled cardboard go?",
                                 "language", "en"))))
                 .andExpect(status().isTooManyRequests())
@@ -238,6 +242,7 @@ class AssistantIntegrationTest {
         MvcResult result = mockMvc.perform(post("/api/assistant/ask")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
+                                "municipality", CITY,
                                 "question", question,
                                 "language", language))))
                 .andExpect(status().isOk())

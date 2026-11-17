@@ -51,6 +51,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 class AdminAgentIntegrationTest {
+    private static final String CITY = "blainville";
+
     /** Any one city; these tests are about behaviour, not about which. */
     private static final long MUNI = 1L;
 
@@ -88,6 +90,7 @@ class AdminAgentIntegrationTest {
         // administrator who has not configured one must get an explanation,
         // not a stack trace, and must be told the forms still work.
         mockMvc.perform(post("/api/admin/agent/plan")
+                        .param("municipality", CITY)
                         .header("Authorization", "Bearer " + adminToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
@@ -102,6 +105,7 @@ class AdminAgentIntegrationTest {
     @Test
     void aResidentCannotReachTheAgentAtAll() throws Exception {
         mockMvc.perform(post("/api/admin/agent/plan")
+                        .param("municipality", CITY)
                         .header("Authorization", "Bearer " + residentToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of("instruction", "delete everything"))))

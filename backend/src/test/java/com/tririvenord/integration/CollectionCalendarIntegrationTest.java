@@ -186,9 +186,9 @@ class CollectionCalendarIntegrationTest {
         LocalDate closed = organics.occurrencesAfter(today, today.plusDays(30)).getFirst();
 
         jdbc.update("insert into collection_holiday "
-                        + "(holiday_date, name_fr, name_en, name_zh, shift_days, sector, source_url) "
-                        + "values (?, ?, ?, ?, 1, 'all', 'test://holiday-shift')",
-                closed, "Jour test", "Test holiday", "测试假日");
+                        + "(municipality_id, holiday_date, name_fr, name_en, name_zh, shift_days, sector, source_url) "
+                        + "values (?, ?, ?, ?, ?, 1, 'all', 'test://holiday-shift')",
+                MUNI, closed, "Jour test", "Test holiday", "测试假日");
         return closed;
     }
 

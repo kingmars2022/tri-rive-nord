@@ -6,6 +6,7 @@ import com.tririvenord.common.Sector;
 
 public record UserPreference(
         Long userId,
+        Long municipalityId,
         Sector sector,
         LanguageCode languageCode,
         boolean reminderEnabled

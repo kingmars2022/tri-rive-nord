@@ -45,6 +45,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 class CollectionHolidayAdminIntegrationTest {
+    /** Blainville, the one city with data loaded. */
+    private static final long MUNI = 1L;
+    private static final String CITY = "blainville";
+
 
     @DynamicPropertySource
     static void infrastructureProperties(DynamicPropertyRegistry registry) {
@@ -118,6 +122,7 @@ class CollectionHolidayAdminIntegrationTest {
         assertThat(collectionExistsOn(closed)).as("precondition: the collection is there to move").isTrue();
 
         mockMvc.perform(post("/api/admin/collection-holidays")
+                        .param("municipality", CITY)
                         .header("Authorization", "Bearer " + adminToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request(closed, 1))))
@@ -133,6 +138,7 @@ class CollectionHolidayAdminIntegrationTest {
         LocalDate closed = anAlreadyGeneratedOrganicsDate();
 
         String created = mockMvc.perform(post("/api/admin/collection-holidays")
+                        .param("municipality", CITY)
                         .header("Authorization", "Bearer " + adminToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request(closed, 1))))
@@ -153,6 +159,7 @@ class CollectionHolidayAdminIntegrationTest {
         LocalDate closed = anAlreadyGeneratedOrganicsDate();
 
         String created = mockMvc.perform(post("/api/admin/collection-holidays")
+                        .param("municipality", CITY)
                         .header("Authorization", "Bearer " + adminToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request(closed, 1))))
@@ -176,11 +183,12 @@ class CollectionHolidayAdminIntegrationTest {
         LocalDate closed = anAlreadyGeneratedOrganicsDate();
         LocalDate manualDay = closed.plusDays(3);
         jdbc.update("insert into collection_event "
-                        + "(collection_date, sector, collection_type, bin_color, note_en, source_url, auto_generated) "
-                        + "values (?, 'all', 'special', 'none', 'Hand-entered', 'test://admin-holiday', false)",
-                manualDay);
+                        + "(municipality_id, collection_date, sector, collection_type, bin_color, note_en, source_url, auto_generated) "
+                        + "values (?, ?, 'all', 'special', 'none', 'Hand-entered', 'test://admin-holiday', false)",
+                MUNI, manualDay);
 
         mockMvc.perform(post("/api/admin/collection-holidays")
+                        .param("municipality", CITY)
                         .header("Authorization", "Bearer " + adminToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request(closed, 1))))
@@ -195,9 +203,11 @@ class CollectionHolidayAdminIntegrationTest {
 
     @Test
     void theEndpointIsAdminOnly() throws Exception {
-        mockMvc.perform(get("/api/admin/collection-holidays"))
+        mockMvc.perform(get("/api/admin/collection-holidays")
+                        .param("municipality", CITY))
                 .andExpect(status().isUnauthorized());
         mockMvc.perform(post("/api/admin/collection-holidays")
+                        .param("municipality", CITY)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request(LocalDate.parse("2030-01-01"), 1))))
                 .andExpect(status().isUnauthorized());
@@ -206,6 +216,7 @@ class CollectionHolidayAdminIntegrationTest {
     @Test
     void aShiftOfZeroIsRefusedBeforeItCanReachTheCascadeLoop() throws Exception {
         mockMvc.perform(post("/api/admin/collection-holidays")
+                        .param("municipality", CITY)
                         .header("Authorization", "Bearer " + adminToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request(LocalDate.parse("2030-01-01"), 0))))
@@ -218,6 +229,7 @@ class CollectionHolidayAdminIntegrationTest {
         missingChinese.put("nameZh", "  ");
 
         mockMvc.perform(post("/api/admin/collection-holidays")
+                        .param("municipality", CITY)
                         .header("Authorization", "Bearer " + adminToken())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(missingChinese)))
