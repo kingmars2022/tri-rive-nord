@@ -1,13 +1,14 @@
 {
-  "max_pages": 40,
+  "max_pages": 60,
   "max_depth": 3,
   "cities": [
     {
-      "slug": "sainte-therese",
-      "name": "Sainte-Therese",
+      "slug": "boisbriand",
+      "name": "Boisbriand",
       "start_urls": [
-        "https://www.sainte-therese.ca/",
-        "https://ville.sainte-therese.qc.ca/"
+        "https://www.ville.boisbriand.qc.ca/",
+        "https://www.boisbriand.qc.ca/",
+        "https://boisbriand.qc.ca/"
       ]
     }
   ]
