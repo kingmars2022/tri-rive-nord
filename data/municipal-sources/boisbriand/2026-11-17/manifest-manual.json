@@ -1,0 +1,26 @@
+{
+  "slug": "boisbriand",
+  "name": "Boisbriand",
+  "note": "Saved by hand in an ordinary browser on 2026-11-17 and uploaded to the session, because the site serves automated clients an Azure WAF JS challenge (see manifest.json). Raw copies, not parsed, not verified. See docs/loading-a-city.md before using.",
+  "files": [
+    {
+      "file": "manual_collectes-des-matieres-residuelles.html",
+      "url": "https://www.ville.boisbriand.qc.ca/services/citoyens/collectes-des-matieres-residuelles",
+      "content_type": "text/html",
+      "bytes": 309998,
+      "sha256": "f0ec463ff312861bae6c9ae54a26b6bb49667cb43d7ad17c9fbd1be2455e6430",
+      "obtained": "browser 'save page as'; the 'saved from url' line in the file confirms the address"
+    },
+    {
+      "file": "manual_CalendrierCollectes_2026_Cover.jpg",
+      "url": "https://www.ville.boisbriand.qc.ca/services/citoyens/collectes-des-matieres-residuelles",
+      "content_type": "image/jpeg",
+      "bytes": 204423,
+      "sha256": "72c64a1fa3d5bc3d0f0d76926c49c59f2bbb17ddc1c1446719ee043a97b4a968",
+      "obtained": "image embedded in that page: page 1 of the 2026 calendar only"
+    }
+  ],
+  "still_needed": [
+    "https://www.ville.boisbriand.qc.ca/storage/app/media/services/citoyens/collectes-des-matieres-residuelles/CalendrierCollectes_2026.pdf"
+  ]
+}
