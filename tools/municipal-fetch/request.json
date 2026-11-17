@@ -3,12 +3,12 @@
   "max_depth": 3,
   "cities": [
     {
-      "slug": "boisbriand",
-      "name": "Boisbriand",
+      "slug": "rosemere",
+      "name": "Rosemere",
       "start_urls": [
-        "https://www.ville.boisbriand.qc.ca/",
-        "https://www.boisbriand.qc.ca/",
-        "https://boisbriand.qc.ca/"
+        "https://www.ville.rosemere.qc.ca/",
+        "https://ville.rosemere.qc.ca/",
+        "https://www.rosemere.ca/"
       ]
     }
   ]
