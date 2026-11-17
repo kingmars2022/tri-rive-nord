@@ -53,6 +53,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/municipalities", "/api/municipalities/*").permitAll()
                         .requestMatchers("/api/collections/**").permitAll()
                         .requestMatchers("/api/notices/active").permitAll()
                         // The browser needs this before it can subscribe, and it is a

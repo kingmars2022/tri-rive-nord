@@ -65,9 +65,10 @@ public class AnswerCache {
         this.redis = redis;
     }
 
-    public Optional<AssistantAnswer> find(String question, LanguageCode language, String provider) {
+    public Optional<AssistantAnswer> find(
+            long municipalityId, String question, LanguageCode language, String provider) {
         try {
-            String cached = redis.opsForValue().get(key(question, language, provider));
+            String cached = redis.opsForValue().get(key(municipalityId, question, language, provider));
             return cached == null
                     ? Optional.empty()
                     : Optional.of(objectMapper.readValue(cached, AssistantAnswer.class));
@@ -79,10 +80,11 @@ public class AnswerCache {
         }
     }
 
-    public void store(String question, LanguageCode language, String provider, AssistantAnswer answer) {
+    public void store(long municipalityId, String question, LanguageCode language,
+                      String provider, AssistantAnswer answer) {
         try {
             redis.opsForValue().set(
-                    key(question, language, provider),
+                    key(municipalityId, question, language, provider),
                     objectMapper.writeValueAsString(answer),
                     TTL);
         } catch (Exception e) {
@@ -116,9 +118,9 @@ public class AnswerCache {
      * contain anything they typed, and would otherwise end up legible in
      * whatever tooling lists Redis keys.
      */
-    private String key(String question, LanguageCode language, String provider) {
+    private String key(long municipalityId, String question, LanguageCode language, String provider) {
         String normalized = QueryNormalizer.normalize(question, language).toLowerCase(java.util.Locale.ROOT);
-        String material = language.name() + "|" + provider + "|" + normalized;
+        String material = municipalityId + "|" + language.name() + "|" + provider + "|" + normalized;
 
         try {
             byte[] digest = MessageDigest.getInstance("SHA-256")

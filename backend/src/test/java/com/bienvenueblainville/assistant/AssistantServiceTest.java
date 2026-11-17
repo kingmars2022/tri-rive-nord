@@ -4,6 +4,8 @@ import com.bienvenueblainville.assistant.dto.AssistantAnswer;
 import com.bienvenueblainville.assistant.dto.AssistantRequest;
 import com.bienvenueblainville.collection.BinColor;
 import com.bienvenueblainville.common.LanguageCode;
+import com.bienvenueblainville.municipality.Municipality;
+import com.bienvenueblainville.municipality.MunicipalityService;
 import com.bienvenueblainville.insights.QueryEventPublisher;
 import com.bienvenueblainville.sorting.DestinationType;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +18,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -30,14 +33,23 @@ class AssistantServiceTest {
     private QueryEventPublisher queries;
     @Mock
     private AnswerCache cache;
+    @Mock
+    private MunicipalityService municipalities;
+
+    /** Blainville as the mapper would return it, including its real source host. */
+    private static final Municipality BLAINVILLE = new Municipality(
+            1L, "blainville", "Blainville", "QC",
+            "https://blainville.ca/services/environnement-et-voirie/collectes-et-matieres-residuelles",
+            true, true);
 
     private AssistantService service;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        when(cache.find(any(), any(), any())).thenReturn(Optional.empty());
-        service = new AssistantService(retriever, composer, queries, cache);
+        when(municipalities.requireBySlug("blainville")).thenReturn(BLAINVILLE);
+        when(cache.find(anyLong(), any(), any(), any())).thenReturn(Optional.empty());
+        service = new AssistantService(municipalities, retriever, composer, queries, cache);
     }
 
     @Test
@@ -47,10 +59,10 @@ class AssistantServiceTest {
         // hedged one, not a "probably the black bin", none. Asserting the
         // composer is never even reached is stronger than asserting on wording,
         // because it holds no matter which composer is configured.
-        when(retriever.retrieve(any(), any())).thenReturn(List.of());
+        when(retriever.retrieve(any(), any(), anyLong())).thenReturn(List.of());
 
         AssistantAnswer answer = service.ask(
-                new AssistantRequest("Comment réparer ma voiture ?", LanguageCode.fr));
+                new AssistantRequest("Comment réparer ma voiture ?", LanguageCode.fr, "blainville"));
 
         verify(composer, never()).compose(any(), any());
         verify(composer, never()).composeWithMetadata(any(), any());
@@ -62,7 +74,7 @@ class AssistantServiceTest {
         // Cached, because the same unlisted material gets asked about
         // repeatedly and every repeat otherwise re-runs a full-text search to
         // find nothing again.
-        verify(cache).store(any(), eq(LanguageCode.fr), any(), eq(answer));
+        verify(cache).store(anyLong(), any(), eq(LanguageCode.fr), any(), eq(answer));
 
         // The refusal is the row the city needs: a question the guide could
         // not answer used to vanish without trace.
@@ -72,11 +84,11 @@ class AssistantServiceTest {
 
     @Test
     void refusesInTheLanguageTheResidentAsked() {
-        when(retriever.retrieve(any(), any())).thenReturn(List.of());
+        when(retriever.retrieve(any(), any(), anyLong())).thenReturn(List.of());
 
-        assertThat(service.ask(new AssistantRequest("what is the capital of Mongolia", LanguageCode.en))
+        assertThat(service.ask(new AssistantRequest("what is the capital of Mongolia", LanguageCode.en, "blainville"))
                 .answer()).contains("can't find");
-        assertThat(service.ask(new AssistantRequest("今天天气怎么样？", LanguageCode.zh))
+        assertThat(service.ask(new AssistantRequest("今天天气怎么样？", LanguageCode.zh, "blainville"))
                 .answer()).contains("找不到");
     }
 
@@ -86,15 +98,15 @@ class AssistantServiceTest {
         // being recorded, and the gap report would then under-count precisely
         // the questions residents ask most.
         AssistantAnswer previous = new AssistantAnswer("Bac brun.", true, "template", List.of());
-        when(cache.find(any(), any(), any())).thenReturn(Optional.of(previous));
+        when(cache.find(anyLong(), any(), any(), any())).thenReturn(Optional.of(previous));
 
-        AssistantAnswer answer = service.ask(new AssistantRequest("boîte à pizza", LanguageCode.fr));
+        AssistantAnswer answer = service.ask(new AssistantRequest("boîte à pizza", LanguageCode.fr, "blainville"));
 
         assertThat(answer).isSameAs(previous);
         // Retrieval is skipped - that and the model call are the expensive
         // parts. Normalizing the question for the analytics row still happens,
         // because the gap report groups on it.
-        verify(retriever, never()).retrieve(any(), any());
+        verify(retriever, never()).retrieve(any(), any(), anyLong());
         verify(composer, never()).composeWithMetadata(any(), any());
         verify(queries).record(eq("text-cached"), eq(LanguageCode.fr), any(), any(),
                 eq(true), eq(0d), eq(List.of()));
@@ -102,7 +114,7 @@ class AssistantServiceTest {
 
     @Test
     void reportsEveryEntryTheAnswerWasAllowedToUse() {
-        when(retriever.retrieve(any(), any())).thenReturn(List.of(
+        when(retriever.retrieve(any(), any(), anyLong())).thenReturn(List.of(
                 new RetrievedItem(7L, LanguageCode.fr, "Papiers et cartons souilles",
                         "Dans le bac brun.", null, DestinationType.organic, BinColor.brown,
                         "https://blainville.ca/tri", 8.8954321)));
@@ -110,7 +122,7 @@ class AssistantServiceTest {
                 .thenReturn(new AnswerComposer.Composition("Bac brun.", "template"));
 
         AssistantAnswer answer = service.ask(
-                new AssistantRequest("boîte à pizza", LanguageCode.fr));
+                new AssistantRequest("boîte à pizza", LanguageCode.fr, "blainville"));
 
         assertThat(answer.grounded()).isTrue();
         assertThat(answer.provider()).isEqualTo("template");

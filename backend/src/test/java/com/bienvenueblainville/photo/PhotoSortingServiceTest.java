@@ -22,6 +22,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -36,6 +37,8 @@ import static org.mockito.Mockito.when;
  * thought it saw either way.
  */
 class PhotoSortingServiceTest {
+    private static final long MUNI = 1L;
+
     private static final String PHOTO_ID = "11111111-2222-3333-4444-555555555555";
 
     @Mock
@@ -67,14 +70,14 @@ class PhotoSortingServiceTest {
         when(storage.awaitProcessed(eq(PHOTO_ID), any())).thenReturn(Optional.of(new byte[]{1, 2, 3}));
         when(identifier.identify(any(), any())).thenReturn(Optional.of(new MaterialIdentification(
                 "boîte à pizza", List.of("carton souillé", "boite a pizza"), false)));
-        when(retriever.retrieve(any(), any())).thenReturn(List.of(item("Papiers et cartons souilles")));
+        when(retriever.retrieve(any(), any(), anyLong())).thenReturn(List.of(item("Papiers et cartons souilles")));
         when(composer.composeWithMetadata(any(), any()))
                 .thenReturn(new AnswerComposer.Composition("Bac brun.", "template"));
 
-        PhotoAnswer answer = service.identify(PHOTO_ID, LanguageCode.fr).orElseThrow();
+        PhotoAnswer answer = service.identify(PHOTO_ID, LanguageCode.fr, MUNI).orElseThrow();
 
         ArgumentCaptor<String> query = ArgumentCaptor.forClass(String.class);
-        verify(retriever).retrieve(query.capture(), any());
+        verify(retriever).retrieve(query.capture(), any(), anyLong());
         // Synonyms widen the search, because a resident's word for a thing and
         // the guide's word for it are often not the same word.
         assertThat(query.getValue()).contains("boîte à pizza").contains("carton souillé");
@@ -94,9 +97,9 @@ class PhotoSortingServiceTest {
         when(storage.awaitProcessed(eq(PHOTO_ID), any())).thenReturn(Optional.of(new byte[]{1}));
         when(identifier.identify(any(), any())).thenReturn(Optional.of(new MaterialIdentification(
                 "aquarium", List.of(), false)));
-        when(retriever.retrieve(any(), any())).thenReturn(List.of());
+        when(retriever.retrieve(any(), any(), anyLong())).thenReturn(List.of());
 
-        PhotoAnswer answer = service.identify(PHOTO_ID, LanguageCode.en).orElseThrow();
+        PhotoAnswer answer = service.identify(PHOTO_ID, LanguageCode.en, MUNI).orElseThrow();
 
         verify(composer, never()).composeWithMetadata(any(), any());
         assertThat(answer.grounded()).isFalse();
@@ -118,9 +121,9 @@ class PhotoSortingServiceTest {
         when(storage.awaitProcessed(eq(PHOTO_ID), any())).thenReturn(Optional.of(new byte[]{1}));
         when(identifier.identify(any(), any())).thenReturn(Optional.empty());
 
-        PhotoAnswer answer = service.identify(PHOTO_ID, LanguageCode.zh).orElseThrow();
+        PhotoAnswer answer = service.identify(PHOTO_ID, LanguageCode.zh, MUNI).orElseThrow();
 
-        verify(retriever, never()).retrieve(any(), any());
+        verify(retriever, never()).retrieve(any(), any(), anyLong());
         assertThat(answer.identifiedAs()).isNull();
         assertThat(answer.grounded()).isFalse();
         assertThat(answer.answer()).contains("看不清");
@@ -133,7 +136,7 @@ class PhotoSortingServiceTest {
         when(storage.awaitProcessed(eq(PHOTO_ID), any())).thenReturn(Optional.of(new byte[]{1}));
         when(identifier.identify(any(), any())).thenReturn(Optional.empty());
 
-        service.identify(PHOTO_ID, LanguageCode.fr);
+        service.identify(PHOTO_ID, LanguageCode.fr, MUNI);
 
         verify(storage).awaitProcessed(eq(PHOTO_ID), any());
         verify(storage, never()).readOriginal(any());
@@ -144,7 +147,7 @@ class PhotoSortingServiceTest {
         when(storage.awaitProcessed(eq(PHOTO_ID), any())).thenReturn(Optional.empty());
         when(storage.readOriginal(PHOTO_ID)).thenReturn(Optional.empty());
 
-        assertThat(service.identify(PHOTO_ID, LanguageCode.fr)).isEmpty();
+        assertThat(service.identify(PHOTO_ID, LanguageCode.fr, MUNI)).isEmpty();
         verify(identifier, never()).identify(any(), any());
     }
 
@@ -158,7 +161,7 @@ class PhotoSortingServiceTest {
         when(storage.awaitProcessed(eq(PHOTO_ID), any())).thenReturn(Optional.empty());
         when(storage.readOriginal(PHOTO_ID)).thenReturn(Optional.of(new byte[]{1}));
 
-        assertThatThrownBy(() -> service.identify(PHOTO_ID, LanguageCode.fr))
+        assertThatThrownBy(() -> service.identify(PHOTO_ID, LanguageCode.fr, MUNI))
                 .isInstanceOf(ResponseStatusException.class)
                 .hasMessageContaining("503")
                 .hasMessageContaining("still being prepared");

@@ -77,7 +77,13 @@ public class PhotoSortingService {
         this.properties = properties;
     }
 
-    public Optional<PhotoAnswer> identify(String photoId, LanguageCode language) {
+    /**
+     * @param municipalityId the city whose guide decides the bin. The model
+     *                       only names the object; which bin that object goes
+     *                       in is local, so the lookup is scoped exactly as
+     *                       the typed assistant's is.
+     */
+    public Optional<PhotoAnswer> identify(String photoId, LanguageCode language, long municipalityId) {
         // The processed copy, never the original: the original still carries
         // the GPS coordinates of wherever the resident was standing, and there
         // is no reason to send those to a third party either.
@@ -103,7 +109,7 @@ public class PhotoSortingService {
         }
 
         MaterialIdentification material = identified.get();
-        List<RetrievedItem> context = retriever.retrieve(material.searchQuery(), language);
+        List<RetrievedItem> context = retriever.retrieve(material.searchQuery(), language, municipalityId);
 
         // Same stream as a typed question, tagged "photo". The same material
         // arrives worded very differently through the two paths, which is

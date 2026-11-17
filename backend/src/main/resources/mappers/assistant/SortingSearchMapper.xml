@@ -20,6 +20,13 @@
         SortingGuideRetriever for why one parser cannot serve all three
         languages.
 
+        The municipality filter is on sorting_item rather than on the
+        translation, because the rule belongs to the city and its wording
+        belongs to the language. Without it the assistant would rank every
+        city's rules together and answer a Rosemere resident with
+        Blainville's bin - the same class of defect as the collection
+        calendar that printed the wrong bin while every test passed.
+
         #{query} is a bind parameter throughout. Concatenating a resident's raw
         text into MATCH ... AGAINST would be the same class of bug as SQL
         injection, and in boolean mode their stray punctuation (+ - * " ~)
@@ -64,6 +71,7 @@
             group by item_id
         ) k on k.item_id = t.item_id
         where t.language_code = #{languageCode}
+          and i.municipality_id = #{municipalityId}
         having score > 0
         order by score desc
         limit #{limit}

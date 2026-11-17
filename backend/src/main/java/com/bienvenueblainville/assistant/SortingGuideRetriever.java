@@ -65,7 +65,15 @@ public class SortingGuideRetriever {
         return question == null ? "" : QueryNormalizer.normalize(question, language);
     }
 
-    public List<RetrievedItem> retrieve(String question, LanguageCode language) {
+    /**
+     * @param municipalityId the city whose guide to search. Required, because
+     *                       a sorting rule is a local fact: searching across
+     *                       cities would let a rule that is right in one place
+     *                       answer a resident somewhere it is wrong, and would
+     *                       turn a refusal this city has earned into another
+     *                       city's answer.
+     */
+    public List<RetrievedItem> retrieve(String question, LanguageCode language, long municipalityId) {
         if (question == null || question.isBlank()) {
             return List.of();
         }
@@ -78,7 +86,8 @@ public class SortingGuideRetriever {
         }
 
         List<RetrievedItem> candidates =
-                mapper.search(language, normalized, MAX_RESULTS, usesNgramParser(language));
+                mapper.search(municipalityId, language, normalized, MAX_RESULTS,
+                        usesNgramParser(language));
         if (candidates.isEmpty()) {
             return List.of();
         }

@@ -2,6 +2,8 @@ package com.bienvenueblainville.assistant;
 
 import com.bienvenueblainville.assistant.dto.AssistantAnswer;
 import com.bienvenueblainville.assistant.dto.AssistantRequest;
+import com.bienvenueblainville.municipality.Municipality;
+import com.bienvenueblainville.municipality.MunicipalityService;
 import com.bienvenueblainville.assistant.dto.AssistantSource;
 import com.bienvenueblainville.assistant.dto.AssistantSource;
 import com.bienvenueblainville.common.LanguageCode;
@@ -25,26 +27,61 @@ import java.util.Optional;
  */
 @Service
 public class AssistantService {
-    private static final Map<LanguageCode, String> NO_ANSWER = Map.of(
-            LanguageCode.fr, "Je ne trouve pas cette matière dans le guide de tri de Blainville. "
-                    + "Consultez blainville.ca ou communiquez avec la Ville pour en avoir le cœur net.",
-            LanguageCode.en, "I can't find that material in the Blainville sorting guide. "
-                    + "Check blainville.ca or contact the city to be sure.",
-            LanguageCode.zh, "在 Blainville 分类指南中找不到这种物品。"
-                    + "请查阅 blainville.ca 或联系市政府确认。"
+    /**
+     * The refusal, with the city's own name and website in it.
+     *
+     * <p>These were three fixed strings naming Blainville, which was true
+     * while Blainville was the only city. Sending a Rosemere resident to
+     * blainville.ca is a wrong answer of exactly the kind this class exists to
+     * refuse to give, so the city is substituted rather than assumed.
+     */
+    private static final Map<LanguageCode, String> NO_ANSWER_TEMPLATE = Map.of(
+            LanguageCode.fr, "Je ne trouve pas cette matière dans le guide de tri de %s. "
+                    + "Consultez %s ou communiquez avec la Ville pour en avoir le cœur net.",
+            LanguageCode.en, "I can't find that material in the %s sorting guide. "
+                    + "Check %s or contact the city to be sure.",
+            LanguageCode.zh, "在 %s 分类指南中找不到这种物品。"
+                    + "请查阅 %s 或联系市政府确认。"
     );
 
+    /** Shown when a city has no published source on file yet. */
+    private static final Map<LanguageCode, String> NO_SOURCE = Map.of(
+            LanguageCode.fr, "le site de la Ville",
+            LanguageCode.en, "the city's website",
+            LanguageCode.zh, "市政府网站"
+    );
+
+    private static String refusalFor(Municipality municipality, LanguageCode language) {
+        String where = municipality.sourceUrl() == null || municipality.sourceUrl().isBlank()
+                ? NO_SOURCE.get(language)
+                : hostOf(municipality.sourceUrl());
+        return NO_ANSWER_TEMPLATE.get(language).formatted(municipality.name(), where);
+    }
+
+    /** The bare host, because a resident is being told where to look, not given a link. */
+    private static String hostOf(String url) {
+        try {
+            String host = java.net.URI.create(url).getHost();
+            return host == null ? url : host.replaceFirst("^www\\.", "");
+        } catch (RuntimeException e) {
+            return url;
+        }
+    }
+
+    private final MunicipalityService municipalities;
     private final SortingGuideRetriever retriever;
     private final AnswerComposer composer;
     private final QueryEventPublisher queries;
     private final AnswerCache cache;
 
     public AssistantService(
+            MunicipalityService municipalities,
             SortingGuideRetriever retriever,
             AnswerComposer composer,
             QueryEventPublisher queries,
             AnswerCache cache
     ) {
+        this.municipalities = municipalities;
         this.retriever = retriever;
         this.composer = composer;
         this.queries = queries;
@@ -52,13 +89,18 @@ public class AssistantService {
     }
 
     public AssistantAnswer ask(AssistantRequest request) {
+        // Resolved before anything else: an unknown slug is a 404 here rather
+        // than a silent fall back to one city's guide.
+        Municipality municipality = municipalities.requireBySlug(request.municipality());
+        long municipalityId = municipality.id();
+
         AssistantQuestion question = new AssistantQuestion(request.question(), request.language());
 
         // A municipal sorting guide gets the same twenty questions over and
         // over. Serving a repeat from cache skips retrieval and, with Claude
         // configured, a model call for wording that is already known.
         Optional<AssistantAnswer> cached =
-                cache.find(question.text(), question.language(), composer.providerName());
+                cache.find(municipalityId, question.text(), question.language(), composer.providerName());
         if (cached.isPresent()) {
             // Still recorded. A cache hit is a resident asking - if repeats
             // stopped being counted, the gap report would systematically
@@ -73,7 +115,7 @@ public class AssistantService {
             return answer;
         }
 
-        List<RetrievedItem> context = retriever.retrieve(question.text(), question.language());
+        List<RetrievedItem> context = retriever.retrieve(question.text(), question.language(), municipalityId);
 
         // Recorded whichever way it goes, but the refusals are the point: a
         // question the guide cannot answer used to vanish, so nobody found out
@@ -86,14 +128,14 @@ public class AssistantService {
 
         if (context.isEmpty()) {
             AssistantAnswer refusal = new AssistantAnswer(
-                    NO_ANSWER.get(question.language()),
+                    refusalFor(municipality, question.language()),
                     false,
                     "template",
                     List.of());
             // Refusals are cached too, and they are the cheapest win: the same
             // unlisted material gets asked about repeatedly, and every repeat
             // otherwise re-runs a full-text search to find nothing again.
-            cache.store(question.text(), question.language(), composer.providerName(), refusal);
+            cache.store(municipalityId, question.text(), question.language(), composer.providerName(), refusal);
             return refusal;
         }
 
@@ -107,7 +149,7 @@ public class AssistantService {
         // Keyed on the configured composer, not the one that produced this
         // answer: a Claude call that fell back to the template must not poison
         // the cache with template wording for everyone afterwards.
-        cache.store(question.text(), question.language(), composer.providerName(), answer);
+        cache.store(municipalityId, question.text(), question.language(), composer.providerName(), answer);
         return answer;
     }
 

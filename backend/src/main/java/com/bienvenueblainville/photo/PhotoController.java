@@ -1,6 +1,7 @@
 package com.bienvenueblainville.photo;
 
 import com.bienvenueblainville.assistant.AssistantRateLimiter;
+import com.bienvenueblainville.municipality.MunicipalityService;
 import com.bienvenueblainville.common.LanguageCode;
 import com.bienvenueblainville.photo.dto.PhotoAnswer;
 import com.bienvenueblainville.photo.dto.UploadRequest;
@@ -41,17 +42,20 @@ public class PhotoController {
     private final PhotoProperties properties;
     private final AssistantRateLimiter rateLimiter;
     private final PhotoSortingService sorting;
+    private final MunicipalityService municipalities;
 
     public PhotoController(
             PhotoStorage storage,
             PhotoProperties properties,
             AssistantRateLimiter rateLimiter,
-            PhotoSortingService sorting
+            PhotoSortingService sorting,
+            MunicipalityService municipalities
     ) {
         this.storage = storage;
         this.properties = properties;
         this.rateLimiter = rateLimiter;
         this.sorting = sorting;
+        this.municipalities = municipalities;
     }
 
     /**
@@ -91,6 +95,7 @@ public class PhotoController {
     public PhotoAnswer identify(
             @PathVariable String photoId,
             @RequestParam LanguageCode language,
+            @RequestParam String municipality,
             HttpServletRequest http
     ) {
         requirePhotoId(photoId);
@@ -98,7 +103,9 @@ public class PhotoController {
         // make, so it shares the assistant's per-IP quota.
         rateLimiter.check(http.getRemoteAddr());
 
-        return sorting.identify(photoId, language)
+        long municipalityId = municipalities.requireBySlug(municipality).id();
+
+        return sorting.identify(photoId, language, municipalityId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "That photo is not ready yet, or does not exist."));
     }
