@@ -1,0 +1,1917 @@
+<!DOCTYPE html>
+<html class="showLanding" lang="fr">
+    <head>
+         <!-- TITLE -->
+    <title>Zones des collectes — Carte interactive — Ville de Sainte-Thérèse</title>
+    <meta name="description" content="Consultez&#x20;la&#x20;cat&#x00E9;gorie&#x20;&#x00AB;&#x20;Zones&#x20;des&#x20;collectes&#x20;&#x00BB;&#x20;sur&#x20;la&#x20;carte&#x20;interactive&#x20;de&#x20;la&#x20;Ville&#x20;de&#x20;Sainte-Th&#x00E9;r&#x00E8;se" />
+
+<!-- META -->
+    <meta charset="UTF-8"/>
+    <meta name="format-detection" content="telephone=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"/>
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.sainte-therese.ca/carte-interactive/services/zones-des-collectes" />
+    <meta property="og:site_name" content="Ville de Sainte-Thérèse" />
+    <meta property="og:image" content="https://www.sainte-therese.ca/themes/saint-therese/assets/medias/images/share.jpg" />
+    <meta property="og:title" content="Zones des collectes — Carte interactive — Ville de Sainte-Thérèse" />
+    <meta property="og:description" content="Consultez la catégorie « Zones des collectes » sur la carte interactive de la Ville de Sainte-Thérèse" />
+
+<!-- FAVICON -->
+    <link href="https://www.sainte-therese.ca/themes/saint-therese/assets/medias/images/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
+
+<!-- CSS -->
+    <link rel="stylesheet" href="https://www.sainte-therese.ca/themes/saint-therese/assets/dist/build.min.css">
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XWS2KYCBC5"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-XWS2KYCBC5');
+    </script>
+    </head>
+    <body data-barba="wrapper">
+
+        <!-- Empêche la page de s'afficher avant que les styles soient chargés -->
+<div class="first-loading" style="position: fixed; top: 0; right: 0; bottom: 0; left: 0; background-color: rgb(var(--rgb-white));"></div>
+
+<div class="fade-transition || js-fade-transition" style="display: block;">
+    <div class="fade-transition__container || js-fade-transition-container" style="opacity: 0"></div>
+</div>
+        <div class="o-page o-page--map" data-barba="container" data-barba-namespace="mapView">
+            <div class="c-overlay-cookies" data-overlay="cookies">
+    <div class="c-overlay-cookies__container">
+        <div class="c-overlay-cookies__content">
+            <span class="c-overlay-cookies__title">Politique de protection des renseignements personnels</span>
+            <p class="c-overlay-cookies__text">Ce site utilise des témoins de navigation afin de vous offrir une expérience optimale.</p>
+        </div>
+        <div class="c-overlay-cookies__buttons">
+            <a class="c-overlay-cookies__button-find-out-more" href="https://www.sainte-therese.ca/ville/administration/politique-de-confidentialite">
+                <span>En savoir plus</span>
+            </a>
+            <button class="c-overlay-cookies__button-accept || js-overlay-cookies-button-accept js-close-overlay-cookies">
+                <span>J’accepte</span>
+            </button>
+        </div>
+    </div>
+</div>            <div class="c-overlay-share" data-overlay="share">
+    <div class="c-overlay-share__container" data-overlay-container="share">
+        <button class="c-overlay-share__button-close || js-close-overlay-share" title="Fermer">
+            <span class="c-overlay-share__button-close-x"></span>
+        </button>
+        <div class="c-overlay-share__content">
+            <h2 class="c-overlay-share__title">Où souhaitez-vous<br />partager cette page?</h2>
+            <div id="Share-buttons" class="c-overlay-share__links share-btn" data-url="https://www.sainte-therese.ca/carte-interactive/services/zones-des-collectes">
+                <a id="facebookShareBtn" class="c-overlay-share__link c-overlay-share__facebook trk-fb" data-id="fb" title="Facebook">
+                    <svg class="c-overlay-share__link-svg" role="img">
+                        <use xlink:href="https://www.sainte-therese.ca/themes/saint-therese/assets/medias/images/icons/symbols.svg#ico-facebook"></use>
+                    </svg>
+                </a>
+                <a id="twitterShareBtn" class="c-overlay-share__link c-overlay-share__twitter trk-tw" data-id="tw" title="Twitter">
+                    <svg class="c-overlay-share__link-svg" role="img">
+                        <use xlink:href="https://www.sainte-therese.ca/themes/saint-therese/assets/medias/images/icons/symbols.svg#ico-twitter-x"></use>
+                    </svg>
+                </a>
+                <a id="linkedinShareBtn" class="c-overlay-share__link c-overlay-share__linkedin trk-tw" data-id="in" title="LinkedIn">
+                    <svg class="c-overlay-share__link-svg" role="img">
+                        <use xlink:href="https://www.sainte-therese.ca/themes/saint-therese/assets/medias/images/icons/symbols.svg#ico-linkedin"></use>
+                    </svg>
+                </a>
+                <a id="emailShareBtn" class="c-overlay-share__link c-overlay-share__email trk-mail" data-id="mail" title="Courriel">
+                    <svg class="c-overlay-share__link-svg" role="img">
+                        <use xlink:href="https://www.sainte-therese.ca/themes/saint-therese/assets/medias/images/icons/symbols.svg#ico-email"></use>
+                    </svg>
+                </a>
+                <a id="copyShareBtn" class="c-overlay-share__link c-overlay-share__copy trk-copy || js-share-copy" data-id="copy" title="L’URL du site">
+                    <svg class="c-overlay-share__link-svg" role="img">
+                        <use xlink:href="https://www.sainte-therese.ca/themes/saint-therese/assets/medias/images/icons/symbols.svg#ico-copy"></use>
+                    </svg>
+                </a>
+                <a id="copyShareBtn" class="c-overlay-share__link c-overlay-share__shareSheet trk-shareSheet" data-id="share" title="Plus d’options">
+                    <svg class="c-overlay-share__link-svg" role="img">
+                        <use xlink:href="https://www.sainte-therese.ca/themes/saint-therese/assets/medias/images/icons/symbols.svg#ico-three-points"></use>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="c-overlay-share__background || js-close-overlay-share"></div>
+</div>
+            <div class="o-layout o-layout--page-map" id="page-map">
+    <div class="overlay-locations" id="overlayLocations">
+    <a class="overlay-locations__logo-container" href="https://www.sainte-therese.ca" title="Retour à l’accueil">
+        <img class="overlay-locations__logo-image" src="https://www.sainte-therese.ca/themes/saint-therese/assets/medias/images/logo-sainte-therese.svg" alt="Logo Ville de Sainte-Thérèse">
+    </a>
+
+    <ul class="overlay-locations__links-level-1">
+                                    <li class="overlay-locations__links-level-1-item || btnSubLvl1">
+                    <span class="overlay-locations__link-level-1 || toggle js-mapRootCategory" data-category="13" data-slug="culture">
+						<span class="overlay-locations__link-level-1-text">Art, culture et patrimoine</span>
+                        <span class="overlay-locations__link-level-1-svg-container">
+							<svg class="overlay-locations__link-level-1-svg" role="img">
+								<use xlink:href="https://www.sainte-therese.ca/themes/saint-therese/assets/medias/images/icons/symbols.svg#ico-pointer-2"></use>
+							</svg>
+						</span>
+					</span>
+                    <ul class="overlay-locations__links-level-2 || subLvl1">
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-14" data-category="14" data-slug="art-public">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-exposition"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Art public</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-adrenaline-384 poi" onclick="mapFilter.activatePOI('adrenaline',384)">
+											<span class="overlay-locations__link-level-3">
+												Adrénaline
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-animouschsipi-381 poi" onclick="mapFilter.activatePOI('animouschsipi',381)">
+											<span class="overlay-locations__link-level-3">
+												ANIMOUSCHSIPI
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-ensemble-lost-time-2186 poi" onclick="mapFilter.activatePOI('ensemble-lost-time',2186)">
+											<span class="overlay-locations__link-level-3">
+												Ch.1_Fig.3 de l’ensemble LOST IN TIME
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-chat-o-daile-385 poi" onclick="mapFilter.activatePOI('chat-o-daile',385)">
+											<span class="overlay-locations__link-level-3">
+												Chat-ô-d’aile
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-cinemascope-1483 poi" onclick="mapFilter.activatePOI('cinemascope',1483)">
+											<span class="overlay-locations__link-level-3">
+												Cinémascope
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-citadelle-1482 poi" onclick="mapFilter.activatePOI('citadelle',1482)">
+											<span class="overlay-locations__link-level-3">
+												Citadelle
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-corail-3-2934 poi" onclick="mapFilter.activatePOI('corail-3',2934)">
+											<span class="overlay-locations__link-level-3">
+												Corail 3
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-ecritures-382 poi" onclick="mapFilter.activatePOI('ecritures',382)">
+											<span class="overlay-locations__link-level-3">
+												Écritures
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-fresque-du-175e-anniversaire-de-sainte-therese-428 poi" onclick="mapFilter.activatePOI('fresque-du-175e-anniversaire-de-sainte-therese',428)">
+											<span class="overlay-locations__link-level-3">
+												Fresque du 175e anniversaire de Sainte-Thérèse
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-le-temps-du-verbe-ii-383 poi" onclick="mapFilter.activatePOI('le-temps-du-verbe-ii',383)">
+											<span class="overlay-locations__link-level-3">
+												Le temps du verbe II
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-marche-vers-la-poesie-1656 poi" onclick="mapFilter.activatePOI('marche-vers-la-poesie',1656)">
+											<span class="overlay-locations__link-level-3">
+												Marche vers la poésie
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-residus-decritures-389 poi" onclick="mapFilter.activatePOI('residus-decritures',389)">
+											<span class="overlay-locations__link-level-3">
+												Résidus d’écritures
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-sans-titre-1-380 poi" onclick="mapFilter.activatePOI('sans-titre-1',380)">
+											<span class="overlay-locations__link-level-3">
+												Sans titre
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-souvenons-nous-3006 poi" onclick="mapFilter.activatePOI('souvenons-nous',3006)">
+											<span class="overlay-locations__link-level-3">
+												Souvenons-nous
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-standby-5-1271 poi" onclick="mapFilter.activatePOI('standby-5',1271)">
+											<span class="overlay-locations__link-level-3">
+												Standby 5
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-tous-ensemble-427 poi" onclick="mapFilter.activatePOI('tous-ensemble',427)">
+											<span class="overlay-locations__link-level-3">
+												Tous ensemble
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-vol-pineal-387 poi" onclick="mapFilter.activatePOI('vol-pineal',387)">
+											<span class="overlay-locations__link-level-3">
+												Vol pinéal
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-17" data-category="17" data-slug="boites-lire">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-magasine"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Boîtes à lire</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-boite-lire-429 poi" onclick="mapFilter.activatePOI('boite-lire',429)">
+											<span class="overlay-locations__link-level-3">
+												Boulevard des Mille-Îles Est
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-2-boites-lire-430 poi" onclick="mapFilter.activatePOI('2-boites-lire',430)">
+											<span class="overlay-locations__link-level-3">
+												Boulevard des Mille-Îles Ouest
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-carrefour-jeunesse-emploi-431 poi" onclick="mapFilter.activatePOI('carrefour-jeunesse-emploi',431)">
+											<span class="overlay-locations__link-level-3">
+												Carrefour Jeunesse-Emploi Thérèse-De Blainville
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-centre-rayons-de-femmes-therese-de-blainville-432 poi" onclick="mapFilter.activatePOI('centre-rayons-de-femmes-therese-de-blainville',432)">
+											<span class="overlay-locations__link-level-3">
+												Centre Rayons de Femmes Thérèse-De Blainville
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-jardin-communautaire-le-boise-433 poi" onclick="mapFilter.activatePOI('jardin-communautaire-le-boise',433)">
+											<span class="overlay-locations__link-level-3">
+												Jardin communautaire Le Boisé
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-les-residences-du-marche-434 poi" onclick="mapFilter.activatePOI('les-residences-du-marche',434)">
+											<span class="overlay-locations__link-level-3">
+												Les Résidences du Marché
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-maison-des-jeunes-des-basses-laurentides-435 poi" onclick="mapFilter.activatePOI('maison-des-jeunes-des-basses-laurentides',435)">
+											<span class="overlay-locations__link-level-3">
+												Maison des Jeunes des Basses-Laurentides
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-maison-des-mots-des-basses-laurentides-436 poi" onclick="mapFilter.activatePOI('maison-des-mots-des-basses-laurentides',436)">
+											<span class="overlay-locations__link-level-3">
+												Maison des mots des Basses-Laurentides
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-maison-du-citoyen-437 poi" onclick="mapFilter.activatePOI('maison-du-citoyen',437)">
+											<span class="overlay-locations__link-level-3">
+												Maison du citoyen
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-adolphe-chapleau-1-445 poi" onclick="mapFilter.activatePOI('parc-adolphe-chapleau-1',445)">
+											<span class="overlay-locations__link-level-3">
+												Parc Adolphe-Chapleau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-damase-juteau-1-438 poi" onclick="mapFilter.activatePOI('parc-damase-juteau-1',438)">
+											<span class="overlay-locations__link-level-3">
+												Parc Damase-Juteau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-emile-maille-1-444 poi" onclick="mapFilter.activatePOI('parc-emile-maille-1',444)">
+											<span class="overlay-locations__link-level-3">
+												Parc Émile-Maillé
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-foisy-1-439 poi" onclick="mapFilter.activatePOI('parc-foisy-1',439)">
+											<span class="overlay-locations__link-level-3">
+												Parc Foisy
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-georges-emile-charron-1-440 poi" onclick="mapFilter.activatePOI('parc-georges-emile-charron-1',440)">
+											<span class="overlay-locations__link-level-3">
+												Parc Georges-Émile-Charron
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-isaac-rawas-1-441 poi" onclick="mapFilter.activatePOI('parc-isaac-rawas-1',441)">
+											<span class="overlay-locations__link-level-3">
+												Parc Isaac-Rawas
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-laura-lauzon-1-442 poi" onclick="mapFilter.activatePOI('parc-laura-lauzon-1',442)">
+											<span class="overlay-locations__link-level-3">
+												Parc Laura-Lauzon
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-saint-pierre-1-443 poi" onclick="mapFilter.activatePOI('parc-saint-pierre-1',443)">
+											<span class="overlay-locations__link-level-3">
+												Parc Saint-Pierre
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-place-lagoa-928 poi" onclick="mapFilter.activatePOI('place-lagoa',928)">
+											<span class="overlay-locations__link-level-3">
+												Place Lagoa
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-19" data-category="19" data-slug="lieux-de-diffusion-culturelle">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-theatre"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Lieux de diffusion culturelle</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-bibliotheque-76 poi" onclick="mapFilter.activatePOI('bibliotheque',76)">
+											<span class="overlay-locations__link-level-3">
+												Bibliothèque
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-cabaret-bmo-sainte-therese-399 poi" onclick="mapFilter.activatePOI('cabaret-bmo-sainte-therese',399)">
+											<span class="overlay-locations__link-level-3">
+												Cabaret BMO Sainte-Thérèse
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-maison-lachaine-397 poi" onclick="mapFilter.activatePOI('maison-lachaine',397)">
+											<span class="overlay-locations__link-level-3">
+												Maison Lachaîne
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-sentier-de-poesie-398 poi" onclick="mapFilter.activatePOI('sentier-de-poesie',398)">
+											<span class="overlay-locations__link-level-3">
+												Sentier de poésie
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-theatre-lionel-groulx-400 poi" onclick="mapFilter.activatePOI('theatre-lionel-groulx',400)">
+											<span class="overlay-locations__link-level-3">
+												Théâtre Lionel-Groulx
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-55" data-category="55" data-slug="pianos-publics">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-musique"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Pianos publics</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-bibliotheque-4-2002 poi" onclick="mapFilter.activatePOI('bibliotheque-4',2002)">
+											<span class="overlay-locations__link-level-3">
+												Bibliothèque
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-maison-du-citoyen-2-2001 poi" onclick="mapFilter.activatePOI('maison-du-citoyen-2',2001)">
+											<span class="overlay-locations__link-level-3">
+												Maison du citoyen
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-place-lagoa-1-2000 poi" onclick="mapFilter.activatePOI('place-lagoa-1',2000)">
+											<span class="overlay-locations__link-level-3">
+												Place Lagoa
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-22" data-category="22" data-slug="sites-patrimoniaux">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-eglise"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Sites patrimoniaux</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-ancien-edifice-municipal-458 poi" onclick="mapFilter.activatePOI('ancien-edifice-municipal',458)">
+											<span class="overlay-locations__link-level-3">
+												Ancien édifice municipal
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-ancienne-gare-de-sainte-therese-465 poi" onclick="mapFilter.activatePOI('ancienne-gare-de-sainte-therese',465)">
+											<span class="overlay-locations__link-level-3">
+												Ancienne Gare de Sainte-Thérèse
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-ancienne-usine-des-pianos-lesage-466 poi" onclick="mapFilter.activatePOI('ancienne-usine-des-pianos-lesage',466)">
+											<span class="overlay-locations__link-level-3">
+												Ancienne usine des pianos Lesage
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-castel-morris-455 poi" onclick="mapFilter.activatePOI('castel-morris',455)">
+											<span class="overlay-locations__link-level-3">
+												Castel Morris
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-cimetiere-de-sainte-therese-472 poi" onclick="mapFilter.activatePOI('cimetiere-de-sainte-therese',472)">
+											<span class="overlay-locations__link-level-3">
+												Cimetière de Sainte-Thérèse
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-commemoration-trans-canada-vol-831-471 poi" onclick="mapFilter.activatePOI('commemoration-trans-canada-vol-831',471)">
+											<span class="overlay-locations__link-level-3">
+												Commémoration Trans-Canada Vol 831
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-couvent-des-religieuses-de-la-congregation-de-notre-dame-468 poi" onclick="mapFilter.activatePOI('couvent-des-religieuses-de-la-congregation-de-notre-dame',468)">
+											<span class="overlay-locations__link-level-3">
+												Couvent des religieuses de la Congrégation de Notre-Dame
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-eglise-protestante-de-sainte-therese-456 poi" onclick="mapFilter.activatePOI('eglise-protestante-de-sainte-therese',456)">
+											<span class="overlay-locations__link-level-3">
+												Église protestante de Sainte-Thérèse
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-eglise-sainte-therese-davila-461 poi" onclick="mapFilter.activatePOI('eglise-sainte-therese-davila',461)">
+											<span class="overlay-locations__link-level-3">
+												Église Sainte-Thérèse-d’Avila
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-hospice-drapeau-463 poi" onclick="mapFilter.activatePOI('hospice-drapeau',463)">
+											<span class="overlay-locations__link-level-3">
+												Hospice Drapeau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-hotel-blainville-467 poi" onclick="mapFilter.activatePOI('hotel-blainville',467)">
+											<span class="overlay-locations__link-level-3">
+												Hôtel Blainville
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-maison-joseph-filion-457 poi" onclick="mapFilter.activatePOI('maison-joseph-filion',457)">
+											<span class="overlay-locations__link-level-3">
+												Maison Joseph-Filion
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-maison-labitation-464 poi" onclick="mapFilter.activatePOI('maison-labitation',464)">
+											<span class="overlay-locations__link-level-3">
+												Maison l’Abitation
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-maison-lachaine-1-449 poi" onclick="mapFilter.activatePOI('maison-lachaine-1',449)">
+											<span class="overlay-locations__link-level-3">
+												Maison Lachaîne
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-oratoire-saint-joseph-460 poi" onclick="mapFilter.activatePOI('oratoire-saint-joseph',460)">
+											<span class="overlay-locations__link-level-3">
+												Oratoire Saint-Joseph
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-orgue-de-leglise-sainte-therese-davila-462 poi" onclick="mapFilter.activatePOI('orgue-de-leglise-sainte-therese-davila',462)">
+											<span class="overlay-locations__link-level-3">
+												Orgue de l’Église Sainte-Thérèse-d’Avila
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-place-du-souvenir-470 poi" onclick="mapFilter.activatePOI('place-du-souvenir',470)">
+											<span class="overlay-locations__link-level-3">
+												Place du Souvenir
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-place-lagoa-et-promenade-des-acores-473 poi" onclick="mapFilter.activatePOI('place-lagoa-et-promenade-des-acores',473)">
+											<span class="overlay-locations__link-level-3">
+												Place Lagoa et Promenade des Açores
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-quartier-des-cent-maisons-469 poi" onclick="mapFilter.activatePOI('quartier-des-cent-maisons',469)">
+											<span class="overlay-locations__link-level-3">
+												Quartier des Cent maisons
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-seminaire-de-sainte-therese-459 poi" onclick="mapFilter.activatePOI('seminaire-de-sainte-therese',459)">
+											<span class="overlay-locations__link-level-3">
+												Séminaire de Sainte-Thérèse
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                            </ul>
+                </li>
+                                                <li class="overlay-locations__links-level-1-item || btnSubLvl1">
+                    <span class="overlay-locations__link-level-1 || toggle js-mapRootCategory" data-category="8" data-slug="districts-electoraux">
+						<span class="overlay-locations__link-level-1-text">Districts électoraux</span>
+                        <span class="overlay-locations__link-level-1-svg-container">
+							<svg class="overlay-locations__link-level-1-svg" role="img">
+								<use xlink:href="https://www.sainte-therese.ca/themes/saint-therese/assets/medias/images/icons/symbols.svg#ico-pointer-2"></use>
+							</svg>
+						</span>
+					</span>
+                    <ul class="overlay-locations__links-level-2 || subLvl1">
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-9" data-category="9" data-slug="tous-les-districts">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-micro"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Tous les districts</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-barbara-morin-117 poi" onclick="mapFilter.activatePOI('barbara-morin',117)">
+											<span class="overlay-locations__link-level-3">
+												District no. 1 : De Sève
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-mylene-morissette-110 poi" onclick="mapFilter.activatePOI('mylene-morissette',110)">
+											<span class="overlay-locations__link-level-3">
+												District no. 2 : Verschelden
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-jacynthe-prince-111 poi" onclick="mapFilter.activatePOI('jacynthe-prince',111)">
+											<span class="overlay-locations__link-level-3">
+												District no. 3 : Morris
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-heloise-belanger-112 poi" onclick="mapFilter.activatePOI('heloise-belanger',112)">
+											<span class="overlay-locations__link-level-3">
+												District no. 4 : Chapleau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-katherine-vezina-1-113 poi" onclick="mapFilter.activatePOI('katherine-vezina-1',113)">
+											<span class="overlay-locations__link-level-3">
+												District no. 5 : Lonergan
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-michel-milette-114 poi" onclick="mapFilter.activatePOI('michel-milette',114)">
+											<span class="overlay-locations__link-level-3">
+												District no. 6 : Ducharme
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-armando-melo-115 poi" onclick="mapFilter.activatePOI('armando-melo',115)">
+											<span class="overlay-locations__link-level-3">
+												District no. 7 : Blanchard
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-johane-michaud-116 poi" onclick="mapFilter.activatePOI('johane-michaud',116)">
+											<span class="overlay-locations__link-level-3">
+												District no. 8 : Marie-Thérèse
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                            </ul>
+                </li>
+                                                <li class="overlay-locations__links-level-1-item || btnSubLvl1">
+                    <span class="overlay-locations__link-level-1 || toggle js-mapRootCategory" data-category="11" data-slug="parcs-et-espaces-verts">
+						<span class="overlay-locations__link-level-1-text">Parcs et loisirs</span>
+                        <span class="overlay-locations__link-level-1-svg-container">
+							<svg class="overlay-locations__link-level-1-svg" role="img">
+								<use xlink:href="https://www.sainte-therese.ca/themes/saint-therese/assets/medias/images/icons/symbols.svg#ico-pointer-2"></use>
+							</svg>
+						</span>
+					</span>
+                    <ul class="overlay-locations__links-level-2 || subLvl1">
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-12" data-category="12" data-slug="tous-les-parcs">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-arbre"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Tous les parcs</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-adolphe-chapleau-199 poi" onclick="mapFilter.activatePOI('parc-adolphe-chapleau',199)">
+											<span class="overlay-locations__link-level-3">
+												Parc Adolphe-Chapleau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-anatole-desjardins-239 poi" onclick="mapFilter.activatePOI('parc-anatole-desjardins',239)">
+											<span class="overlay-locations__link-level-3">
+												Parc Anatole-Desjardins
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-arthur-vaillancourt-1-245 poi" onclick="mapFilter.activatePOI('parc-arthur-vaillancourt-1',245)">
+											<span class="overlay-locations__link-level-3">
+												Parc Arthur-Vaillancourt
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-beausejour-246 poi" onclick="mapFilter.activatePOI('parc-beausejour',246)">
+											<span class="overlay-locations__link-level-3">
+												Parc Beauséjour
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-bergeron-247 poi" onclick="mapFilter.activatePOI('parc-bergeron',247)">
+											<span class="overlay-locations__link-level-3">
+												Parc Bergeron
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-blanche-giguere-248 poi" onclick="mapFilter.activatePOI('parc-blanche-giguere',248)">
+											<span class="overlay-locations__link-level-3">
+												Parc Blanche-Giguère
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-capistran-253 poi" onclick="mapFilter.activatePOI('parc-capistran',253)">
+											<span class="overlay-locations__link-level-3">
+												Parc Capistran
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-charles-bosson-254 poi" onclick="mapFilter.activatePOI('parc-charles-bosson',254)">
+											<span class="overlay-locations__link-level-3">
+												Parc Charles-Bosson
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-damase-juteau-255 poi" onclick="mapFilter.activatePOI('parc-damase-juteau',255)">
+											<span class="overlay-locations__link-level-3">
+												Parc Damase-Juteau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-de-la-riviere-256 poi" onclick="mapFilter.activatePOI('parc-de-la-riviere',256)">
+											<span class="overlay-locations__link-level-3">
+												Parc de la Rivière
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-de-seve-2-242 poi" onclick="mapFilter.activatePOI('parc-de-seve-2',242)">
+											<span class="overlay-locations__link-level-3">
+												Parc De Sève
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-ducharme-257 poi" onclick="mapFilter.activatePOI('parc-ducharme',257)">
+											<span class="overlay-locations__link-level-3">
+												Parc Ducharme
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-emile-maille-258 poi" onclick="mapFilter.activatePOI('parc-emile-maille',258)">
+											<span class="overlay-locations__link-level-3">
+												Parc Émile-Maillé
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-ephemere-place-theatre-georges-1917 poi" onclick="mapFilter.activatePOI('parc-ephemere-place-theatre-georges',1917)">
+											<span class="overlay-locations__link-level-3">
+												Parc éphémère de la Place du Théâtre-Georges
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-foisy-259 poi" onclick="mapFilter.activatePOI('parc-foisy',259)">
+											<span class="overlay-locations__link-level-3">
+												Parc Foisy
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-georges-emile-charron-260 poi" onclick="mapFilter.activatePOI('parc-georges-emile-charron',260)">
+											<span class="overlay-locations__link-level-3">
+												Parc Georges-Émile-Charron
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-guy-blanchard-262 poi" onclick="mapFilter.activatePOI('parc-guy-blanchard',262)">
+											<span class="overlay-locations__link-level-3">
+												Parc Guy-Blanchard
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-isaac-rawas-263 poi" onclick="mapFilter.activatePOI('parc-isaac-rawas',263)">
+											<span class="overlay-locations__link-level-3">
+												Parc Isaac-Rawas
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-jardin-des-sources-264 poi" onclick="mapFilter.activatePOI('parc-jardin-des-sources',264)">
+											<span class="overlay-locations__link-level-3">
+												Parc Jardin des Sources
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-laura-lauzon-266 poi" onclick="mapFilter.activatePOI('parc-laura-lauzon',266)">
+											<span class="overlay-locations__link-level-3">
+												Parc Laura-Lauzon
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-le-belvedere-267 poi" onclick="mapFilter.activatePOI('parc-le-belvedere',267)">
+											<span class="overlay-locations__link-level-3">
+												Parc Le Belvédère
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-lionel-bertrand-1-269 poi" onclick="mapFilter.activatePOI('parc-lionel-bertrand-1',269)">
+											<span class="overlay-locations__link-level-3">
+												Parc Lionel-Bertrand
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-madeleine-bleau-1-3017 poi" onclick="mapFilter.activatePOI('parc-madeleine-bleau-1',3017)">
+											<span class="overlay-locations__link-level-3">
+												Parc Madeleine-Bleau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-paul-gagnon-270 poi" onclick="mapFilter.activatePOI('parc-paul-gagnon',270)">
+											<span class="overlay-locations__link-level-3">
+												Parc Paul-Gagnon
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-richelieu-271 poi" onclick="mapFilter.activatePOI('parc-richelieu',271)">
+											<span class="overlay-locations__link-level-3 etat etat-section close">
+												Parc Richelieu
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-saint-jacques-272 poi" onclick="mapFilter.activatePOI('parc-saint-jacques',272)">
+											<span class="overlay-locations__link-level-3">
+												Parc Saint-Jacques
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-saint-pierre-273 poi" onclick="mapFilter.activatePOI('parc-saint-pierre',273)">
+											<span class="overlay-locations__link-level-3">
+												Parc Saint-Pierre
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-45" data-category="45" data-slug="accessibilite">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-crochet"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Accessibilité</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-adolphe-chapleau-199 poi" onclick="mapFilter.activatePOI('parc-adolphe-chapleau',199)">
+											<span class="overlay-locations__link-level-3">
+												Parc Adolphe-Chapleau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-anatole-desjardins-239 poi" onclick="mapFilter.activatePOI('parc-anatole-desjardins',239)">
+											<span class="overlay-locations__link-level-3">
+												Parc Anatole-Desjardins
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-arthur-vaillancourt-1-245 poi" onclick="mapFilter.activatePOI('parc-arthur-vaillancourt-1',245)">
+											<span class="overlay-locations__link-level-3">
+												Parc Arthur-Vaillancourt
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-capistran-253 poi" onclick="mapFilter.activatePOI('parc-capistran',253)">
+											<span class="overlay-locations__link-level-3">
+												Parc Capistran
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-charles-bosson-254 poi" onclick="mapFilter.activatePOI('parc-charles-bosson',254)">
+											<span class="overlay-locations__link-level-3">
+												Parc Charles-Bosson
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-damase-juteau-255 poi" onclick="mapFilter.activatePOI('parc-damase-juteau',255)">
+											<span class="overlay-locations__link-level-3">
+												Parc Damase-Juteau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-de-la-riviere-256 poi" onclick="mapFilter.activatePOI('parc-de-la-riviere',256)">
+											<span class="overlay-locations__link-level-3">
+												Parc de la Rivière
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-de-seve-2-242 poi" onclick="mapFilter.activatePOI('parc-de-seve-2',242)">
+											<span class="overlay-locations__link-level-3">
+												Parc De Sève
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-ducharme-257 poi" onclick="mapFilter.activatePOI('parc-ducharme',257)">
+											<span class="overlay-locations__link-level-3">
+												Parc Ducharme
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-emile-maille-258 poi" onclick="mapFilter.activatePOI('parc-emile-maille',258)">
+											<span class="overlay-locations__link-level-3">
+												Parc Émile-Maillé
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-foisy-259 poi" onclick="mapFilter.activatePOI('parc-foisy',259)">
+											<span class="overlay-locations__link-level-3">
+												Parc Foisy
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-georges-emile-charron-260 poi" onclick="mapFilter.activatePOI('parc-georges-emile-charron',260)">
+											<span class="overlay-locations__link-level-3">
+												Parc Georges-Émile-Charron
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-guy-blanchard-262 poi" onclick="mapFilter.activatePOI('parc-guy-blanchard',262)">
+											<span class="overlay-locations__link-level-3">
+												Parc Guy-Blanchard
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-jardin-des-sources-264 poi" onclick="mapFilter.activatePOI('parc-jardin-des-sources',264)">
+											<span class="overlay-locations__link-level-3">
+												Parc Jardin des Sources
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-le-belvedere-267 poi" onclick="mapFilter.activatePOI('parc-le-belvedere',267)">
+											<span class="overlay-locations__link-level-3">
+												Parc Le Belvédère
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-lionel-bertrand-1-269 poi" onclick="mapFilter.activatePOI('parc-lionel-bertrand-1',269)">
+											<span class="overlay-locations__link-level-3">
+												Parc Lionel-Bertrand
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-paul-gagnon-270 poi" onclick="mapFilter.activatePOI('parc-paul-gagnon',270)">
+											<span class="overlay-locations__link-level-3">
+												Parc Paul-Gagnon
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-richelieu-271 poi" onclick="mapFilter.activatePOI('parc-richelieu',271)">
+											<span class="overlay-locations__link-level-3 etat etat-section close">
+												Parc Richelieu
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-saint-jacques-272 poi" onclick="mapFilter.activatePOI('parc-saint-jacques',272)">
+											<span class="overlay-locations__link-level-3">
+												Parc Saint-Jacques
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-saint-pierre-273 poi" onclick="mapFilter.activatePOI('parc-saint-pierre',273)">
+											<span class="overlay-locations__link-level-3">
+												Parc Saint-Pierre
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-29" data-category="29" data-slug="athletisme">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-athletisme"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Athlétisme</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-stade-dathletisme-richard-garneau-91 poi" onclick="mapFilter.activatePOI('stade-dathletisme-richard-garneau',91)">
+											<span class="overlay-locations__link-level-3">
+												Stade d&#039;athlétisme Richard-Garneau
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-30" data-category="30" data-slug="baseball-et-balle-molle">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-baseball"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Baseball et balle-molle</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-ducharme-257 poi" onclick="mapFilter.activatePOI('parc-ducharme',257)">
+											<span class="overlay-locations__link-level-3">
+												Parc Ducharme
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-saint-jacques-272 poi" onclick="mapFilter.activatePOI('parc-saint-jacques',272)">
+											<span class="overlay-locations__link-level-3">
+												Parc Saint-Jacques
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-31" data-category="31" data-slug="basketball">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-basketball"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Basketball</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-anatole-desjardins-239 poi" onclick="mapFilter.activatePOI('parc-anatole-desjardins',239)">
+											<span class="overlay-locations__link-level-3">
+												Parc Anatole-Desjardins
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-ducharme-257 poi" onclick="mapFilter.activatePOI('parc-ducharme',257)">
+											<span class="overlay-locations__link-level-3">
+												Parc Ducharme
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-lionel-bertrand-1-269 poi" onclick="mapFilter.activatePOI('parc-lionel-bertrand-1',269)">
+											<span class="overlay-locations__link-level-3">
+												Parc Lionel-Bertrand
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-23" data-category="23" data-slug="chalets-avec-toilettes">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-toilette"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Chalets avec toilettes</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-adolphe-chapleau-199 poi" onclick="mapFilter.activatePOI('parc-adolphe-chapleau',199)">
+											<span class="overlay-locations__link-level-3">
+												Parc Adolphe-Chapleau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-anatole-desjardins-239 poi" onclick="mapFilter.activatePOI('parc-anatole-desjardins',239)">
+											<span class="overlay-locations__link-level-3">
+												Parc Anatole-Desjardins
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-damase-juteau-255 poi" onclick="mapFilter.activatePOI('parc-damase-juteau',255)">
+											<span class="overlay-locations__link-level-3">
+												Parc Damase-Juteau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-de-seve-2-242 poi" onclick="mapFilter.activatePOI('parc-de-seve-2',242)">
+											<span class="overlay-locations__link-level-3">
+												Parc De Sève
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-ducharme-257 poi" onclick="mapFilter.activatePOI('parc-ducharme',257)">
+											<span class="overlay-locations__link-level-3">
+												Parc Ducharme
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-lionel-bertrand-1-269 poi" onclick="mapFilter.activatePOI('parc-lionel-bertrand-1',269)">
+											<span class="overlay-locations__link-level-3">
+												Parc Lionel-Bertrand
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-richelieu-271 poi" onclick="mapFilter.activatePOI('parc-richelieu',271)">
+											<span class="overlay-locations__link-level-3 etat etat-section close">
+												Parc Richelieu
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-saint-jacques-272 poi" onclick="mapFilter.activatePOI('parc-saint-jacques',272)">
+											<span class="overlay-locations__link-level-3">
+												Parc Saint-Jacques
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-saint-pierre-273 poi" onclick="mapFilter.activatePOI('parc-saint-pierre',273)">
+											<span class="overlay-locations__link-level-3">
+												Parc Saint-Pierre
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-32" data-category="32" data-slug="circuits-dentrainement">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-halteres"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Circuits d&#039;entraînement</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-jardin-des-sources-264 poi" onclick="mapFilter.activatePOI('parc-jardin-des-sources',264)">
+											<span class="overlay-locations__link-level-3">
+												Parc Jardin des Sources
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-58" data-category="58" data-slug="coffre-jouer-pour-jouer">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-corde"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Coffre Jouer pour jouer</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-damase-juteau-255 poi" onclick="mapFilter.activatePOI('parc-damase-juteau',255)">
+											<span class="overlay-locations__link-level-3">
+												Parc Damase-Juteau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-de-seve-2-242 poi" onclick="mapFilter.activatePOI('parc-de-seve-2',242)">
+											<span class="overlay-locations__link-level-3">
+												Parc De Sève
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-richelieu-271 poi" onclick="mapFilter.activatePOI('parc-richelieu',271)">
+											<span class="overlay-locations__link-level-3 etat etat-section close">
+												Parc Richelieu
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-35" data-category="35" data-slug="marche-et-course">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-soulier"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Course et marche</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-de-seve-2-242 poi" onclick="mapFilter.activatePOI('parc-de-seve-2',242)">
+											<span class="overlay-locations__link-level-3">
+												Parc De Sève
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-jardin-des-sources-264 poi" onclick="mapFilter.activatePOI('parc-jardin-des-sources',264)">
+											<span class="overlay-locations__link-level-3">
+												Parc Jardin des Sources
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-saint-pierre-273 poi" onclick="mapFilter.activatePOI('parc-saint-pierre',273)">
+											<span class="overlay-locations__link-level-3">
+												Parc Saint-Pierre
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-33" data-category="33" data-slug="football">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-football"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Football</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-ducharme-257 poi" onclick="mapFilter.activatePOI('parc-ducharme',257)">
+											<span class="overlay-locations__link-level-3">
+												Parc Ducharme
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-15" data-category="15" data-slug="jardins-communautaires">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-carotte"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Jardins communautaires</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-jardin-le-boise-276 poi" onclick="mapFilter.activatePOI('jardin-le-boise',276)">
+											<span class="overlay-locations__link-level-3">
+												Jardin Le Boisé
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-jardin-urbain-275 poi" onclick="mapFilter.activatePOI('jardin-urbain',275)">
+											<span class="overlay-locations__link-level-3">
+												Jardin Urbain
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-34" data-category="34" data-slug="jeux-deau">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-fontaine"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Jeux d&#039;eau</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-damase-juteau-255 poi" onclick="mapFilter.activatePOI('parc-damase-juteau',255)">
+											<span class="overlay-locations__link-level-3">
+												Parc Damase-Juteau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-de-seve-2-242 poi" onclick="mapFilter.activatePOI('parc-de-seve-2',242)">
+											<span class="overlay-locations__link-level-3">
+												Parc De Sève
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-georges-emile-charron-260 poi" onclick="mapFilter.activatePOI('parc-georges-emile-charron',260)">
+											<span class="overlay-locations__link-level-3">
+												Parc Georges-Émile-Charron
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-saint-pierre-273 poi" onclick="mapFilter.activatePOI('parc-saint-pierre',273)">
+											<span class="overlay-locations__link-level-3">
+												Parc Saint-Pierre
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-24" data-category="24" data-slug="modules-de-jeux">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-balancoire"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Modules de jeux</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-adolphe-chapleau-199 poi" onclick="mapFilter.activatePOI('parc-adolphe-chapleau',199)">
+											<span class="overlay-locations__link-level-3">
+												Parc Adolphe-Chapleau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-anatole-desjardins-239 poi" onclick="mapFilter.activatePOI('parc-anatole-desjardins',239)">
+											<span class="overlay-locations__link-level-3">
+												Parc Anatole-Desjardins
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-arthur-vaillancourt-1-245 poi" onclick="mapFilter.activatePOI('parc-arthur-vaillancourt-1',245)">
+											<span class="overlay-locations__link-level-3">
+												Parc Arthur-Vaillancourt
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-beausejour-246 poi" onclick="mapFilter.activatePOI('parc-beausejour',246)">
+											<span class="overlay-locations__link-level-3">
+												Parc Beauséjour
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-bergeron-247 poi" onclick="mapFilter.activatePOI('parc-bergeron',247)">
+											<span class="overlay-locations__link-level-3">
+												Parc Bergeron
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-blanche-giguere-248 poi" onclick="mapFilter.activatePOI('parc-blanche-giguere',248)">
+											<span class="overlay-locations__link-level-3">
+												Parc Blanche-Giguère
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-charles-bosson-254 poi" onclick="mapFilter.activatePOI('parc-charles-bosson',254)">
+											<span class="overlay-locations__link-level-3">
+												Parc Charles-Bosson
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-damase-juteau-255 poi" onclick="mapFilter.activatePOI('parc-damase-juteau',255)">
+											<span class="overlay-locations__link-level-3">
+												Parc Damase-Juteau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-de-la-riviere-256 poi" onclick="mapFilter.activatePOI('parc-de-la-riviere',256)">
+											<span class="overlay-locations__link-level-3">
+												Parc de la Rivière
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-de-seve-2-242 poi" onclick="mapFilter.activatePOI('parc-de-seve-2',242)">
+											<span class="overlay-locations__link-level-3">
+												Parc De Sève
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-emile-maille-258 poi" onclick="mapFilter.activatePOI('parc-emile-maille',258)">
+											<span class="overlay-locations__link-level-3">
+												Parc Émile-Maillé
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-georges-emile-charron-260 poi" onclick="mapFilter.activatePOI('parc-georges-emile-charron',260)">
+											<span class="overlay-locations__link-level-3">
+												Parc Georges-Émile-Charron
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-guy-blanchard-262 poi" onclick="mapFilter.activatePOI('parc-guy-blanchard',262)">
+											<span class="overlay-locations__link-level-3">
+												Parc Guy-Blanchard
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-laura-lauzon-266 poi" onclick="mapFilter.activatePOI('parc-laura-lauzon',266)">
+											<span class="overlay-locations__link-level-3">
+												Parc Laura-Lauzon
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-le-belvedere-267 poi" onclick="mapFilter.activatePOI('parc-le-belvedere',267)">
+											<span class="overlay-locations__link-level-3">
+												Parc Le Belvédère
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-lionel-bertrand-1-269 poi" onclick="mapFilter.activatePOI('parc-lionel-bertrand-1',269)">
+											<span class="overlay-locations__link-level-3">
+												Parc Lionel-Bertrand
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-madeleine-bleau-1-3017 poi" onclick="mapFilter.activatePOI('parc-madeleine-bleau-1',3017)">
+											<span class="overlay-locations__link-level-3">
+												Parc Madeleine-Bleau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-richelieu-271 poi" onclick="mapFilter.activatePOI('parc-richelieu',271)">
+											<span class="overlay-locations__link-level-3 etat etat-section close">
+												Parc Richelieu
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-saint-jacques-272 poi" onclick="mapFilter.activatePOI('parc-saint-jacques',272)">
+											<span class="overlay-locations__link-level-3">
+												Parc Saint-Jacques
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-saint-pierre-273 poi" onclick="mapFilter.activatePOI('parc-saint-pierre',273)">
+											<span class="overlay-locations__link-level-3">
+												Parc Saint-Pierre
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-54" data-category="54" data-slug="parc-de-glisse-1">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-luge"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Parc de glisse</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-le-belvedere-267 poi" onclick="mapFilter.activatePOI('parc-le-belvedere',267)">
+											<span class="overlay-locations__link-level-3">
+												Parc Le Belvédère
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-36" data-category="36" data-slug="patinoires-exterieures">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-patin"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Patinoires extérieures</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-adolphe-chapleau-199 poi" onclick="mapFilter.activatePOI('parc-adolphe-chapleau',199)">
+											<span class="overlay-locations__link-level-3">
+												Parc Adolphe-Chapleau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-anatole-desjardins-239 poi" onclick="mapFilter.activatePOI('parc-anatole-desjardins',239)">
+											<span class="overlay-locations__link-level-3">
+												Parc Anatole-Desjardins
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-beausejour-246 poi" onclick="mapFilter.activatePOI('parc-beausejour',246)">
+											<span class="overlay-locations__link-level-3">
+												Parc Beauséjour
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-blanche-giguere-248 poi" onclick="mapFilter.activatePOI('parc-blanche-giguere',248)">
+											<span class="overlay-locations__link-level-3">
+												Parc Blanche-Giguère
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-damase-juteau-255 poi" onclick="mapFilter.activatePOI('parc-damase-juteau',255)">
+											<span class="overlay-locations__link-level-3">
+												Parc Damase-Juteau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-de-seve-2-242 poi" onclick="mapFilter.activatePOI('parc-de-seve-2',242)">
+											<span class="overlay-locations__link-level-3">
+												Parc De Sève
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-ducharme-257 poi" onclick="mapFilter.activatePOI('parc-ducharme',257)">
+											<span class="overlay-locations__link-level-3">
+												Parc Ducharme
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-georges-emile-charron-260 poi" onclick="mapFilter.activatePOI('parc-georges-emile-charron',260)">
+											<span class="overlay-locations__link-level-3">
+												Parc Georges-Émile-Charron
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-lionel-bertrand-1-269 poi" onclick="mapFilter.activatePOI('parc-lionel-bertrand-1',269)">
+											<span class="overlay-locations__link-level-3">
+												Parc Lionel-Bertrand
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-richelieu-271 poi" onclick="mapFilter.activatePOI('parc-richelieu',271)">
+											<span class="overlay-locations__link-level-3 etat etat-section close">
+												Parc Richelieu
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-saint-jacques-272 poi" onclick="mapFilter.activatePOI('parc-saint-jacques',272)">
+											<span class="overlay-locations__link-level-3">
+												Parc Saint-Jacques
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-saint-pierre-273 poi" onclick="mapFilter.activatePOI('parc-saint-pierre',273)">
+											<span class="overlay-locations__link-level-3">
+												Parc Saint-Pierre
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-place-fernand-thibault-307 poi" onclick="mapFilter.activatePOI('place-fernand-thibault',307)">
+											<span class="overlay-locations__link-level-3">
+												Place Fernand-Thibault
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-37" data-category="37" data-slug="petanque">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-bocce"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Pétanque</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-damase-juteau-255 poi" onclick="mapFilter.activatePOI('parc-damase-juteau',255)">
+											<span class="overlay-locations__link-level-3">
+												Parc Damase-Juteau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-isaac-rawas-263 poi" onclick="mapFilter.activatePOI('parc-isaac-rawas',263)">
+											<span class="overlay-locations__link-level-3">
+												Parc Isaac-Rawas
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-richelieu-271 poi" onclick="mapFilter.activatePOI('parc-richelieu',271)">
+											<span class="overlay-locations__link-level-3 etat etat-section close">
+												Parc Richelieu
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-38" data-category="38" data-slug="piscine-exterieure">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-piscine"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Piscine extérieure</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-richelieu-271 poi" onclick="mapFilter.activatePOI('parc-richelieu',271)">
+											<span class="overlay-locations__link-level-3 etat etat-section close">
+												Parc Richelieu
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-39" data-category="39" data-slug="pistes-cyclables">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-velo"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Pistes cyclables</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-pistes-cyclables-1-479 poi" onclick="mapFilter.activatePOI('pistes-cyclables-1',479)">
+											<span class="overlay-locations__link-level-3">
+												Pistes cyclables
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-40" data-category="40" data-slug="planche-roulettes">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-skate"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Planche à roulettes</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-ducharme-257 poi" onclick="mapFilter.activatePOI('parc-ducharme',257)">
+											<span class="overlay-locations__link-level-3">
+												Parc Ducharme
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-42" data-category="42" data-slug="soccer">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-soccer"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Soccer</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-de-seve-2-242 poi" onclick="mapFilter.activatePOI('parc-de-seve-2',242)">
+											<span class="overlay-locations__link-level-3">
+												Parc De Sève
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-ducharme-257 poi" onclick="mapFilter.activatePOI('parc-ducharme',257)">
+											<span class="overlay-locations__link-level-3">
+												Parc Ducharme
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-27" data-category="27" data-slug="stations-de-reparation-de-velo">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-velo"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Stations de réparation de vélo</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-anatole-desjardins-239 poi" onclick="mapFilter.activatePOI('parc-anatole-desjardins',239)">
+											<span class="overlay-locations__link-level-3">
+												Parc Anatole-Desjardins
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-de-seve-2-242 poi" onclick="mapFilter.activatePOI('parc-de-seve-2',242)">
+											<span class="overlay-locations__link-level-3">
+												Parc De Sève
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-foisy-259 poi" onclick="mapFilter.activatePOI('parc-foisy',259)">
+											<span class="overlay-locations__link-level-3">
+												Parc Foisy
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-43" data-category="43" data-slug="tennis-et-pickleball">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-tennis"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Tennis et pickleball</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-college-lionel-groulx-261 poi" onclick="mapFilter.activatePOI('college-lionel-groulx',261)">
+											<span class="overlay-locations__link-level-3">
+												Complexe sportif du Collège Lionel-Groulx
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-anatole-desjardins-239 poi" onclick="mapFilter.activatePOI('parc-anatole-desjardins',239)">
+											<span class="overlay-locations__link-level-3">
+												Parc Anatole-Desjardins
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-de-seve-2-242 poi" onclick="mapFilter.activatePOI('parc-de-seve-2',242)">
+											<span class="overlay-locations__link-level-3">
+												Parc De Sève
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-saint-jacques-272 poi" onclick="mapFilter.activatePOI('parc-saint-jacques',272)">
+											<span class="overlay-locations__link-level-3">
+												Parc Saint-Jacques
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-44" data-category="44" data-slug="volleyball">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-volleyball"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Volleyball</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-ecole-saint-gabriel-311 poi" onclick="mapFilter.activatePOI('ecole-saint-gabriel',311)">
+											<span class="overlay-locations__link-level-3">
+												École Saint-Gabriel
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-richelieu-271 poi" onclick="mapFilter.activatePOI('parc-richelieu',271)">
+											<span class="overlay-locations__link-level-3 etat etat-section close">
+												Parc Richelieu
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-stade-dathletisme-richard-garneau-91 poi" onclick="mapFilter.activatePOI('stade-dathletisme-richard-garneau',91)">
+											<span class="overlay-locations__link-level-3">
+												Stade d&#039;athlétisme Richard-Garneau
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                            </ul>
+                </li>
+                                                <li class="overlay-locations__links-level-1-item || btnSubLvl1">
+                    <span class="overlay-locations__link-level-1 || toggle js-mapRootCategory" data-category="49" data-slug="patinoires-exterieures-1">
+						<span class="overlay-locations__link-level-1-text">Patinoires extérieures</span>
+                        <span class="overlay-locations__link-level-1-svg-container">
+							<svg class="overlay-locations__link-level-1-svg" role="img">
+								<use xlink:href="https://www.sainte-therese.ca/themes/saint-therese/assets/medias/images/icons/symbols.svg#ico-pointer-2"></use>
+							</svg>
+						</span>
+					</span>
+                    <ul class="overlay-locations__links-level-2 || subLvl1">
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-52" data-category="52" data-slug="anneau-de-glace">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-patin"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Anneau de glace</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-ducharme-anneau-1508 poi" onclick="mapFilter.activatePOI('parc-ducharme-anneau',1508)">
+											<span class="overlay-locations__link-level-3">
+												Parc Ducharme
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-51" data-category="51" data-slug="etant-glace">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-patin"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Étang glacé</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-adolphe-chapleau-etang-1500 poi" onclick="mapFilter.activatePOI('parc-adolphe-chapleau-etang',1500)">
+											<span class="overlay-locations__link-level-3">
+												Parc Adolphe-Chapleau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-beausejour-etang-1502 poi" onclick="mapFilter.activatePOI('parc-beausejour-etang',1502)">
+											<span class="overlay-locations__link-level-3">
+												Parc Beauséjour
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-blanche-giguere-etang-1503 poi" onclick="mapFilter.activatePOI('parc-blanche-giguere-etang',1503)">
+											<span class="overlay-locations__link-level-3">
+												Parc Blanche-Giguère
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-de-seve-etang-1506 poi" onclick="mapFilter.activatePOI('parc-de-seve-etang',1506)">
+											<span class="overlay-locations__link-level-3">
+												Parc De Sève
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-dubois-etang-1517 poi" onclick="mapFilter.activatePOI('parc-dubois-etang',1517)">
+											<span class="overlay-locations__link-level-3">
+												Parc Dubois
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-georges-emile-charron-etang-1509 poi" onclick="mapFilter.activatePOI('parc-georges-emile-charron-etang',1509)">
+											<span class="overlay-locations__link-level-3">
+												Parc Georges-Émile-Charron
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-saint-jacques-etang-1512 poi" onclick="mapFilter.activatePOI('parc-saint-jacques-etang',1512)">
+											<span class="overlay-locations__link-level-3">
+												Parc Saint-Jacques
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-place-fernand-thibault-etang-1-1516 poi" onclick="mapFilter.activatePOI('place-fernand-thibault-etang-1',1516)">
+											<span class="overlay-locations__link-level-3">
+												Place Fernand-Thibault
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-53" data-category="53" data-slug="parc-de-glisse">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-luge"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Parc de glisse</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-de-glisse-le-belvedere-1518 poi" onclick="mapFilter.activatePOI('parc-de-glisse-le-belvedere',1518)">
+											<span class="overlay-locations__link-level-3">
+												Le Belvédère
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-50" data-category="50" data-slug="patinoires-de-hockey">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-hockey"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Patinoire de hockey</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-academie-ste-therese-2319 poi" onclick="mapFilter.activatePOI('academie-ste-therese',2319)">
+											<span class="overlay-locations__link-level-3">
+												L&#039;Académie Ste-Thérèse
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-adolphe-chapleau-patinoire-1499 poi" onclick="mapFilter.activatePOI('parc-adolphe-chapleau-patinoire',1499)">
+											<span class="overlay-locations__link-level-3">
+												Parc Adolphe-Chapleau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-anatole-desjardins-patinoire-1501 poi" onclick="mapFilter.activatePOI('parc-anatole-desjardins-patinoire',1501)">
+											<span class="overlay-locations__link-level-3">
+												Parc Anatole-Desjardins
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-damase-juteau-patinoire-1504 poi" onclick="mapFilter.activatePOI('parc-damase-juteau-patinoire',1504)">
+											<span class="overlay-locations__link-level-3">
+												Parc Damase-Juteau
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-de-seve-patinoire-1505 poi" onclick="mapFilter.activatePOI('parc-de-seve-patinoire',1505)">
+											<span class="overlay-locations__link-level-3">
+												Parc De Sève
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-ducharme-patinoire-1507 poi" onclick="mapFilter.activatePOI('parc-ducharme-patinoire',1507)">
+											<span class="overlay-locations__link-level-3">
+												Parc Ducharme
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-lionel-bertrand-patinoire-1510 poi" onclick="mapFilter.activatePOI('parc-lionel-bertrand-patinoire',1510)">
+											<span class="overlay-locations__link-level-3">
+												Parc Lionel-Bertrand
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-parc-richelieu-patinoire-1511 poi" onclick="mapFilter.activatePOI('parc-richelieu-patinoire',1511)">
+											<span class="overlay-locations__link-level-3">
+												Parc Richelieu
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                            </ul>
+                </li>
+                                                <li class="overlay-locations__links-level-1-item || btnSubLvl1">
+                    <span class="overlay-locations__link-level-1 || toggle js-mapRootCategory" data-category="1" data-slug="services">
+						<span class="overlay-locations__link-level-1-text">Services</span>
+                        <span class="overlay-locations__link-level-1-svg-container">
+							<svg class="overlay-locations__link-level-1-svg" role="img">
+								<use xlink:href="https://www.sainte-therese.ca/themes/saint-therese/assets/medias/images/icons/symbols.svg#ico-pointer-2"></use>
+							</svg>
+						</span>
+					</span>
+                    <ul class="overlay-locations__links-level-2 || subLvl1">
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-3" data-category="3" data-slug="batiments-municipaux">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-mairie"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Bâtiments municipaux</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-ateliers-municipaux-447 poi" onclick="mapFilter.activatePOI('ateliers-municipaux',447)">
+											<span class="overlay-locations__link-level-3">
+												Ateliers municipaux
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-bibliotheque-3-1621 poi" onclick="mapFilter.activatePOI('bibliotheque-3',1621)">
+											<span class="overlay-locations__link-level-3">
+												Bibliothèque
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-securite-incendie-2-620 poi" onclick="mapFilter.activatePOI('securite-incendie-2',620)">
+											<span class="overlay-locations__link-level-3">
+												Caserne des pompiers
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-centre-culturel-et-communautaire-therese-de-blainville-1437 poi" onclick="mapFilter.activatePOI('centre-culturel-et-communautaire-therese-de-blainville',1437)">
+											<span class="overlay-locations__link-level-3">
+												Centre culturel et communautaire Thérèse-De Blainville
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-ecocentre-1-106 poi" onclick="mapFilter.activatePOI('ecocentre-1',106)">
+											<span class="overlay-locations__link-level-3">
+												Écocentre
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-hotel-de-ville-424 poi" onclick="mapFilter.activatePOI('hotel-de-ville',424)">
+											<span class="overlay-locations__link-level-3">
+												Hôtel de ville
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-maison-du-citoyen-1-446 poi" onclick="mapFilter.activatePOI('maison-du-citoyen-1',446)">
+											<span class="overlay-locations__link-level-3">
+												Maison du citoyen
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-station-de-purification-de-leau-1-577 poi" onclick="mapFilter.activatePOI('station-de-purification-de-leau-1',577)">
+											<span class="overlay-locations__link-level-3">
+												Station de purification de l&#039;eau
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-60" data-category="60" data-slug="communauto">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-auto"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Communauto</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-communauto-gare-2955 poi" onclick="mapFilter.activatePOI('communauto-gare',2955)">
+											<span class="overlay-locations__link-level-3">
+												Communauto - Gare de Sainte-Thérèse
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-communauto-ducharme-2952 poi" onclick="mapFilter.activatePOI('communauto-ducharme',2952)">
+											<span class="overlay-locations__link-level-3">
+												Communauto - Parc Ducharme
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-communauto-super-c-2954 poi" onclick="mapFilter.activatePOI('communauto-super-c',2954)">
+											<span class="overlay-locations__link-level-3">
+												Communauto - Stationnement du Super C
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-communauto-stationnement-municipal-2953 poi" onclick="mapFilter.activatePOI('communauto-stationnement-municipal',2953)">
+											<span class="overlay-locations__link-level-3">
+												Communauto - Stationnement municipal
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-57" data-category="57" data-slug="stationnements-mobilite-reduite">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-parking"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Stationnements</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-stationnements-pour-personnes-mobilite-reduite-2551 poi" onclick="mapFilter.activatePOI('stationnements-pour-personnes-mobilite-reduite',2551)">
+											<span class="overlay-locations__link-level-3">
+												Stationnements pour personnes à mobilité réduite
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-59" data-category="59" data-slug="stations-bixi">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-velo"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Stations BIXI</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-bibliotheque-municipale-2798 poi" onclick="mapFilter.activatePOI('bibliotheque-municipale',2798)">
+											<span class="overlay-locations__link-level-3">
+												Bibliothèque municipale
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-hotel-de-ville-1-2799 poi" onclick="mapFilter.activatePOI('hotel-de-ville-1',2799)">
+											<span class="overlay-locations__link-level-3 etat etat-section other">
+												Hôtel de ville
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-intersection-de-la-rue-ducharme-et-du-boulevard-du-cure-labelle-2796 poi" onclick="mapFilter.activatePOI('intersection-de-la-rue-ducharme-et-du-boulevard-du-cure-labelle',2796)">
+											<span class="overlay-locations__link-level-3">
+												Intersection de la rue Ducharme et du boulevard du Curé-Labelle
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-intersection-des-rues-blainville-est-et-leduc-2797 poi" onclick="mapFilter.activatePOI('intersection-des-rues-blainville-est-et-leduc',2797)">
+											<span class="overlay-locations__link-level-3">
+												Intersection des rues Blainville Est et Leduc
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-gare-de-sainte-therese-2795 poi" onclick="mapFilter.activatePOI('gare-de-sainte-therese',2795)">
+											<span class="overlay-locations__link-level-3">
+												Parc Foisy
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-56" data-category="56" data-slug="zones-des-collectes">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-poubelles"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Zones des collectes</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-zone-1-2290 poi" onclick="mapFilter.activatePOI('zone-1',2290)">
+											<span class="overlay-locations__link-level-3">
+												Zone A
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-zone-b-2291 poi" onclick="mapFilter.activatePOI('zone-b',2291)">
+											<span class="overlay-locations__link-level-3">
+												Zone B
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-zone-c-2292 poi" onclick="mapFilter.activatePOI('zone-c',2292)">
+											<span class="overlay-locations__link-level-3">
+												Zone C
+											</span>
+                                        </li>
+                                                                            <li class="overlay-locations__links-level-3-item || poi-zone-d-2293 poi" onclick="mapFilter.activatePOI('zone-d',2293)">
+											<span class="overlay-locations__link-level-3">
+												Zone D
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                            </ul>
+                </li>
+                                                <li class="overlay-locations__links-level-1-item || btnSubLvl1">
+                    <span class="overlay-locations__link-level-1 || toggle js-mapRootCategory" data-category="47" data-slug="territoire">
+						<span class="overlay-locations__link-level-1-text">Territoire</span>
+                        <span class="overlay-locations__link-level-1-svg-container">
+							<svg class="overlay-locations__link-level-1-svg" role="img">
+								<use xlink:href="https://www.sainte-therese.ca/themes/saint-therese/assets/medias/images/icons/symbols.svg#ico-pointer-2"></use>
+							</svg>
+						</span>
+					</span>
+                    <ul class="overlay-locations__links-level-2 || subLvl1">
+                                                    <li class="overlay-locations__links-level-2-item || btnSubLvl2">
+								<span class="overlay-locations__link-level-2 || js-mapSubCategory subCategory" id="cat-48" data-category="48" data-slug="territoire-de-sainte-therese">
+                                    <span class="overlay-locations__link-level-2-svg-container">
+                                        <svg class="overlay-locations__link-level-2-svg" role="img">
+                                            <use xlink:href="https://www.sainte-therese.ca/plugins/blanko/design/assets/icones/frontend/icons.svg#ico-map"></use>
+                                        </svg>
+                                    </span>
+                                    <span class="overlay-locations__link-level-2-text">Territoire de Sainte-Thérèse</span>
+								</span>
+                                <ul class="overlay-locations__links-level-3 || subLvl2">
+                                                                            <li class="overlay-locations__links-level-3-item || poi-presentation-de-la-ville-8 poi" onclick="mapFilter.activatePOI('presentation-de-la-ville',8)">
+											<span class="overlay-locations__link-level-3">
+												Présentation de la ville
+											</span>
+                                        </li>
+                                                                    </ul>
+                            </li>
+                                            </ul>
+                </li>
+                        </ul>
+</div>
+<div class="overlay-location" id="overlayLocation">
+    </div>
+
+<section class="header-block-mobile">
+    <a class="header-block-mobile__logo-container" href="https://www.sainte-therese.ca" title="Retour à l’accueil">
+        <img class="header-block-mobile__logo-image" src="https://www.sainte-therese.ca/themes/saint-therese/assets/medias/images/logo-sainte-therese.svg" alt="Logo Ville de Sainte-Thérèse">
+    </a>
+    <button class="header-block-mobile__button-close-map button-close-map || js-backToPreviousPage" title="Quitter la carte interactive">
+        <svg class="button-close-map__svg" role="img">
+            <use xlink:href="https://www.sainte-therese.ca/themes/saint-therese/assets/medias/images/icons/symbols.svg#ico-exit-map"></use>
+        </svg>
+    </button>
+</section>
+
+<section class="nav-block-mobile">
+    <button class="nav-block-mobile__button || btnLocations">
+        <span class="nav-block-mobile__button-text" id="mapCategoryName">Catégories</span>
+        <span class="nav-block-mobile__button-svg-container">
+			<svg class="nav-block-mobile__button-svg" role="img">
+				<use xlink:href="https://www.sainte-therese.ca/themes/saint-therese/assets/medias/images/icons/symbols.svg#ico-pointer-2"></use>
+			</svg>
+		</span>
+    </button>
+</section>
+
+<div class="button-close-map-container">
+    <button class="button-close-map || js-backToPreviousPage" title="Quitter la carte interactive">
+        <svg class="button-close-map__svg" role="img">
+            <use xlink:href="https://www.sainte-therese.ca/themes/saint-therese/assets/medias/images/icons/symbols.svg#ico-exit-map"></use>
+        </svg>
+    </button>
+</div>
+
+<div class="button-see-all-container">
+    <button class="button-see-all || js-mapRoot">
+        <span>Tout voir</span>
+    </button>
+</div>
+
+<section class="map-block">
+    <div class="map-block__google-map" id="googleMap"></div>
+    <div class="map-block__google-map-loading" id="googleMapLoading">
+        <div class="map-block__google-map-loading-pulse"></div>
+    </div>
+</section></div>        </div>
+
+        <!-- SCRIPTS -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCdkC-gS-vEaEhvd5B3EKqQZqAu2Iss3XM&v=3.65&libraries=places"></script>
+    <script src="https://www.google.com/recaptcha/api.js?hl=&render=explicit"></script>
+    <script src="https://www.sainte-therese.ca/themes/saint-therese/assets/prod/js/tail.select.min.js"></script>
+    <script src="https://www.sainte-therese.ca/themes/saint-therese/assets/dist/build.js"></script>
+
+    <script src="/modules/system/assets/js/framework.combined-min.js"></script>
+<link rel="stylesheet" property="stylesheet" href="/modules/system/assets/css/framework.extras-min.css">
+    
+    <script src="https://www.sainte-therese.ca/plugins/blanko/forms/assets/dist/build.js"></script>
+    <script src="https://www.sainte-therese.ca/plugins/blanko/forms/assets/js/dropzone.js"></script>
+    <script src="https://www.sainte-therese.ca/plugins/blanko/forms/assets/js/file-multi.js"></script>
+    <script src="https://romeo.blanko.ca/chatbot/v1/assets/dist/chatbot-bubble.js?chatbot-id=CHP0G0sZ9cg9hNqSULXHb&lang=fr" defer></script>
+        <script>
+            window.config = {
+                site_name : 'Ville de Sainte-Thérèse',
+                theme_path : 'saint-therese'
+            }
+        </script>
+    </body>
+</html>

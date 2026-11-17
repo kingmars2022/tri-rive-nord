@@ -1,0 +1,276 @@
+{
+  "slug": "sainte-therese",
+  "name": "Sainte-Therese",
+  "fetched_at": "2026-11-17T13:40:54+00:00",
+  "start_urls": [
+    "https://www.sainte-therese.ca/",
+    "https://ville.sainte-therese.qc.ca/"
+  ],
+  "pages_fetched": 29,
+  "page_cap_reached": false,
+  "files": [
+    {
+      "file": "d7c63e6a_www.sainte-therese.ca.html",
+      "url": "https://www.sainte-therese.ca/",
+      "requested_url": "https://www.sainte-therese.ca/",
+      "found_on": null,
+      "content_type": "text/html",
+      "bytes": 219443,
+      "sha256": "10afd8ca6c6ce1f455a9045848c472f641feeebb4fa1c1a597c5572625116bf4"
+    },
+    {
+      "file": "0736540d_www.sainte-therese.ca_services_services-aux-citoyens_collectes-et-ecocentre.html",
+      "url": "https://www.sainte-therese.ca/services/services-aux-citoyens/collectes-et-ecocentre",
+      "requested_url": "https://www.sainte-therese.ca/services/services-aux-citoyens/collectes-et-ecocentre",
+      "found_on": "https://www.sainte-therese.ca/",
+      "content_type": "text/html",
+      "bytes": 242898,
+      "sha256": "3d65ea9cb8e4fcfd221fc3a2276c9e6fc0fe92af97dfa7fc12b8072f915e89c0"
+    },
+    {
+      "file": "1ad6f496_www.sainte-therese.ca_storage_app_media_services_citoyens_collectes-et-ecocentre_1373_NS_Regl_mat_res.pdf",
+      "url": "https://www.sainte-therese.ca/storage/app/media/services/citoyens/collectes-et-ecocentre/1373_NS_Regl_mat_res.pdf",
+      "requested_url": "https://www.sainte-therese.ca/storage/app/media/services/citoyens/collectes-et-ecocentre/1373_NS_Regl_mat_res.pdf",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/collectes-et-ecocentre",
+      "content_type": "application/pdf",
+      "bytes": 3145513,
+      "sha256": "4e3a9cb5f23f4fea5cfd5d2ccd5e62fd5863ac26e9ff09537aaf8580829f4839"
+    },
+    {
+      "file": "a95c88a6_www.sainte-therese.ca_storage_app_media_services_citoyens_collectes-et-ecocentre_VST_Calendrier-collectes-2026_ZoneD.pdf",
+      "url": "https://www.sainte-therese.ca/storage/app/media/services/citoyens/collectes-et-ecocentre/VST_Calendrier-collectes-2026_ZoneD.pdf",
+      "requested_url": "https://www.sainte-therese.ca/storage/app/media/services/citoyens/collectes-et-ecocentre/VST_Calendrier-collectes-2026_ZoneD.pdf",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/collectes-et-ecocentre",
+      "content_type": "application/pdf",
+      "bytes": 60404,
+      "sha256": "d2ca66addadc5874473cd4bbe825eda5344d8eb9447bcde98c9d27d821ee9177"
+    },
+    {
+      "file": "a82cc2cf_www.sainte-therese.ca_storage_app_media_services_citoyens_collectes-et-ecocentre_VST_Calendrier-collectes-2026_ZoneC.pdf",
+      "url": "https://www.sainte-therese.ca/storage/app/media/services/citoyens/collectes-et-ecocentre/VST_Calendrier-collectes-2026_ZoneC.pdf",
+      "requested_url": "https://www.sainte-therese.ca/storage/app/media/services/citoyens/collectes-et-ecocentre/VST_Calendrier-collectes-2026_ZoneC.pdf",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/collectes-et-ecocentre",
+      "content_type": "application/pdf",
+      "bytes": 60237,
+      "sha256": "df27c93b2183354e4634ca8511c7ac33bbbc65932688797b9af7b5e339def62f"
+    },
+    {
+      "file": "427e1c27_www.sainte-therese.ca_storage_app_media_services_citoyens_collectes-et-ecocentre_VST_Calendrier-collectes-2026_ZoneB.pdf",
+      "url": "https://www.sainte-therese.ca/storage/app/media/services/citoyens/collectes-et-ecocentre/VST_Calendrier-collectes-2026_ZoneB.pdf",
+      "requested_url": "https://www.sainte-therese.ca/storage/app/media/services/citoyens/collectes-et-ecocentre/VST_Calendrier-collectes-2026_ZoneB.pdf",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/collectes-et-ecocentre",
+      "content_type": "application/pdf",
+      "bytes": 60195,
+      "sha256": "b0595d621c02a0ceee2a9eb8229896b297f8d511d9fcec66a5deb6b85206d0b3"
+    },
+    {
+      "file": "b08b78f3_www.sainte-therese.ca_storage_app_media_services_citoyens_collectes-et-ecocentre_VST_Calendrier-collectes-2026_ZoneA.pdf",
+      "url": "https://www.sainte-therese.ca/storage/app/media/services/citoyens/collectes-et-ecocentre/VST_Calendrier-collectes-2026_ZoneA.pdf",
+      "requested_url": "https://www.sainte-therese.ca/storage/app/media/services/citoyens/collectes-et-ecocentre/VST_Calendrier-collectes-2026_ZoneA.pdf",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/collectes-et-ecocentre",
+      "content_type": "application/pdf",
+      "bytes": 59538,
+      "sha256": "bc1da88e5018fa276a0ac3c2ce5fe8b6f3af0a9bb5f7d6a81b8aa478e1b1d23b"
+    },
+    {
+      "file": "94ab58ff_www.sainte-therese.ca_storage_app_media_services_citoyens_collectes-et-ecocentre_VST_Calendrier-collectes-2026_4Zones.pdf",
+      "url": "https://www.sainte-therese.ca/storage/app/media/services/citoyens/collectes-et-ecocentre/VST_Calendrier-collectes-2026_4Zones.pdf",
+      "requested_url": "https://www.sainte-therese.ca/storage/app/media/services/citoyens/collectes-et-ecocentre/VST_Calendrier-collectes-2026_4Zones.pdf",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/collectes-et-ecocentre",
+      "content_type": "application/pdf",
+      "bytes": 168547,
+      "sha256": "15a9606410db7578e38509f6d8110b9d4dab46f5a659b003a150b6a71de8d8cc"
+    },
+    {
+      "file": "fff5bd4a_www.sainte-therese.ca_services_services-aux-citoyens_environnement-et-developpement-durable.html",
+      "url": "https://www.sainte-therese.ca/services/services-aux-citoyens/environnement-et-developpement-durable",
+      "requested_url": "https://www.sainte-therese.ca/services/services-aux-citoyens/environnement-et-developpement-durable",
+      "found_on": "https://www.sainte-therese.ca/",
+      "content_type": "text/html",
+      "bytes": 240745,
+      "sha256": "657532a3d4140e2276e622d0aded19d0b70fc2bc923a1a2a543c7e70e66f05bd"
+    },
+    {
+      "file": "c3cc0ad8_www.sainte-therese.ca_storage_app_media_services_citoyens_environnement_Reglement-1126-5_Pesticides.pdf",
+      "url": "https://www.sainte-therese.ca/storage/app/media/services/citoyens/environnement/Reglement-1126-5_Pesticides.pdf",
+      "requested_url": "https://www.sainte-therese.ca/storage/app/media/services/citoyens/environnement/Reglement-1126-5_Pesticides.pdf",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/environnement-et-developpement-durable",
+      "content_type": "application/pdf",
+      "bytes": 276967,
+      "sha256": "a37db4a9a2bba4e1de9bdebf799ec01ceb698e5e6d365f3ba65c5f1f02e919c9"
+    },
+    {
+      "file": "9d3a599e_www.sainte-therese.ca_storage_app_media_ville_administration_politiques-plans-action_Bilan-plan-action-environnemental.pdf",
+      "url": "https://www.sainte-therese.ca/storage/app/media/ville/administration/politiques-plans-action/Bilan-plan-action-environnemental.pdf",
+      "requested_url": "https://www.sainte-therese.ca/storage/app/media/ville/administration/politiques-plans-action/Bilan-plan-action-environnemental.pdf",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/environnement-et-developpement-durable",
+      "content_type": "application/pdf",
+      "bytes": 1155245,
+      "sha256": "e8f6f63cf477cf3ce97a2d616fb93154d8351caf04dbb2b5b6fec661d4c3da8b"
+    },
+    {
+      "file": "86209058_www.sainte-therese.ca_storage_app_media_ville_administration_politiques-plans-action_Politique-environnementale-sainte-therese.pdf",
+      "url": "https://www.sainte-therese.ca/storage/app/media/ville/administration/politiques-plans-action/Politique-environnementale-sainte-therese.pdf",
+      "requested_url": "https://www.sainte-therese.ca/storage/app/media/ville/administration/politiques-plans-action/Politique-environnementale-sainte-therese.pdf",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/environnement-et-developpement-durable",
+      "content_type": "application/pdf",
+      "bytes": 1108741,
+      "sha256": "86b53d4e4a82bfbbd8ba6370c98df158eb83583eb66b4d2d30d5aa82bdf60552"
+    },
+    {
+      "file": "f8e70475_www.sainte-therese.ca_storage_app_media_ville_administration_reglements-municipaux_Reglement_1330_NS_Projet.pdf",
+      "url": "https://www.sainte-therese.ca/storage/app/media/ville/administration/reglements-municipaux/Reglement_1330_NS_Projet.pdf",
+      "requested_url": "https://www.sainte-therese.ca/storage/app/media/ville/administration/reglements-municipaux/Reglement_1330_NS_Projet.pdf",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/environnement-et-developpement-durable",
+      "content_type": "application/pdf",
+      "bytes": 181839,
+      "sha256": "adcde87bd4831770e6970da7fed9eca564f01f35c3c5859897a3a427b7310da1"
+    },
+    {
+      "file": "5ab4bebe_www.sainte-therese.ca_storage_app_media_services_citoyens_subventions_1349_NS_Reglement.pdf",
+      "url": "https://www.sainte-therese.ca/storage/app/media/services/citoyens/subventions/1349_NS_Reglement.pdf",
+      "requested_url": "https://www.sainte-therese.ca/storage/app/media/services/citoyens/subventions/1349_NS_Reglement.pdf",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/environnement-et-developpement-durable",
+      "content_type": "application/pdf",
+      "bytes": 937141,
+      "sha256": "887b0a92643126f91476effe835be1bc9a1a1e5a3924bf111314dcc10a56da8d"
+    },
+    {
+      "file": "5969f1ca_www.sainte-therese.ca_storage_app_media_services_citoyens_environnement_Reglement_1331NS_Sacs-plastique.pdf",
+      "url": "https://www.sainte-therese.ca/storage/app/media/services/citoyens/environnement/Reglement_1331NS_Sacs-plastique.pdf",
+      "requested_url": "https://www.sainte-therese.ca/storage/app/media/services/citoyens/environnement/Reglement_1331NS_Sacs-plastique.pdf",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/environnement-et-developpement-durable",
+      "content_type": "application/pdf",
+      "bytes": 203827,
+      "sha256": "411880f38a67338745feb99b4c8fa7dc2d3e7dc6e433fabf6c5b8ee1b4a3e74a"
+    },
+    {
+      "file": "ba839592_www.sainte-therese.ca_nouvelles-municipales_securite-publique_collecte-de-jouets-sainte-therese-2025.html",
+      "url": "https://www.sainte-therese.ca/nouvelles-municipales/securite-publique/collecte-de-jouets-sainte-therese-2025",
+      "requested_url": "https://www.sainte-therese.ca/nouvelles-municipales/securite-publique/collecte-de-jouets-sainte-therese-2025",
+      "found_on": "https://www.sainte-therese.ca/",
+      "content_type": "text/html",
+      "bytes": 187436,
+      "sha256": "eeedbba7bf07b0afca34dfad0a3b12f09ee1e496f73760b8c957807f0bba3748"
+    },
+    {
+      "file": "5da2a4c2_www.sainte-therese.ca_carte-interactive_services_zones-des-collectes.html",
+      "url": "https://www.sainte-therese.ca/carte-interactive/services/zones-des-collectes",
+      "requested_url": "https://www.sainte-therese.ca/carte-interactive/services/zones-des-collectes",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/collectes-et-ecocentre",
+      "content_type": "text/html",
+      "bytes": 147471,
+      "sha256": "eea29abd6cb05102d6e9b82e878f5ab920064f2b84cd9ad9953520e3a4d3e4df"
+    },
+    {
+      "file": "f2df11b7_www.sainte-therese.ca_services_services-aux-citoyens_conseils-dutilisation-du-bac-brun.html",
+      "url": "https://www.sainte-therese.ca/services/services-aux-citoyens/conseils-dutilisation-du-bac-brun",
+      "requested_url": "https://www.sainte-therese.ca/services/services-aux-citoyens/conseils-dutilisation-du-bac-brun",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/collectes-et-ecocentre",
+      "content_type": "text/html",
+      "bytes": 188766,
+      "sha256": "7ecff258fd7dc6b0a79e8a27f1e0f0de513f08fa41af674d2ddf49f619a2ac37"
+    },
+    {
+      "file": "126a16a9_www.sainte-therese.ca_services_services-aux-citoyens_ecocentre.html",
+      "url": "https://www.sainte-therese.ca/services/services-aux-citoyens/ecocentre",
+      "requested_url": "https://www.sainte-therese.ca/services/services-aux-citoyens/ecocentre",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/collectes-et-ecocentre",
+      "content_type": "text/html",
+      "bytes": 220097,
+      "sha256": "7395197e8da35ad34770486d3a3f58857a1d6599dcc23449dbbc421a55bed4e7"
+    },
+    {
+      "file": "87d775f9_www.sainte-therese.ca_storage_app_media_services_citoyens_collectes-et-ecocentre_Formulaire_contrat_remorques_FINAL.pdf",
+      "url": "https://www.sainte-therese.ca/storage/app/media/services/citoyens/collectes-et-ecocentre/Formulaire_contrat_remorques_FINAL.pdf",
+      "requested_url": "https://www.sainte-therese.ca/storage/app/media/services/citoyens/collectes-et-ecocentre/Formulaire_contrat_remorques_FINAL.pdf",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/ecocentre",
+      "content_type": "application/pdf",
+      "bytes": 798021,
+      "sha256": "6070445d970948d6086f70015bafbb9847caa2c818cc4a0bfffafdfa3834e8de"
+    },
+    {
+      "file": "5139f2c3_www.sainte-therese.ca_carte-interactive_services_batiments-municipaux_ecocentre.html",
+      "url": "https://www.sainte-therese.ca/carte-interactive/services/batiments-municipaux/ecocentre",
+      "requested_url": "https://www.sainte-therese.ca/carte-interactive/services/batiments-municipaux/ecocentre",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/collectes-et-ecocentre",
+      "content_type": "text/html",
+      "bytes": 147502,
+      "sha256": "747c52062b01f325eda7439f160e67de19d2e0443b25de2090041e118357451c"
+    },
+    {
+      "file": "ba0ad68c_www.sainte-therese.ca_nouvelles-municipales_environnement_nouveautes-concernant-la-gestion-des-debris-de-construction.html",
+      "url": "https://www.sainte-therese.ca/nouvelles-municipales/environnement/nouveautes-concernant-la-gestion-des-debris-de-construction",
+      "requested_url": "https://www.sainte-therese.ca/nouvelles-municipales/environnement/nouveautes-concernant-la-gestion-des-debris-de-construction",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/collectes-et-ecocentre",
+      "content_type": "text/html",
+      "bytes": 188324,
+      "sha256": "2545281185f9315e2301bb72e3a4c3f4c7579debad8eb743ed47746bec4812c5"
+    },
+    {
+      "file": "2b055a71_www.sainte-therese.ca_services_services-aux-citoyens_faq-collectes.html",
+      "url": "https://www.sainte-therese.ca/services/services-aux-citoyens/faq-collectes",
+      "requested_url": "https://www.sainte-therese.ca/services/services-aux-citoyens/faq-collectes",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/collectes-et-ecocentre",
+      "content_type": "text/html",
+      "bytes": 218979,
+      "sha256": "1e2b4f61989085a0aad5ff22a6fe971138d9b26f78fe5d56974a53e9cfd37de0"
+    },
+    {
+      "file": "854b67b2_www.sainte-therese.ca_services_services-aux-citoyens_actions-environnementales-annexe-a.html",
+      "url": "https://www.sainte-therese.ca/services/services-aux-citoyens/actions-environnementales-annexe-a",
+      "requested_url": "https://www.sainte-therese.ca/services/services-aux-citoyens/actions-environnementales-annexe-a",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/environnement-et-developpement-durable",
+      "content_type": "text/html",
+      "bytes": 202779,
+      "sha256": "c0c683d136f8e12bc00098b455ebbc35a526a8ff4e714b2713335f591a23c720"
+    },
+    {
+      "file": "b5988e0f_www.sainte-therese.ca_services_services-aux-citoyens_actions-environnementales-annexe-b.html",
+      "url": "https://www.sainte-therese.ca/services/services-aux-citoyens/actions-environnementales-annexe-b",
+      "requested_url": "https://www.sainte-therese.ca/services/services-aux-citoyens/actions-environnementales-annexe-b",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/environnement-et-developpement-durable",
+      "content_type": "text/html",
+      "bytes": 199130,
+      "sha256": "cc4fa947176ac23a34d3881edf808156d0e521f0f8ff9c993e6f69ac39116070"
+    },
+    {
+      "file": "4d2ec79d_www.sainte-therese.ca_carte-interactive_services_batiments-municipaux_ecocentre-1.html",
+      "url": "https://www.sainte-therese.ca/carte-interactive/services/batiments-municipaux/ecocentre-1",
+      "requested_url": "https://www.sainte-therese.ca/carte-interactive/services/batiments-municipaux/ecocentre-1",
+      "found_on": "https://www.sainte-therese.ca/services/services-aux-citoyens/ecocentre",
+      "content_type": "text/html",
+      "bytes": 153146,
+      "sha256": "47465d8cf63f32138a6ba8b5fb2069ccf2120448c7ebbf356c8079559dd87a4f"
+    },
+    {
+      "file": "b6016a8f_www.sainte-therese.ca_nouvelles-municipales_environnement_laureats-quatrieme-edition-concours-sainte-therese-la-florissante.html",
+      "url": "https://www.sainte-therese.ca/nouvelles-municipales/environnement/laureats-quatrieme-edition-concours-sainte-therese-la-florissante",
+      "requested_url": "https://www.sainte-therese.ca/nouvelles-municipales/environnement/laureats-quatrieme-edition-concours-sainte-therese-la-florissante",
+      "found_on": "https://www.sainte-therese.ca/nouvelles-municipales/environnement/nouveautes-concernant-la-gestion-des-debris-de-construction",
+      "content_type": "text/html",
+      "bytes": 206550,
+      "sha256": "fa9997eb8fabac67a404e41a03defe5a54aa1e8945980b6a8d35eb52c5960464"
+    },
+    {
+      "file": "fa7c531d_www.sainte-therese.ca_nouvelles-municipales_environnement_plantation-arbres-programme-subvention.html",
+      "url": "https://www.sainte-therese.ca/nouvelles-municipales/environnement/plantation-arbres-programme-subvention",
+      "requested_url": "https://www.sainte-therese.ca/nouvelles-municipales/environnement/plantation-arbres-programme-subvention",
+      "found_on": "https://www.sainte-therese.ca/nouvelles-municipales/environnement/nouveautes-concernant-la-gestion-des-debris-de-construction",
+      "content_type": "text/html",
+      "bytes": 189512,
+      "sha256": "44cd30a03602ebcdfda98fb8c6de6347dcf97c659e1ad1d70ca69a8f5dc7f67f"
+    }
+  ],
+  "errors": [
+    {
+      "url": "https://ville.sainte-therese.qc.ca/",
+      "error": "URLError: <urlopen error timed out>"
+    },
+    {
+      "url": "https://www.sainte-therese.ca/recherche-par-mot?q=Calendrier des collectes",
+      "error": "InvalidURL: URL can't contain control characters. '/recherche-par-mot?q=Calendrier des collectes' (found at least ' ')"
+    }
+  ],
+  "note": "Raw copies of the city's own pages and documents. Not parsed, not verified. See docs/loading-a-city.md before using."
+}
