@@ -128,6 +128,40 @@ class HolidayShiftTest {
     }
 
     @Test
+    void aNegativeShiftMovesTheCollectionEarlier() {
+        // Sainte-Therese, zone D: Christmas 2026 is a Friday, and the city's
+        // grid prints that Friday's collection on Thursday the 24th.
+        HolidayShift shift = HolidayShift.of(List.of(holiday("2026-12-25", -1, Sector.ALL)));
+
+        HolidayShift.Shifted result = shift.apply(LocalDate.parse("2026-12-25"), Sector.of("d"));
+
+        assertThat(result.date()).isEqualTo(LocalDate.parse("2026-12-24"));
+        assertThat(result.moved()).isTrue();
+    }
+
+    @Test
+    void twoHolidaysPointingAtEachOtherTerminateInsteadOfHanging() {
+        // Nonsense data a backwards shift makes possible: the 24th sends the
+        // collection to the 25th and the 25th sends it back. The loop must
+        // still end, wherever it ends.
+        HolidayShift shift = HolidayShift.of(List.of(
+                holiday("2026-12-24", 1, Sector.ALL),
+                holiday("2026-12-25", -1, Sector.ALL)));
+
+        HolidayShift.Shifted result = shift.apply(LocalDate.parse("2026-12-24"), Sector.ALL);
+
+        assertThat(result.causes()).hasSize(7);
+    }
+
+    @Test
+    void aZeroShiftThatSlipsPastTheDatabaseStillLeavesTheClosedDay() {
+        HolidayShift shift = HolidayShift.of(List.of(holiday("2026-12-25", 0, Sector.ALL)));
+
+        assertThat(shift.apply(LocalDate.parse("2026-12-25"), Sector.ALL).date())
+                .isEqualTo(LocalDate.parse("2026-12-26"));
+    }
+
+    @Test
     void noHolidaysAtAllIsNotASpecialCase() {
         assertThat(HolidayShift.none().apply(LocalDate.parse("2026-12-25"), Sector.ALL).moved()).isFalse();
     }

@@ -4,7 +4,7 @@
 <mapper namespace="com.tririvenord.collection.CollectionScheduleRuleMapper">
     <select id="findActive" resultType="com.tririvenord.collection.CollectionScheduleRule">
         select id, municipality_id as municipalityId, sector, collection_type, bin_color, anchor_date, interval_weeks,
-               generated_through, note_fr, note_en, note_zh, source_url, active
+               generated_through, note_fr, note_en, note_zh, source_url, active, valid_until
         from collection_schedule_rule
         where active = true
         order by id asc

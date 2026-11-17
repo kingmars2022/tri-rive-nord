@@ -1064,7 +1064,7 @@ onMounted(() => {
           </label>
           <label>
             {{ t("admin.shiftDays") }}
-            <input v-model="holidayDraft.shiftDays" type="number" min="1" max="7" required />
+            <input v-model="holidayDraft.shiftDays" type="number" min="-7" max="7" required />
           </label>
           <label>
             {{ t("admin.sector") }}

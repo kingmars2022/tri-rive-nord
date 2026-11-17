@@ -38,7 +38,7 @@ that the city stays unloaded. The application already renders that honestly.
      boulevard; another city may use three zones, or none)
    - statutory holidays, and how many days a collection moves when one lands
      on its day
-3. **Write the migration.** `V22` onward. Insert the sectors into
+3. **Write the migration.** `V23` onward (`V22` is Sainte-Therese). Insert the sectors into
    `municipality_sector`, the rules into `collection_schedule_rule`, the
    holidays into `collection_holiday`, and the guide into `sorting_item` and
    its three child tables. Set `calendar_verified` and `guide_verified` on the
@@ -49,7 +49,45 @@ that the city stays unloaded. The application already renders that honestly.
    from the published calendar, and prove the test fails without the
    migration before believing it.
 5. **Run everything.** `mvn test -Pintegration-test` needs a real MySQL and
-   Redis; see `docs/deployment.md`. 216 tests, all green, before and after.
+   Redis; see `docs/deployment.md`. All green before and after: 216 before
+   Sainte-Therese, 230 after it.
+
+## Loaded so far
+
+| City | Calendar | Guide | Migration |
+|---|---|---|---|
+| Blainville | yes | yes | V15, V17 |
+| Sainte-Therese | yes, 2026 grids | no | V22 |
+| Boisbriand | no | no | |
+| Rosemere | no | no | |
+
+## What Sainte-Therese added to the list of things to get wrong
+
+- **Anchor on the first collection on or after the day you read the
+  calendar.** A rule is never projected backwards from its anchor, so an
+  anchor one fortnight too late silently drops the collection in between. The
+  first draft of V22 did exactly that to zone A's recycling on 17 November,
+  and only the test that lists every printed date caught it.
+- **Frequency can change with the season.** Sainte-Therese collects organics
+  weekly April to November and fortnightly December to March. Rules have a
+  `valid_until` for this: write the season as consecutive rules, each ending
+  where the next begins.
+- **A holiday can move a collection earlier.** `shift_days` is negative when
+  the city moves a collection to the day before, which is what Sainte-Therese
+  does with a Friday holiday. The same city moved 1 January 2026 the other
+  way, so read the direction off the grid each time.
+- **A pattern that is not weekly is not a rule.** Bulky items on "the first
+  Monday of the month" cannot be an anchor plus weeks; load the printed dates
+  that are still ahead as plain `collection_event` rows.
+- **Tests written for one city may assume there is only one.** Loading the
+  second city broke four existing integration tests, none of them because
+  the data was wrong: they counted or deleted `collection_event` rows across
+  the whole table. One deleted every city's collections from a date onward,
+  which took Sainte-Therese's hand-loaded bulky pickup with it. Scope test
+  SQL to the city it is about.
+- **Say where the printed calendar ends.** The rules continue past it on the
+  strength of the city's own standing rules, which is a weaker claim than a
+  printed date. The migration and the test both say which dates are which.
 
 ## Conventions this schema expects
 

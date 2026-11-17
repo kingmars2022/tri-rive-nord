@@ -19,10 +19,12 @@ import java.util.stream.Collectors;
 public final class HolidayShift {
     /**
      * A collection that landed on a holiday moves, then may land on another.
-     * Each step moves strictly forward and the holiday set is finite, so the
-     * loop terminates on any sane data; this bounds it on insane data instead
-     * of hanging the daily job. Seven consecutive closed days is already far
-     * beyond anything a municipal calendar expresses.
+     * Shifts can point either way since V22 - Sainte-Therese moves a Friday
+     * holiday's collection to the Thursday before - so two holidays pointing
+     * at each other could bounce a date between them for ever. This bounds
+     * that, and any other insane data, instead of hanging the daily job.
+     * Seven consecutive closed days is already far beyond anything a
+     * municipal calendar expresses.
      */
     private static final int MAX_STEPS = 7;
 
@@ -64,7 +66,10 @@ public final class HolidayShift {
                 return new Shifted(moved, List.copyOf(causes));
             }
             causes.add(hit);
-            moved = moved.plusDays(Math.max(1, hit.shiftDays()));
+            // Zero is refused by the database and the API; if one arrives
+            // anyway it is read as the old default of one day forward rather
+            // than leaving the collection on the day nobody collects.
+            moved = moved.plusDays(hit.shiftDays() == 0 ? 1 : hit.shiftDays());
         }
         return new Shifted(moved, List.copyOf(causes));
     }

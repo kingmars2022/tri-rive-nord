@@ -13,6 +13,13 @@ import java.util.List;
  * @param anchorDate       a date the pattern is known to fall on; the weekday and
  *                         the phase of the cycle both come from it
  * @param intervalWeeks    1 for weekly, 2 for biweekly
+ * @param validUntil       the last date the pattern may fall on, inclusive, or
+ *                         null when it has no known end. Exists because some
+ *                         cities change frequency with the season: Sainte-
+ *                         Therese collects organics weekly from April to
+ *                         November and fortnightly from December to March,
+ *                         which is two rules that each stop, not one that
+ *                         runs for ever.
  * @param generatedThrough the last date already materialized into
  *                         {@code collection_event} for this rule
  */
@@ -29,8 +36,18 @@ public record CollectionScheduleRule(
         String noteEn,
         String noteZh,
         String sourceUrl,
-        boolean active
+        boolean active,
+        LocalDate validUntil
 ) {
+    /** A rule with no end date, which is what every rule was before V22. */
+    public CollectionScheduleRule(Long id, Long municipalityId, Sector sector, CollectionType collectionType,
+                                  BinColor binColor, LocalDate anchorDate, int intervalWeeks,
+                                  LocalDate generatedThrough, String noteFr, String noteEn, String noteZh,
+                                  String sourceUrl, boolean active) {
+        this(id, municipalityId, sector, collectionType, binColor, anchorDate, intervalWeeks,
+                generatedThrough, noteFr, noteEn, noteZh, sourceUrl, active, null);
+    }
+
     /**
      * The occurrences falling in {@code (from, through]}.
      *
@@ -40,6 +57,9 @@ public record CollectionScheduleRule(
      */
     public List<LocalDate> occurrencesAfter(LocalDate from, LocalDate through) {
         List<LocalDate> dates = new ArrayList<>();
+        if (validUntil != null && validUntil.isBefore(through)) {
+            through = validUntil;
+        }
         if (!from.isBefore(through)) {
             return dates;
         }

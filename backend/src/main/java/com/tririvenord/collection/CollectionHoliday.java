@@ -8,8 +8,9 @@ import java.time.LocalDate;
  * A day the city does not collect, and how far collection moves because of it.
  *
  * @param shiftDays how many days a collection landing on {@code holidayDate}
- *                  moves forward; at least 1, enforced by a CHECK constraint
- *                  and clamped again in {@link HolidayShift}
+ *                  moves: forward when positive, earlier when negative, never
+ *                  zero - enforced by a CHECK constraint and again in
+ *                  {@link HolidayShift}
  * @param sector    which sectors observe it; {@code all} is the normal case
  */
 public record CollectionHoliday(
