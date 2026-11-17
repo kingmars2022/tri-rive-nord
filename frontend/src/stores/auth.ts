@@ -16,7 +16,7 @@ type AuthState = {
   role: Role | null;
 };
 
-const storageKey = "bienvenue-blainville.auth";
+const storageKey = "tri-rive-nord.auth";
 
 function loadAuth(): AuthState {
   const fallback: AuthState = { token: null, userId: null, email: null, role: null };

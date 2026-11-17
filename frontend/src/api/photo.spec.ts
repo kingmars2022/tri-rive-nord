@@ -54,7 +54,7 @@ describe("askAboutPhoto", () => {
   it("uploads to storage directly, without the app's Authorization header", async () => {
     const { fetchMock } = backend(jsonResponse(200, answer));
     localStorage.setItem(
-      "bienvenue-blainville.auth",
+      "tri-rive-nord.auth",
       JSON.stringify({ token: "resident-token", userId: 1, email: "a@b.c", role: "USER" })
     );
     setActivePinia(createPinia());

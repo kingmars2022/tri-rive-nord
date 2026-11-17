@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bienvenueblainville.notice.SpecialNoticeMapper">
+<mapper namespace="com.tririvenord.notice.SpecialNoticeMapper">
     <sql id="columns">
         id, starts_on, ends_on, title_fr, title_en, title_zh, body_fr, body_en, body_zh, source_url, active
     </sql>
 
-    <select id="findActive" resultType="com.bienvenueblainville.notice.SpecialNotice">
+    <select id="findActive" resultType="com.tririvenord.notice.SpecialNotice">
         select <include refid="columns"/>
         from special_notice
         where active = true
@@ -15,7 +15,7 @@
         order by starts_on asc
     </select>
 
-    <select id="findAll" resultType="com.bienvenueblainville.notice.SpecialNotice">
+    <select id="findAll" resultType="com.tririvenord.notice.SpecialNotice">
         select <include refid="columns"/>
         from special_notice
         order by starts_on desc
@@ -27,14 +27,14 @@
         window like the schedule's; newest-first with a cap is the honest
         bound.
     -->
-    <select id="findRecent" resultType="com.bienvenueblainville.notice.SpecialNotice">
+    <select id="findRecent" resultType="com.tririvenord.notice.SpecialNotice">
         select <include refid="columns"/>
         from special_notice
         order by starts_on desc, id desc
         limit #{limit}
     </select>
 
-    <select id="findById" resultType="com.bienvenueblainville.notice.SpecialNotice">
+    <select id="findById" resultType="com.tririvenord.notice.SpecialNotice">
         select <include refid="columns"/>
         from special_notice
         where id = #{id}

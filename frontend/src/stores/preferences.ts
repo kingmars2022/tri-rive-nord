@@ -19,7 +19,7 @@ type PreferenceState = {
   remindersEnabled: boolean;
 };
 
-const storageKey = "bienvenue-blainville.preferences";
+const storageKey = "tri-rive-nord.preferences";
 
 function loadPreferences(): PreferenceState {
   const fallback: PreferenceState = {

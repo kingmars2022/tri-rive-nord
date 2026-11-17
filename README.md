@@ -1,7 +1,14 @@
-# Blainville Waste Sorting Platform
+# Tri Rive-Nord
 
-A website that tells residents of Blainville, Quebec which bin to put out tonight and
-where any item belongs.
+A website that tells residents of the Rive-Nord, north of Montreal, which bin to put out
+tonight and where any item belongs.
+
+It is built for four municipalities -- Blainville, Sainte-Therese, Boisbriand and
+Rosemere -- and **only Blainville's data is loaded so far**. The other three appear in the
+city switcher and say so when you pick them, rather than showing an empty week as if there
+were no collection. Each city's schedule and sorting rules have to be read from that city's
+own published calendar before they go in, because inheriting one city's rules into another
+is how you get an answer that is confident and wrong.
 
 **Try it: <https://blainville-waste-sorting.onrender.com/>**
 (It runs on a free server that sleeps when nobody is using it, so the first visit can take
@@ -11,7 +18,7 @@ about a minute to load.)
 
 ## The problem
 
-When you move to Blainville, taking out the garbage is surprisingly confusing:
+When you move to one of these towns, taking out the garbage is surprisingly confusing:
 
 - **Which bin goes out tonight?** It depends on which side of boulevard de la Seigneurie
   you live on, and on the week.

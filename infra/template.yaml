@@ -86,7 +86,7 @@ Resources:
       # a plain classpath and would fail at cold start. See the maven-shade
       # execution in backend/pom.xml.
       CodeUri: ../backend/target/backend-0.0.1-SNAPSHOT-lambda.jar
-      Handler: com.bienvenueblainville.photo.lambda.PhotoProcessingHandler::handleRequest
+      Handler: com.tririvenord.photo.lambda.PhotoProcessingHandler::handleRequest
       Policies:
         # Read what residents upload, write only into the output prefix.
         # Deliberately not s3:* on the bucket: the function has no reason to

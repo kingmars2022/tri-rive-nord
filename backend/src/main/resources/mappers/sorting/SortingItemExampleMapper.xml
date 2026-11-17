@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bienvenueblainville.sorting.SortingItemExampleMapper">
+<mapper namespace="com.tririvenord.sorting.SortingItemExampleMapper">
     <sql id="columns">id, item_id, language_code, position, example</sql>
 
-    <select id="findByItemId" resultType="com.bienvenueblainville.sorting.SortingItemExample">
+    <select id="findByItemId" resultType="com.tririvenord.sorting.SortingItemExample">
         select <include refid="columns"/>
         from sorting_item_example
         where item_id = #{itemId}
@@ -13,7 +13,7 @@
         order by language_code, position
     </select>
 
-    <select id="findByItemIds" resultType="com.bienvenueblainville.sorting.SortingItemExample">
+    <select id="findByItemIds" resultType="com.tririvenord.sorting.SortingItemExample">
         select <include refid="columns"/>
         from sorting_item_example
         where item_id in
@@ -21,7 +21,7 @@
         order by item_id, language_code, position
     </select>
 
-    <select id="findAll" resultType="com.bienvenueblainville.sorting.SortingItemExample">
+    <select id="findAll" resultType="com.tririvenord.sorting.SortingItemExample">
         select <include refid="columns"/>
         from sorting_item_example
         order by item_id, language_code, position

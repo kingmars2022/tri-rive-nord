@@ -1,8 +1,8 @@
-# Blainville Waste Sorting Platform
+# Tri Rive-Nord
 
 A full-stack municipal waste sorting and collection reminder web application for residents of Blainville, Quebec.
 
-`Blainville Waste Sorting Platform` helps residents understand which bin to place outside, when collection happens, how common materials should be sorted, and where special items should be dropped off. The application is built with Vue 3, Spring Boot, MyBatis, MySQL, Flyway, Spring Security, and Docker Compose.
+`Tri Rive-Nord` helps residents understand which bin to place outside, when collection happens, how common materials should be sorted, and where special items should be dropped off. The application is built with Vue 3, Spring Boot, MyBatis, MySQL, Flyway, Spring Security, and Docker Compose.
 
 The first release is intentionally designed as a web application. Native iOS and Android apps are outside the initial scope.
 
@@ -1170,6 +1170,6 @@ Long-term:
 
 ## Project Positioning
 
-`Blainville Waste Sorting Platform` is a resident-facing helper tool. It is designed to make official municipal information easier to search and understand, but it does not replace Blainville's official website.
+`Tri Rive-Nord` is a resident-facing helper tool. It is designed to make official municipal information easier to search and understand, but it does not replace Blainville's official website.
 
 Before public deployment, all collection dates, sorting rules, locations, and service instructions should be reviewed against official municipal sources and maintained through the admin workflow.

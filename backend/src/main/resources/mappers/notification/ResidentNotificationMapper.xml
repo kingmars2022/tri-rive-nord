@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bienvenueblainville.notification.ResidentNotificationMapper">
+<mapper namespace="com.tririvenord.notification.ResidentNotificationMapper">
 
     <!--
         IGNORE, paired with the unique key on (user_id, event_id): a redelivered
@@ -16,7 +16,7 @@
         where p.reminder_enabled = true
     </insert>
 
-    <select id="findForUser" resultType="com.bienvenueblainville.notification.ResidentNotification">
+    <select id="findForUser" resultType="com.tririvenord.notification.ResidentNotification">
         select n.id            as id,
                n.notice_id     as noticeId,
                s.title_fr      as titleFr,

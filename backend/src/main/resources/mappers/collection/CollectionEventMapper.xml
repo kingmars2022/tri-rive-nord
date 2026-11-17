@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bienvenueblainville.collection.CollectionEventMapper">
+<mapper namespace="com.tririvenord.collection.CollectionEventMapper">
     <sql id="columns">
         id, municipality_id as municipalityId, collection_date, sector, collection_type,
         bin_color, note_fr, note_en, note_zh, source_url
     </sql>
 
-    <select id="findUpcoming" resultType="com.bienvenueblainville.collection.CollectionEvent">
+    <select id="findUpcoming" resultType="com.tririvenord.collection.CollectionEvent">
         select <include refid="columns"/>
         from collection_event
         where municipality_id = #{municipalityId}
@@ -28,7 +28,7 @@
           and collection_date &gt;= #{from}
     </delete>
 
-    <select id="findAll" resultType="com.bienvenueblainville.collection.CollectionEvent">
+    <select id="findAll" resultType="com.tririvenord.collection.CollectionEvent">
         select <include refid="columns"/>
         from collection_event
         where municipality_id = #{municipalityId}
@@ -41,7 +41,7 @@
         the window is stable: two events on one date must not swap places
         between page one and page two.
     -->
-    <select id="findPage" resultType="com.bienvenueblainville.collection.CollectionEvent">
+    <select id="findPage" resultType="com.tririvenord.collection.CollectionEvent">
         select <include refid="columns"/>
         from collection_event
         where municipality_id = #{municipalityId}
@@ -54,7 +54,7 @@
         up" wants the nearest first, and the limit should cut the far end off
         rather than the near one.
     -->
-    <select id="findFrom" resultType="com.bienvenueblainville.collection.CollectionEvent">
+    <select id="findFrom" resultType="com.tririvenord.collection.CollectionEvent">
         select <include refid="columns"/>
         from collection_event
         where municipality_id = #{municipalityId}
@@ -67,7 +67,7 @@
         select count(*) from collection_event where municipality_id = #{municipalityId}
     </select>
 
-    <select id="findById" resultType="com.bienvenueblainville.collection.CollectionEvent">
+    <select id="findById" resultType="com.tririvenord.collection.CollectionEvent">
         select <include refid="columns"/>
         from collection_event
         where id = #{id}

@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bienvenueblainville.municipality.MunicipalityMapper">
+<mapper namespace="com.tririvenord.municipality.MunicipalityMapper">
 
     <sql id="columns">
         id, slug, name, province, source_url as sourceUrl,
         calendar_verified as calendarVerified, guide_verified as guideVerified
     </sql>
 
-    <select id="findAll" resultType="com.bienvenueblainville.municipality.Municipality">
+    <select id="findAll" resultType="com.tririvenord.municipality.Municipality">
         select <include refid="columns"/> from municipality order by name
     </select>
 
-    <select id="findBySlug" resultType="com.bienvenueblainville.municipality.Municipality">
+    <select id="findBySlug" resultType="com.tririvenord.municipality.Municipality">
         select <include refid="columns"/> from municipality where slug = #{slug}
     </select>
 
-    <select id="findSectors" resultType="com.bienvenueblainville.municipality.MunicipalitySector">
+    <select id="findSectors" resultType="com.tririvenord.municipality.MunicipalitySector">
         select id,
                municipality_id as municipalityId,
                code,

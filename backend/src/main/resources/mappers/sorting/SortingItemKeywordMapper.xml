@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bienvenueblainville.sorting.SortingItemKeywordMapper">
-    <select id="findByItemId" resultType="com.bienvenueblainville.sorting.SortingItemKeyword">
+<mapper namespace="com.tririvenord.sorting.SortingItemKeywordMapper">
+    <select id="findByItemId" resultType="com.tririvenord.sorting.SortingItemKeyword">
         select id, item_id, language_code, keyword
         from sorting_item_keyword
         where item_id = #{itemId}
     </select>
 
-    <select id="findByItemIds" resultType="com.bienvenueblainville.sorting.SortingItemKeyword">
+    <select id="findByItemIds" resultType="com.tririvenord.sorting.SortingItemKeyword">
         select id, item_id, language_code, keyword
         from sorting_item_keyword
         where item_id in
@@ -23,7 +23,7 @@
         </foreach>
     </insert>
 
-    <select id="findAll" resultType="com.bienvenueblainville.sorting.SortingItemKeyword">
+    <select id="findAll" resultType="com.tririvenord.sorting.SortingItemKeyword">
         select id, item_id, language_code, keyword from sorting_item_keyword
     </select>
 

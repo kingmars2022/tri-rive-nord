@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bienvenueblainville.events.OutboxMapper">
+<mapper namespace="com.tririvenord.events.OutboxMapper">
 
     <insert id="insert">
         insert into outbox_event (event_id, aggregate_type, aggregate_id, event_type, payload)
         values (#{eventId}, #{aggregateType}, #{aggregateId}, #{eventType}, #{payload})
     </insert>
 
-    <select id="findUnpublished" resultType="com.bienvenueblainville.events.OutboxEntry">
+    <select id="findUnpublished" resultType="com.tririvenord.events.OutboxEntry">
         select id, event_id as eventId, aggregate_type as aggregateType, aggregate_id as aggregateId,
                event_type as eventType, payload, occurred_at as occurredAt, published_at as publishedAt
         from outbox_event

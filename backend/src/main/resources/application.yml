@@ -6,7 +6,7 @@ server:
 
 spring:
   application:
-    name: bienvenue-a-blainville
+    name: tri-rive-nord
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/bienvenue_blainville?useUnicode=true&characterEncoding=utf8&serverTimezone=America/Toronto}
     username: ${DB_USERNAME:blainville_app}
@@ -68,7 +68,7 @@ mybatis:
   # Sector stopped being an enum when the application stopped being one city;
   # without this handler MyBatis writes the record's toString into a column
   # that holds bare codes.
-  type-handlers-package: com.bienvenueblainville.common
+  type-handlers-package: com.tririvenord.common
   configuration:
     map-underscore-to-camel-case: true
 
@@ -80,22 +80,27 @@ app:
     # browser it exists for.
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
   jwt:
-    issuer: bienvenue-a-blainville
+    issuer: tri-rive-nord
     secret: ${APP_JWT_SECRET:change-this-development-secret-change-before-production}
     expires-in-minutes: 1440
   admin:
-    email: ${APP_ADMIN_EMAIL:admin@blainville.local}
+    email: ${APP_ADMIN_EMAIL:admin@tri-rive-nord.local}
     password: ${APP_ADMIN_PASSWORD:change-this-development-admin-password}
   push:
     # Off unless an operator has generated a key pair. The resident inbox works
     # either way; push is a second delivery of something already stored, never
     # the only one. Generate keys with:
-    #   mvn -q exec:java -Dexec.mainClass=com.bienvenueblainville.push.VapidKeyGenerator
+    #   mvn -q exec:java -Dexec.mainClass=com.tririvenord.push.VapidKeyGenerator
     enabled: ${PUSH_ENABLED:false}
     public-key: ${PUSH_PUBLIC_KEY:}
     private-key: ${PUSH_PRIVATE_KEY:}
     # RFC 8292 requires a way for a push service to reach whoever is sending.
-    subject: ${PUSH_SUBJECT:mailto:info@blainville.ca}
+    # RFC 8292 wants a contact a push service can reach about this
+    # application. The default used to be the City of Blainville's own
+    # address, which this project has no business handing to Google and
+    # Mozilla on its behalf -- and which names one city out of four. A
+    # reserved .invalid domain says plainly that an operator must set it.
+    subject: ${PUSH_SUBJECT:mailto:admin@tri-rive-nord.invalid}
 
   assistant:
     # `template` answers straight from the retrieved guide entries - no API key,
@@ -126,7 +131,7 @@ app:
     # Resident photo uploads. Credentials come from the AWS default chain -
     # environment, container role, instance profile - so no key is configured
     # here or committed. Set an endpoint to point at a local S3 for tests.
-    bucket: ${PHOTO_BUCKET:blainville-resident-photos}
+    bucket: ${PHOTO_BUCKET:tri-rive-nord-resident-photos}
     region: ${AWS_REGION:ca-central-1}
     endpoint: ${S3_ENDPOINT:}
     upload-ttl: ${PHOTO_UPLOAD_TTL:300}

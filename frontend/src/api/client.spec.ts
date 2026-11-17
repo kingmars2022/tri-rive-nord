@@ -44,7 +44,7 @@ describe("api client", () => {
     await expect(api.get("/preferences")).rejects.toBeInstanceOf(ApiError);
 
     expect(auth.isAuthenticated).toBe(false);
-    expect(localStorage.getItem("bienvenue-blainville.auth")).toBeNull();
+    expect(localStorage.getItem("tri-rive-nord.auth")).toBeNull();
   });
 
   it("does not log out on other failures", async () => {

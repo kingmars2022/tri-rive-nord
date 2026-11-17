@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.bienvenueblainville.assistant.SortingSearchMapper">
+<mapper namespace="com.tririvenord.assistant.SortingSearchMapper">
 
     <!--
         Relevance is the sum of two full-text scores: how well the resident's
@@ -33,7 +33,7 @@
         would additionally make the query error out - hence natural language
         mode, which takes the whole string as terms.
     -->
-    <select id="search" resultType="com.bienvenueblainville.assistant.RetrievedItem">
+    <select id="search" resultType="com.tririvenord.assistant.RetrievedItem">
         select
             t.item_id                                as itemId,
             t.language_code                          as languageCode,

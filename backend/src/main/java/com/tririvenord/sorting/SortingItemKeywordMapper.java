@@ -1,0 +1,26 @@
+package com.tririvenord.sorting;
+
+import com.tririvenord.common.LanguageCode;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+@Mapper
+public interface SortingItemKeywordMapper {
+    List<SortingItemKeyword> findByItemId(@Param("itemId") Long itemId);
+
+    /** One query for many items; see SortingItemService.all. */
+    List<SortingItemKeyword> findByItemIds(@Param("itemIds") List<Long> itemIds);
+
+    /** All of them, for the public guide. */
+    List<SortingItemKeyword> findAll();
+
+    void insertBatch(
+            @Param("itemId") Long itemId,
+            @Param("languageCode") LanguageCode languageCode,
+            @Param("keywords") List<String> keywords
+    );
+
+    void deleteByItemId(@Param("itemId") Long itemId);
+}

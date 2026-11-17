@@ -1,6 +1,6 @@
 export const messages = {
   fr: {
-    "app.name": "Bienvenue a Blainville",
+    "app.name": "Tri Rive-Nord",
     "city.label": "Ville",
     "city.notLoaded": "Calendrier pas encore charge",
     "city.notLoadedBody": "Cette ville figure dans la liste, mais son calendrier officiel n'a pas encore ete lu. Rien n'est affiche ici tant qu'il ne l'est pas : une page vide se lirait comme une semaine sans collecte.",
@@ -170,7 +170,7 @@ export const messages = {
     "admin.translationsSummary": "articles de tri, chacun avec fr/en/zh obligatoires (valide par l'API)."
   },
   en: {
-    "app.name": "Bienvenue a Blainville",
+    "app.name": "Tri Rive-Nord",
     "city.label": "City",
     "city.notLoaded": "Calendar not loaded yet",
     "city.notLoadedBody": "This city is on the list, but its official calendar has not been read yet. Nothing is shown here until it has been: an empty page would read as a week with no collection.",
@@ -336,7 +336,7 @@ export const messages = {
     "admin.translationsSummary": "sorting items, each with required fr/en/zh (enforced by the API)."
   },
   zh: {
-    "app.name": "Bienvenue a Blainville",
+    "app.name": "Tri Rive-Nord",
     "city.label": "城市",
     "city.notLoaded": "日历尚未载入",
     "city.notLoadedBody": "这个城市已在列表中，但其官方收集日历还没有被读取。在读取之前这里不显示任何内容：空白页面会被误读成「本周无收集」。",
