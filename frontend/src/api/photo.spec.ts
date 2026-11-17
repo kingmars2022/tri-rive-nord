@@ -29,7 +29,7 @@ describe("askAboutPhoto", () => {
       const url = String(input);
       calls.push(url);
 
-      if (url.endsWith("/photos/upload-url")) {
+      if (url.includes("/photos/upload-url")) {
         return jsonResponse(200, { photoId: "photo-1", uploadUrl: "https://s3.example/put", expiresIn: 300 });
       }
       if (url.startsWith("https://s3.example")) {
@@ -108,7 +108,7 @@ describe("askAboutPhoto", () => {
       vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
         void init;
         const url = String(input);
-        if (url.endsWith("/photos/upload-url")) {
+        if (url.includes("/photos/upload-url")) {
           return jsonResponse(200, { photoId: "photo-1", uploadUrl: "https://s3.example/put", expiresIn: 300 });
         }
         if (url.startsWith("https://s3.example")) {

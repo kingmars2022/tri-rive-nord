@@ -1,121 +1,392 @@
+/*
+  A municipal timetable, not a dashboard.
+
+  The visual model here is printed civic material -- a collection calendar, a
+  transit timetable, a notice taped inside a recycling-room door. That is a
+  deliberate choice against the house style of most web applications, which
+  this used to share: cards on a grid, every surface floating on a drop
+  shadow, generous radii, one neutral sans for everything. That style is fine
+  and it is everywhere, which is the problem: it says nothing about what this
+  is for.
+
+  Three rules hold the rest together.
+
+  1. The bins carry the colour. Brown, blue and black are not a palette
+     somebody picked; they are what the city puts on the containers, and a
+     resident recognises them before reading a word. Everything else is paper,
+     ink and one civic green, so the only saturated thing on a page is the
+     information that matters.
+  2. Rules, not shadows. Surfaces are separated by hairlines and whitespace.
+     Nothing floats.
+  3. Dates are a column. Collections are a schedule, so they are set as one:
+     the date on the left, aligned down the page, the way a timetable reads.
+     A grid of equal cards loses exactly the thing a schedule is for.
+*/
+
 :root {
-  color: #17211d;
-  background: #f6f4ef;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* Paper, not grey: warm enough to read as printed stock rather than chrome. */
+  --paper: #f5f2ec;
+  --paper-raised: #fffdf9;
+  --ink: #1a1f1c;
+  --ink-soft: #55605a;
+  --ink-faint: #7b847e;
+
+  /* The city's own green. Used for structure, never for decoration. */
+  --civic: #2a5a4c;
+  --civic-dark: #1d4034;
+
+  --rule: #ddd7cb;
+  --rule-strong: #c4bcab;
+
+  /* The containers, as the city paints them. */
+  --bin-brown: #6f4a28;
+  --bin-blue: #1f5f93;
+  --bin-black: #232624;
+  --bin-none: #6e7a74;
+
+  --danger: #8c2f22;
+
+  /* Squared off. Civic printing does not have rounded corners. */
+  --radius: 2px;
+
+  --measure: 68ch;
+
+  /*
+    Georgia for headings. Not a webfont: it is on effectively every device,
+    so the page has no network dependency and no flash of unstyled text, and
+    it is a transitional serif, which reads as published rather than
+    generated. Inter is deliberately absent from both stacks.
+  */
+  --serif: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
 }
 
 body {
   margin: 0;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+* {
+  box-sizing: border-box;
 }
 
+h1, h2, h3 {
+  font-family: var(--serif);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  margin: 0;
+}
+
+p {
+  margin: 0 0 0.75em;
+  max-width: var(--measure);
+}
+
+a {
+  color: inherit;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 3px;
+}
+
+/* ------------------------------------------------------------------ shell */
+
 .app-shell {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
 }
 
 .app-header {
-  align-items: center;
-  background: #2f5d50;
-  color: white;
+  align-items: baseline;
+  background: var(--civic);
+  color: #f3efe6;
   display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
   justify-content: space-between;
-  padding: 16px;
+  padding: 14px 20px;
+}
+
+.brandline {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+}
+
+.app-header strong {
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .app-header nav {
   display: flex;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 18px;
 }
 
-.page {
-  margin: 0 auto;
-  max-width: 960px;
-  padding: 24px 16px;
+.app-header nav a,
+.app-header nav button {
+  border-bottom: 2px solid transparent;
+  color: inherit;
+  font-size: 15px;
+  padding-bottom: 2px;
+  text-decoration: none;
 }
 
-.notice {
-  background: #ffffff;
-  border-left: 8px solid #8a5f35;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgb(30 41 35 / 8%);
-  padding: 24px;
+.app-header nav a:hover,
+.app-header nav a.router-link-active {
+  border-bottom-color: #f3efe6;
 }
 
-.notice h1 {
-  font-size: 40px;
-  line-height: 1;
-  margin: 8px 0;
+/*
+  The city switcher.
+
+  A real control rather than a styled div: it is a <select>, so it gets the
+  platform's own picker on a phone and keyboard support everywhere for free.
+  Set in the header beside the wordmark because which city you are looking at
+  changes the meaning of every number on the page -- it is not a setting, it
+  is the subject.
+*/
+.city-switch {
+  align-items: baseline;
+  display: flex;
+  gap: 8px;
 }
 
-.eyebrow {
-  color: #4b675c;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0;
+.city-switch label {
+  color: #cfe0d8;
+  font-size: 12px;
+  letter-spacing: 0.08em;
   margin: 0;
   text-transform: uppercase;
 }
 
-.panel {
-  margin-top: 24px;
+.city-switch select {
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid rgb(243 239 230 / 45%);
+  border-radius: 0;
+  color: #fffdf9;
+  cursor: pointer;
+  font-family: var(--serif);
+  font-size: 18px;
+  padding: 0 18px 2px 0;
+  /* The caret, drawn rather than an icon font or an emoji. */
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, #f3efe6 50%),
+                    linear-gradient(135deg, #f3efe6 50%, transparent 50%);
+  background-position: right 6px top 60%, right 1px top 60%;
+  background-repeat: no-repeat;
+  background-size: 5px 5px, 5px 5px;
 }
 
+.city-switch select:hover {
+  border-bottom-color: #fffdf9;
+}
+
+.city-switch select option {
+  color: var(--ink);
+}
+
+main {
+  flex: 1;
+}
+
+.page {
+  margin: 0 auto;
+  max-width: 940px;
+  padding: 36px 20px 72px;
+}
+
+/* ------------------------------------------------------- the next pickup */
+
+.eyebrow {
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  margin: 0 0 10px;
+  text-transform: uppercase;
+}
+
+/*
+  The headline collection. A band of the bin's own colour down the left edge
+  and nothing else holding it: no card, no shadow, no border on three sides.
+  The colour is the whole signal.
+*/
+.notice {
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-left: 10px solid var(--bin-brown);
+  padding: 28px 28px 24px;
+}
+
+.notice h1 {
+  font-size: clamp(38px, 7vw, 60px);
+  margin: 0 0 6px;
+}
+
+.notice p {
+  color: var(--ink-soft);
+  margin-bottom: 4px;
+}
+
+.notice p:last-child {
+  margin-bottom: 0;
+}
+
+.panel {
+  margin-top: 44px;
+}
+
+.panel h2 {
+  border-bottom: 1px solid var(--rule-strong);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  padding-bottom: 8px;
+  text-transform: uppercase;
+}
+
+/*
+  Upcoming collections as a timetable.
+
+  This was a grid of equal coloured cards. A schedule read down a column --
+  date, then what goes out -- is how every printed collection calendar does
+  it, and it survives having twelve entries, which a card grid does not.
+*/
 .bin-list {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  display: block;
+  margin-top: 4px;
 }
 
 .bin-card {
-  border-radius: 8px;
-  color: white;
+  align-items: baseline;
+  border-bottom: 1px solid var(--rule);
   display: grid;
-  min-height: 110px;
-  padding: 16px;
+  gap: 4px 18px;
+  grid-template-columns: 15ch 14px 1fr;
+  padding: 11px 2px;
 }
 
 .bin-card span {
+  color: var(--ink-soft);
   font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The colour chip: a solid square, the shape of the container's lid. */
+.bin-card::before {
+  background: var(--bin-none);
+  content: "";
+  display: block;
+  grid-column: 2;
+  grid-row: 1;
+  height: 14px;
+  width: 14px;
 }
 
 .bin-card strong {
-  align-self: end;
-  font-size: 18px;
+  font-size: 17px;
+  font-weight: 600;
+  grid-column: 3;
 }
 
-.brown {
-  background: #79512d;
+.bin-card.brown::before { background: var(--bin-brown); }
+.bin-card.blue::before  { background: var(--bin-blue); }
+.bin-card.black::before { background: var(--bin-black); }
+.bin-card.none::before  { background: var(--bin-none); }
+
+/* The headline band takes the same colours, on its left edge. */
+.notice.brown { border-left-color: var(--bin-brown); }
+.notice.blue  { border-left-color: var(--bin-blue); }
+.notice.black { border-left-color: var(--bin-black); }
+.notice.none  { border-left-color: var(--bin-none); }
+
+/*
+  There are deliberately no bare `.brown`/`.blue`/`.black` background rules.
+  They used to fill whole blocks, and since the markup puts the colour class
+  on the element itself, reinstating them paints over the hero and every row
+  -- dark text on a dark fill, which is how the first render of this redesign
+  came out. The colour belongs on an edge or a chip, never on the surface
+  carrying the words.
+*/
+
+/* --------------------------------------------- a city with nothing loaded */
+
+/*
+  Shown when a city is offered but its calendar has not been read yet.
+  Deliberately not styled as an error and deliberately not hidden: a resident
+  has to be able to tell "nothing is collected this week" from "we have not
+  loaded your city", and an empty page says the first while meaning the
+  second.
+*/
+.not-loaded {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--paper-raised),
+    var(--paper-raised) 10px,
+    #f0ece2 10px,
+    #f0ece2 20px
+  );
+  border: 1px solid var(--rule-strong);
+  padding: 28px;
 }
 
-.blue {
-  background: #2869a6;
+.not-loaded h1 {
+  font-size: clamp(26px, 5vw, 36px);
+  margin-bottom: 10px;
 }
 
-.black {
-  background: #202421;
+.not-loaded p {
+  color: var(--ink-soft);
 }
 
-.bin-card.none {
-  background: #77837c;
-}
+/* ------------------------------------------------------------------ forms */
 
 label {
   display: grid;
-  gap: 8px;
-  margin: 18px 0;
+  gap: 6px;
+  margin: 20px 0;
+}
+
+label > span:first-child,
+.field-label {
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
 }
 
 select,
 input,
 textarea {
-  border: 1px solid #c7d0ca;
-  border-radius: 8px;
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  color: inherit;
   font: inherit;
-  padding: 12px;
+  padding: 11px 12px;
+}
+
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--civic);
+  outline-offset: 2px;
 }
 
 textarea {
@@ -125,651 +396,592 @@ textarea {
 .checkbox {
   align-items: center;
   display: flex;
+  gap: 10px;
 }
 
 .search {
-  box-sizing: border-box;
   max-width: 520px;
   width: 100%;
 }
 
-.segmented {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 18px 0;
-}
-
-.segmented button {
-  background: white;
-  border: 1px solid #c7d0ca;
-  border-radius: 8px;
-  color: #17211d;
+button {
+  background: var(--civic);
+  border: 1px solid var(--civic);
+  border-radius: var(--radius);
+  color: #fffdf9;
   cursor: pointer;
   font: inherit;
-  padding: 10px 12px;
+  font-weight: 500;
+  padding: 10px 18px;
 }
 
-.segmented button.active {
-  background: #2f5d50;
-  border-color: #2f5d50;
-  color: white;
+button:hover {
+  background: var(--civic-dark);
+  border-color: var(--civic-dark);
 }
 
-.sorting-grid {
-  display: grid;
-  gap: 14px;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  margin-top: 18px;
-}
-
-.special-reminders {
-  margin: 18px 0 24px;
-}
-
-.special-reminders h2 {
-  font-size: 20px;
-}
-
-.reminder-list {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-}
-
-.reminder-card {
-  background: #ffffff;
-  border-left: 6px solid #2f5d50;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgb(30 41 35 / 8%);
-  display: grid;
-  gap: 8px;
-  padding: 16px;
-}
-
-.reminder-card span {
-  color: #4b675c;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.reminder-card strong {
-  font-size: 18px;
-}
-
-.reminder-card p,
-.availability p {
-  line-height: 1.5;
-  margin: 0;
-}
-
-.sorting-card {
-  background: white;
-  border-radius: 8px;
-  border-top: 8px solid #77837c;
-  box-shadow: 0 8px 24px rgb(30 41 35 / 8%);
-  display: grid;
-  gap: 16px;
-  padding: 18px;
-}
-
-.sorting-card h2 {
-  font-size: 22px;
-  line-height: 1.2;
-  margin: 8px 0;
-}
-
-.sorting-card p {
-  line-height: 1.5;
-  margin: 0;
-}
-
-.sorting-card ul {
-  line-height: 1.5;
-  margin: 8px 0 0;
-  padding-left: 20px;
-}
-
-.sorting-card a {
-  color: #2f5d50;
-  font-weight: 700;
-}
-
-.sorting-card.brown {
-  border-top-color: #79512d;
-}
-
-.sorting-card.blue {
-  border-top-color: #2869a6;
-}
-
-.sorting-card.black {
-  border-top-color: #202421;
-}
-
-.tag {
-  color: #4b675c;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.empty {
-  background: white;
-  border-radius: 8px;
-  margin-top: 18px;
-  padding: 18px;
-}
-
-.admin-hero {
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgb(30 41 35 / 8%);
-  padding: 24px;
-}
-
-.admin-hero span {
-  color: #4b675c;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.admin-hero h1 {
-  margin: 8px 0;
-}
-
-.admin-hero p {
-  line-height: 1.5;
-  margin: 0;
-}
-
-.admin-summary {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  margin: 18px 0;
-}
-
-.admin-stat {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgb(30 41 35 / 8%);
-  display: grid;
-  gap: 6px;
-  padding: 16px;
-}
-
-.admin-stat span,
-.admin-stat small {
-  color: #4b675c;
-}
-
-.admin-stat strong {
-  font-size: 30px;
-}
-
-.admin-layout {
-  display: grid;
-  gap: 16px;
-}
-
-.admin-panel {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgb(30 41 35 / 8%);
-  padding: 18px;
-}
-
-.admin-panel-title {
-  align-items: center;
-  display: flex;
-  gap: 12px;
-  justify-content: space-between;
-}
-
-.admin-panel-title h2 {
-  font-size: 20px;
-  margin: 0;
-}
-
-.admin-panel-title button {
-  background: #2f5d50;
-  border: 0;
-  border-radius: 8px;
-  color: white;
-  cursor: pointer;
-  font: inherit;
-  padding: 10px 12px;
-}
-
-.admin-form-grid {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-}
-
-/*
-  The submit and cancel buttons sit together on a row of their own rather than
-  in a grid cell, so the cancel button is never the widest thing in the form
-  and an administrator cannot mistake it for the primary action.
-*/
-.admin-form-actions {
-  display: flex;
-  gap: 10px;
-  grid-column: 1 / -1;
-}
-
-.admin-form-actions button {
-  flex: 0 0 auto;
-}
-
-/* `label` is a grid by default here; a checkbox reads better beside its text. */
-.admin-checkbox {
-  align-items: center;
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-}
-
-.admin-checkbox input {
-  width: auto;
-}
-
-.admin-pager {
-  align-items: center;
-  display: flex;
-  gap: 12px;
-  justify-content: space-between;
-  margin-top: 14px;
-}
-
-.admin-pager span {
-  color: #4b675c;
-  font-size: 14px;
-}
-
-.admin-pager button:disabled {
-  cursor: default;
+button[disabled] {
+  cursor: not-allowed;
   opacity: 0.45;
-}
-
-.admin-row-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.admin-table {
-  border-collapse: collapse;
-  margin-top: 18px;
-  width: 100%;
-}
-
-.admin-table th,
-.admin-table td {
-  border-bottom: 1px solid #d9e0dc;
-  padding: 10px;
-  text-align: left;
-}
-
-.admin-table th {
-  color: #4b675c;
-  font-size: 14px;
-}
-
-.admin-note {
-  background: #f6f4ef;
-  border-radius: 8px;
-  line-height: 1.5;
-  padding: 14px;
 }
 
 .link-button {
   background: none;
   border: 0;
   color: inherit;
-  cursor: pointer;
-  font: inherit;
   padding: 0;
   text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .nav-logout {
-  color: white;
+  border-bottom: 2px solid transparent;
+  font-size: 15px;
   text-decoration: none;
 }
 
-.auth-form {
+.nav-logout:hover {
+  background: none;
+  border-bottom-color: #f3efe6;
+}
+
+/* Filters read as a row of switches, hairline-joined rather than floating. */
+.segmented {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 20px 0;
+}
+
+.segmented button {
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: 0;
+  color: var(--ink);
+  margin-left: -1px;
+  padding: 9px 14px;
+}
+
+.segmented button:first-child { margin-left: 0; }
+
+.segmented button.active {
+  background: var(--civic);
+  border-color: var(--civic);
+  color: #fffdf9;
+  position: relative;
+}
+
+/* ---------------------------------------------------------- sorting guide */
+
+.sorting-grid {
+  display: block;
+  margin-top: 20px;
+}
+
+.sorting-card {
+  border-bottom: 1px solid var(--rule);
   display: grid;
-  gap: 4px;
-  max-width: 420px;
+  gap: 2px 18px;
+  grid-template-columns: 14px 1fr;
+  padding: 16px 2px;
 }
 
-.auth-form button {
-  background: #2f5d50;
-  border: 0;
-  border-radius: 8px;
-  color: white;
-  cursor: pointer;
-  font: inherit;
-  margin-top: 8px;
-  padding: 12px;
+.sorting-card::before {
+  background: var(--bin-none);
+  content: "";
+  display: block;
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  height: 14px;
+  margin-top: 6px;
+  width: 14px;
 }
 
-.auth-error {
-  color: #a4342b;
+.sorting-card.brown::before { background: var(--bin-brown); }
+.sorting-card.blue::before  { background: var(--bin-blue); }
+.sorting-card.black::before { background: var(--bin-black); }
+
+.sorting-card h3 {
+  font-size: 19px;
+  grid-column: 2;
+}
+
+.sorting-card p,
+.sorting-card .destination,
+.sorting-card .availability {
+  grid-column: 2;
+}
+
+.destination {
+  color: var(--ink-soft);
+  font-size: 13px;
   font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-@media (max-width: 720px) {
-  .app-header {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .app-header nav {
-    flex-wrap: wrap;
-  }
+.availability {
+  color: var(--ink-soft);
+  font-size: 14px;
+  font-style: italic;
 }
 
-/* --- Sorting assistant ------------------------------------------------- */
+.tag {
+  border: 1px solid var(--rule-strong);
+  color: var(--ink-soft);
+  display: inline-block;
+  font-size: 12px;
+  margin: 2px 6px 2px 0;
+  padding: 2px 8px;
+}
+
+.empty {
+  color: var(--ink-soft);
+  font-style: italic;
+  padding: 28px 0;
+}
+
+/* -------------------------------------------------------------- assistant */
 
 .assistant {
-  background: #ffffff;
-  border: 1px solid #d8e2dc;
-  border-radius: 12px;
-  padding: 1.25rem;
-  margin-bottom: 1.5rem;
-}
-
-.assistant h2 {
-  margin: 0 0 0.25rem;
-  font-size: 1.1rem;
-}
-
-.assistant-hint {
-  margin: 0 0 0.9rem;
-  color: #55655c;
-  font-size: 0.9rem;
+  border-top: 1px solid var(--rule-strong);
+  margin-top: 44px;
+  padding-top: 24px;
 }
 
 .assistant-form {
   display: flex;
-  gap: 0.6rem;
   flex-wrap: wrap;
+  gap: 10px;
 }
 
-.assistant-form .search {
-  flex: 1 1 18rem;
-  margin: 0;
+.assistant-hint,
+.agent-hint,
+.admin-note {
+  color: var(--ink-soft);
+  font-size: 14px;
 }
 
-.assistant-form button {
-  padding: 0.7rem 1.4rem;
-  border: 0;
-  border-radius: 8px;
-  background: #1f6f54;
-  color: #ffffff;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.assistant-form button:disabled {
-  background: #9db3a9;
-  cursor: not-allowed;
-}
-
+/*
+  A grounded answer and a refusal must not look the same. The civic rule says
+  "this came from the guide"; the plain one says the guide had nothing, which
+  is a real answer here rather than a failure.
+*/
 .assistant-answer {
-  margin-top: 1rem;
-  padding: 0.9rem 1rem;
-  border-radius: 8px;
-  background: #f1f7f4;
-  border-left: 4px solid #1f6f54;
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-left: 6px solid var(--civic);
+  margin-top: 18px;
+  padding: 20px;
 }
 
-/* A refusal must not look like an answer. */
 .assistant-answer.ungrounded {
-  background: #fdf5ec;
-  border-left-color: #c08a3e;
-}
-
-.assistant-answer p {
-  margin: 0 0 0.5rem;
-  line-height: 1.5;
-  white-space: pre-line;
+  border-left-color: var(--rule-strong);
+  border-left-style: dashed;
 }
 
 .assistant-sources {
-  font-size: 0.85rem;
-  color: #40544a;
+  border-top: 1px solid var(--rule);
+  margin-top: 14px;
+  padding-top: 12px;
 }
 
-.assistant-sources a {
-  margin-left: 0.4rem;
+.assistant-sources li {
+  color: var(--ink-soft);
+  font-size: 14px;
 }
 
 .assistant-provider {
-  margin: 0;
-  font-size: 0.75rem;
-  color: #7a8a82;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 12px;
 }
 
-.assistant-error {
-  margin-top: 1rem;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  background: #fdecec;
-  color: #8c2f2f;
-  font-size: 0.9rem;
-}
-
-/* --- Admin agent -------------------------------------------------------- */
-
-.agent {
-  background: #ffffff;
-  border: 1px solid #d8e2dc;
-  border-radius: 12px;
-  padding: 1.25rem;
-  margin-bottom: 1.5rem;
-}
-
-.agent h2 {
-  margin: 0 0 0.25rem;
-  font-size: 1.1rem;
-}
-
-.agent-hint {
-  margin: 0 0 0.9rem;
-  color: #55655c;
-  font-size: 0.9rem;
-}
-
-.agent-form {
-  display: flex;
-  gap: 0.6rem;
-  align-items: flex-start;
-  flex-wrap: wrap;
-}
-
-.agent-form textarea {
-  flex: 1 1 22rem;
-  padding: 0.7rem 0.9rem;
-  border: 1px solid #c7d5cd;
-  border-radius: 8px;
-  font: inherit;
-  resize: vertical;
-}
-
-.agent-form button,
-.agent-actions button {
-  padding: 0.7rem 1.4rem;
-  border: 0;
-  border-radius: 8px;
-  background: #1f6f54;
-  color: #ffffff;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.agent-form button:disabled,
-.agent-actions button:disabled {
-  background: #9db3a9;
-  cursor: not-allowed;
-}
-
-.agent-actions .agent-secondary {
-  background: transparent;
-  color: #55655c;
-  border: 1px solid #c7d5cd;
-}
-
-/* A proposal, not a result: amber until someone confirms it. */
-.agent-plan {
-  margin-top: 1rem;
-  padding: 0.9rem 1rem;
-  border-radius: 8px;
-  background: #fdf8f0;
-  border-left: 4px solid #c08a3e;
-}
-
-.agent-narrative {
-  margin: 0 0 0.75rem;
-  line-height: 1.5;
-}
-
-.agent-steps {
-  margin: 0.4rem 0 1rem;
-  padding-left: 1.2rem;
-}
-
-.agent-steps li {
-  margin-bottom: 0.4rem;
-  line-height: 1.45;
-}
-
-.agent-steps code {
-  display: inline-block;
-  margin-right: 0.5rem;
-  padding: 0.1rem 0.4rem;
-  border-radius: 4px;
-  background: #ece2d2;
-  font-size: 0.8rem;
-}
-
-.agent-empty {
-  margin: 0;
-  color: #55655c;
-}
-
-.agent-actions {
-  display: flex;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-}
-
-.agent-result {
-  margin-top: 1rem;
-  padding: 0.9rem 1rem;
-  border-radius: 8px;
-  background: #f1f7f4;
-  border-left: 4px solid #1f6f54;
-}
-
-.agent-result.partial {
-  background: #fdecec;
-  border-left-color: #8c2f2f;
-}
-
-.agent-result ul {
-  margin: 0.4rem 0 0;
-  padding-left: 1.2rem;
-}
-
+.assistant-error,
+.auth-error,
 .agent-failure {
-  margin: 0.6rem 0 0;
-  color: #8c2f2f;
-  font-weight: 600;
+  color: var(--danger);
+  font-size: 14px;
 }
 
-/* --- Photo question ----------------------------------------------------- */
+/* ------------------------------------------------------------- photo path */
 
 .photo-ask {
-  margin-top: 1.1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e5ece8;
+  border-top: 1px solid var(--rule);
+  margin-top: 24px;
+  padding-top: 20px;
 }
 
-.photo-ask h3 {
-  margin: 0 0 0.25rem;
-  font-size: 1rem;
-}
-
+/*
+  The native file control is hidden rather than styled, because it cannot be:
+  browsers will not let CSS touch the "Choose File / No file chosen" text, and
+  that grey box was the one piece of chrome on the page that looked like a
+  default. The label becomes the control, which keeps the input focusable and
+  keyboard-operable -- clicking a label still opens the picker, and the input
+  is moved out of sight rather than set to display:none, which would take it
+  off the tab order.
+*/
 .photo-button {
-  display: inline-block;
-  padding: 0.65rem 1.3rem;
-  border: 1px dashed #1f6f54;
-  border-radius: 8px;
-  color: #1f6f54;
-  font-weight: 600;
+  align-items: center;
+  background: var(--paper-raised);
+  border: 1px dashed var(--rule-strong);
+  color: var(--ink);
   cursor: pointer;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 18px 20px;
 }
 
-.photo-button.busy {
+.photo-button:hover {
+  background: var(--paper);
+  border-color: var(--civic);
   border-style: solid;
-  border-color: #9db3a9;
-  color: #7a8a82;
-  cursor: progress;
 }
 
-.photo-button input {
-  display: none;
+.photo-button input[type="file"] {
+  height: 1px;
+  opacity: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.photo-button input[type="file"]:focus-visible + span {
+  outline: 2px solid var(--civic);
+  outline-offset: 3px;
+}
+
+.photo-button > span {
+  font-weight: 500;
+}
+
+/* A camera, drawn with a border and a radius rather than an icon font. */
+.photo-button::before {
+  border: 2px solid var(--ink-soft);
+  border-radius: 2px;
+  content: "";
+  height: 20px;
+  position: relative;
+  width: 26px;
+}
+
+.photo-button::after {
+  border: 2px solid var(--ink-soft);
+  border-radius: 50%;
+  content: "";
+  height: 9px;
+  margin-left: -20px;
+  width: 9px;
 }
 
 .photo-identified {
-  font-size: 0.9rem;
-  color: #40544a;
+  color: var(--ink-soft);
+  font-size: 14px;
 }
 
-/* --- Resident notice inbox ---------------------------------------------- */
+/* ------------------------------------------------------------- inbox etc. */
 
 .notice-inbox {
-  margin-bottom: 1.5rem;
+  border: 1px solid var(--rule-strong);
+  border-left: 6px solid var(--civic);
+  margin-bottom: 32px;
+  padding: 18px 20px;
 }
 
 .notice-inbox h2 {
-  margin: 0 0 0.6rem;
-  font-size: 1rem;
-  color: #40544a;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  margin-bottom: 10px;
+  text-transform: uppercase;
 }
 
 .notice-inbox article {
+  align-items: start;
+  border-top: 1px solid var(--rule);
   display: flex;
-  gap: 1rem;
-  align-items: flex-start;
+  gap: 16px;
   justify-content: space-between;
-  padding: 0.9rem 1rem;
-  margin-bottom: 0.6rem;
-  border-radius: 8px;
-  background: #fdf8f0;
-  border-left: 4px solid #c08a3e;
+  padding: 12px 0 4px;
 }
 
-.notice-inbox strong {
+.notice-inbox article:first-of-type {
+  border-top: 0;
+}
+
+.special-reminders {
+  margin: 36px 0;
+}
+
+.special-reminders h2 {
+  border-bottom: 1px solid var(--rule-strong);
+  font-size: 15px;
+  letter-spacing: 0.1em;
+  padding-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.reminder-list {
   display: block;
-  margin-bottom: 0.25rem;
 }
 
-.notice-inbox p {
-  margin: 0;
-  line-height: 1.45;
+.reminder-card {
+  border-bottom: 1px solid var(--rule);
+  display: grid;
+  gap: 2px;
+  padding: 14px 2px;
 }
 
-.notice-inbox button {
-  flex: 0 0 auto;
-  padding: 0.4rem 0.8rem;
-  border: 1px solid #c7d5cd;
-  border-radius: 6px;
-  background: transparent;
-  color: #55655c;
-  font-size: 0.8rem;
-  cursor: pointer;
+.reminder-card span {
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.reminder-card strong {
+  font-family: var(--serif);
+  font-size: 18px;
+}
+
+/* ------------------------------------------------------------------ admin */
+
+.admin-layout {
+  display: grid;
+  gap: 36px;
+}
+
+.admin-hero h1 {
+  font-size: clamp(28px, 5vw, 40px);
+}
+
+.admin-summary {
+  border-bottom: 1px solid var(--rule-strong);
+  border-top: 1px solid var(--rule-strong);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 20px 0 0;
+  padding: 0;
+}
+
+.admin-stat {
+  border-left: 1px solid var(--rule);
+  flex: 1 1 140px;
+  padding: 14px 18px;
+}
+
+.admin-stat:first-child {
+  border-left: 0;
+  padding-left: 2px;
+}
+
+.admin-stat strong {
+  display: block;
+  font-family: var(--serif);
+  font-size: 30px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.admin-stat span {
+  color: var(--ink-soft);
+  font-size: 13px;
+}
+
+.admin-panel {
+  border-top: 1px solid var(--rule-strong);
+  padding-top: 20px;
+}
+
+.admin-panel-title {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.admin-panel-title h2 {
+  font-size: 22px;
+}
+
+.admin-form-grid {
+  display: grid;
+  gap: 0 24px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.admin-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.admin-checkbox {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.admin-table {
+  border-collapse: collapse;
+  font-size: 15px;
+  margin-top: 16px;
+  width: 100%;
+}
+
+.admin-table th {
+  border-bottom: 1px solid var(--rule-strong);
+  color: var(--ink-soft);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  padding: 8px 10px 8px 0;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.admin-table td {
+  border-bottom: 1px solid var(--rule);
+  padding: 10px 10px 10px 0;
+  vertical-align: top;
+}
+
+.admin-table tbody tr:hover {
+  background: var(--paper-raised);
+}
+
+.admin-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-row-actions button {
+  background: none;
+  border: 1px solid var(--rule-strong);
+  color: var(--ink);
+  font-size: 14px;
+  padding: 5px 10px;
+}
+
+.admin-row-actions button:hover {
+  background: var(--paper-raised);
+  border-color: var(--civic);
+}
+
+.admin-pager {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+/* ------------------------------------------------------------- the agent */
+
+.agent {
+  border-top: 1px solid var(--rule-strong);
+  padding-top: 20px;
+}
+
+.agent-form {
+  display: grid;
+  gap: 10px;
+}
+
+.agent-actions,
+.agent-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.agent-plan {
+  border: 1px solid var(--rule-strong);
+  border-left: 6px solid var(--civic);
+  margin-top: 18px;
+  padding: 18px 20px;
+}
+
+.agent-narrative {
+  font-family: var(--serif);
+  font-size: 18px;
+}
+
+.agent-steps {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0;
+  padding-left: 18px;
+}
+
+.agent-secondary {
+  background: none;
+  border-color: var(--rule-strong);
+  color: var(--ink);
+}
+
+.agent-secondary:hover {
+  background: var(--paper-raised);
+  border-color: var(--civic);
+}
+
+.agent-result {
+  border-top: 1px solid var(--rule);
+  margin-top: 14px;
+  padding-top: 12px;
+}
+
+.agent-empty {
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+/* --------------------------------------------------------------- the auth */
+
+.auth-form {
+  margin: 0 auto;
+  max-width: 380px;
+}
+
+/* -------------------------------------------------------------- the phone */
+
+@media (max-width: 640px) {
+  .page {
+    padding: 24px 16px 56px;
+  }
+
+  .app-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .notice {
+    padding: 22px 20px;
+  }
+
+  /* The date stops being a column and becomes a line of its own. */
+  .bin-card {
+    grid-template-columns: 14px 1fr;
+  }
+
+  .bin-card span {
+    grid-column: 1 / -1;
+  }
+
+  .bin-card::before {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .bin-card strong {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .admin-table {
+    display: block;
+    overflow-x: auto;
+  }
 }

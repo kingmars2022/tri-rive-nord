@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useI18n } from "../useI18n";
 import { usePreferenceStore } from "../stores/preferences";
+import { useMunicipalityStore } from "../stores/municipality";
+import type { MunicipalitySector } from "../api/municipalities";
 import { useAuthStore } from "../stores/auth";
 import { api } from "../api/client";
 import {
@@ -20,8 +22,19 @@ type BackendPreference = {
   reminderEnabled: boolean;
 };
 
-const { t } = useI18n();
+const { t, language } = useI18n();
 const preferences = usePreferenceStore();
+const municipalities = useMunicipalityStore();
+
+const sectors = computed(() => municipalities.current?.sectors ?? []);
+
+function sectorName(sector: MunicipalitySector) {
+  return language.value === "en"
+    ? sector.nameEn
+    : language.value === "zh"
+      ? sector.nameZh
+      : sector.nameFr;
+}
 const auth = useAuthStore();
 const synced = ref(false);
 
@@ -142,8 +155,14 @@ function onReminderChange(event: Event) {
     <label>
       {{ t("settings.sector") }}
       <select :value="preferences.sector" @change="onSectorChange">
-        <option value="north">{{ t("settings.north") }}</option>
-        <option value="south">{{ t("settings.south") }}</option>
+        <!--
+          The options come from the city rather than from the translation
+          file. A sector is a local fact, so a city that splits its territory
+          some other way -- or not at all -- needs data, not a new string.
+        -->
+        <option v-for="sector in sectors" :key="sector.code" :value="sector.code">
+          {{ sectorName(sector) }}
+        </option>
       </select>
     </label>
 
