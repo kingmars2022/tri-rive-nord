@@ -62,7 +62,7 @@ that the city stays unloaded. The application already renders that honestly.
 | Blainville | yes | yes | V15, V17 |
 | Sainte-Therese | yes, 2026 grids | yes, regulation 1373 | V22, V23 |
 | Boisbriand | no -- site refuses automated requests, see below | no | |
-| Rosemere | no | no | |
+| Rosemere | no -- site does not answer automated requests | no | |
 
 ## What Sainte-Therese added to the list of things to get wrong
 
@@ -140,6 +140,18 @@ saying no, so the fetcher does not retry with a browser's identity. Boisbriand's
 calendar and regulation have to be downloaded by hand in a browser and added
 under `data/municipal-sources/boisbriand/`, with their URLs, which is how
 Blainville's were read.
+
+Tried again the same day from a session whose network allows the host (the
+personal environment **tri-rive-nord** allows all four cities' real domains):
+the 403 is an **Azure WAF JS Challenge** page, a bot check that only lets a
+real browser through. `robots.txt` does not forbid the collections pages, but
+the challenge is an explicit anti-bot measure, so it is not to be solved with
+a headless browser either.
+
+**Rosemere does not answer automated clients at all** on 2026-11-17: from the
+GitHub runner both `ville.rosemere.qc.ca` and `www.ville.rosemere.qc.ca` time
+out, and from the session the connection is reset; `rosemere.ca` does not
+resolve. Its documents need the same manual download.
 
 It is a downloader, not a parser. It follows only links on the city's own host
 that look like they are about collection, honours robots.txt, and waits two
