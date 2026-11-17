@@ -89,9 +89,33 @@ class AuthenticationFlowIntegrationTest {
     void registerCreatesAUserAccountThatCanImmediatelyAuthenticate() throws Exception {
         String token = registerAndGetToken();
 
-        mockMvc.perform(get("/api/preferences").header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sector").value("north"));
+        /*
+            The sector is asserted by property rather than by name.
+
+            It used to pin the literal "north", which was the constant the
+            insert wrote. That coupled the test to a value nothing guaranteed:
+            when the default became "the city's first sector" it broke, and
+            when that was corrected to skip the city-wide wildcard it broke
+            again -- twice, for a default that was allowed to be either half
+            of town.
+
+            What actually has to hold is narrower and does not move: the new
+            account gets a sector this city really has, and specifically not
+            'all'. That code means a collection covering the whole territory,
+            and a resident sitting on it matches only those, never the
+            garbage or recycling for the half they live in. Pinning the name
+            never tested that; this does.
+        */
+        String sector = objectMapper.readTree(
+                        mockMvc.perform(get("/api/preferences").header("Authorization", "Bearer " + token))
+                                .andExpect(status().isOk())
+                                .andReturn().getResponse().getContentAsString())
+                .get("sector").asText();
+
+        assertThat(sector).isNotEqualTo("all");
+        assertThat(mockMvc.perform(get("/api/municipalities/" + CITY))
+                        .andReturn().getResponse().getContentAsString())
+                .contains("\"code\":\"" + sector + "\"");
     }
 
     @Test
