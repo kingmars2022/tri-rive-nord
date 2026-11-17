@@ -299,7 +299,7 @@ All of these are connected end to end through protected `/api/admin/**` endpoint
 
 - **Schedule** (`/api/admin/collections/**`) supports create, update, and delete of `collection_event` rows.
 - **Sorting items** (`/api/admin/sorting-items/**`) supports create, update, and delete of `sorting_item` rows together with their French/English/Chinese `sorting_item_translation` rows (name, instruction, and location) and per-language `sorting_item_keyword` entries, in one request. The API requires all three languages (`fr`/`en`/`zh`) on every sorting item, so **translations** and **locations** cannot go missing — the admin UI's "Translations" panel now just reports how many sorting items exist, since completeness is enforced by validation rather than tracked separately.
-- **Special notices** (`/api/admin/notices/**`) supports create, update, and delete of `special_notice` rows.
+- **Special notices** (`/api/admin/notices/**?municipality=`) supports create, update, and delete of `special_notice` rows. A notice belongs to one city (V27): the public `/api/notices/active?municipality=` list, the inbox fan-out and the push only reach that city, and an edit or delete naming another city is a 404.
 
 All three panels now edit as well as create: clicking **Modifier** on a row
 loads it into the panel's own form, which becomes a save form until it is

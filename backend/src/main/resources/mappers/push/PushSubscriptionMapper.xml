@@ -23,12 +23,13 @@
     </delete>
 
     <!-- The same condition the inbox fan-out uses, so the two deliveries agree
-         on who is being told. -->
+         on who is being told: reminders on, and living in the notice's city. -->
     <select id="findForResidentsWithReminders" resultType="com.tririvenord.push.PushSubscription">
         select s.id, s.user_id, s.endpoint, s.p256dh, s.auth, s.language_code
         from push_subscription s
         join user_preference p on p.user_id = s.user_id
         where p.reminder_enabled = true
+          and p.municipality_id = #{municipalityId}
     </select>
 
     <select id="findForUser" resultType="com.tririvenord.push.PushSubscription">

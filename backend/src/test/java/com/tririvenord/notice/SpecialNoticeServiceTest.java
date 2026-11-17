@@ -44,11 +44,11 @@ class SpecialNoticeServiceTest {
         }).when(mapper).insert(any());
 
         SpecialNotice created = new SpecialNotice(
-                7L, LocalDate.now(), LocalDate.now().plusDays(1),
+                7L, 1L, LocalDate.now(), LocalDate.now().plusDays(1),
                 "fr", "en", "zh", "corps fr", "corps en", "corps zh", null, true);
         when(mapper.findById(7L)).thenReturn(Optional.of(created));
 
-        SpecialNotice result = service.create(new NoticeRequest(
+        SpecialNotice result = service.create(1L, new NoticeRequest(
                 LocalDate.now(), LocalDate.now().plusDays(1),
                 "fr", "en", "zh", "corps fr", "corps en", "corps zh", null, true));
 
@@ -66,11 +66,11 @@ class SpecialNoticeServiceTest {
         }).when(mapper).insert(any());
 
         SpecialNotice stored = new SpecialNotice(
-                7L, LocalDate.now(), LocalDate.now().plusDays(1),
+                7L, 1L, LocalDate.now(), LocalDate.now().plusDays(1),
                 "fr", "en", "zh", "corps fr", "corps en", "corps zh", null, true);
         when(mapper.findById(7L)).thenReturn(Optional.of(stored));
 
-        service.create(new NoticeRequest(
+        service.create(1L, new NoticeRequest(
                 LocalDate.now(), LocalDate.now().plusDays(1),
                 "fr", "en", "zh", "corps fr", "corps en", "corps zh", null, true));
 
@@ -80,14 +80,56 @@ class SpecialNoticeServiceTest {
     @Test
     void recordsBothSidesOfADeletionBeforeTheRowIsGone() {
         SpecialNotice existing = new SpecialNotice(
-                9L, LocalDate.now(), LocalDate.now().plusDays(1),
+                9L, 1L, LocalDate.now(), LocalDate.now().plusDays(1),
                 "fr", "en", "zh", "corps fr", "corps en", "corps zh", null, true);
         when(mapper.findById(9L)).thenReturn(Optional.of(existing));
 
-        service.delete(9L);
+        service.delete(1L, 9L);
 
         // After the delete there is nothing left to describe what was removed,
         // so the snapshot has to be taken first.
         verify(outbox).recordNoticeEvent(eq("deleted"), eq(9L), any(), eq(existing), isNull());
+    }
+
+    @Test
+    void createStoresTheCityTheNoticeWasPublishedFor() {
+        doAnswer(invocation -> {
+            Map<String, Object> params = invocation.getArgument(0);
+            params.put("id", java.math.BigInteger.valueOf(7));
+            return null;
+        }).when(mapper).insert(any());
+        when(mapper.findById(7L)).thenReturn(Optional.of(new SpecialNotice(
+                7L, 4L, LocalDate.now(), LocalDate.now().plusDays(1),
+                "fr", "en", "zh", "corps fr", "corps en", "corps zh", null, true)));
+
+        service.create(4L, new NoticeRequest(
+                LocalDate.now(), LocalDate.now().plusDays(1),
+                "fr", "en", "zh", "corps fr", "corps en", "corps zh", null, true));
+
+        verify(mapper).insert(org.mockito.ArgumentMatchers.argThat(params -> Long.valueOf(4L).equals(params.get("municipalityId"))));
+    }
+
+    @Test
+    void anotherCitysNoticeCannotBeChangedOrDeleted() {
+        // Notice 9 belongs to city 1; an administrator working in city 2 must
+        // get a 404, and nothing must be written or recorded.
+        SpecialNotice other = new SpecialNotice(
+                9L, 1L, LocalDate.now(), LocalDate.now().plusDays(1),
+                "fr", "en", "zh", "corps fr", "corps en", "corps zh", null, true);
+        when(mapper.findById(9L)).thenReturn(Optional.of(other));
+        NoticeRequest request = new NoticeRequest(
+                LocalDate.now(), LocalDate.now().plusDays(1),
+                "fr", "en", "zh", "corps fr", "corps en", "corps zh", null, true);
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.update(2L, 9L, request))
+                .isInstanceOf(org.springframework.web.server.ResponseStatusException.class)
+                .hasMessageContaining("404");
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.delete(2L, 9L))
+                .isInstanceOf(org.springframework.web.server.ResponseStatusException.class)
+                .hasMessageContaining("404");
+
+        verify(mapper, org.mockito.Mockito.never()).update(any());
+        verify(mapper, org.mockito.Mockito.never()).delete(any());
+        verify(outbox, org.mockito.Mockito.never()).recordNoticeEvent(any(), any(), any(), any(), any());
     }
 }

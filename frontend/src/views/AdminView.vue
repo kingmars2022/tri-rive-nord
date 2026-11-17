@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useI18n } from "../useI18n";
 import { api, ApiError } from "../api/client";
 import { executeAgentPlan, planWithAgent, type AgentExecution, type AgentPlan } from "../api/agent";
+import { usePreferenceStore } from "../stores/preferences";
+import { useMunicipalityStore } from "../stores/municipality";
 
 type Notice = {
   id: number;
+  municipalityId: number;
   startsOn: string;
   endsOn: string;
   titleFr: string;
@@ -120,6 +123,21 @@ function discardPlan() {
 
 const notices = ref<Notice[]>([]);
 const noticeError = ref("");
+
+const preferences = usePreferenceStore();
+const municipalities = useMunicipalityStore();
+/** Shown on the notice form, because the city decides who a notice reaches. */
+const noticeCityName = computed(() => municipalities.current?.name ?? preferences.municipality);
+
+/**
+ * Notices belong to one city and reach only that city's residents, so every
+ * notice call names the city outright rather than leaving it to the client's
+ * default. The server checks it against the notice on edit and delete.
+ */
+function noticesPath(id?: number) {
+  const base = id === undefined ? "/admin/notices" : `/admin/notices/${id}`;
+  return `${base}?municipality=${encodeURIComponent(preferences.municipality)}`;
+}
 
 const events = ref<CollectionEvent[]>([]);
 const eventError = ref("");
@@ -292,7 +310,7 @@ const editingNoticeId = ref<number | null>(null);
 
 async function loadNotices() {
   try {
-    notices.value = await api.get<Notice[]>("/admin/notices");
+    notices.value = await api.get<Notice[]>(noticesPath());
     noticeError.value = "";
   } catch (err) {
     noticeError.value = err instanceof Error ? err.message : "Failed to load notices";
@@ -315,9 +333,9 @@ async function saveNotice() {
 
   try {
     if (editingNoticeId.value === null) {
-      await api.post<Notice>("/admin/notices", payload);
+      await api.post<Notice>(noticesPath(), payload);
     } else {
-      await api.put<Notice>(`/admin/notices/${editingNoticeId.value}`, payload);
+      await api.put<Notice>(noticesPath(editingNoticeId.value), payload);
     }
     noticeError.value = "";
   } catch (err) {
@@ -353,7 +371,7 @@ function cancelNoticeEdit() {
 }
 
 async function deleteNotice(id: number) {
-  await api.delete(`/admin/notices/${id}`);
+  await api.delete(noticesPath(id));
   await loadNotices();
 }
 
@@ -596,6 +614,17 @@ onMounted(() => {
   loadEvents();
   loadSortingItems();
 });
+
+// Switching city from the header changes which notices exist. Without this the
+// table would keep the previous city's notices under the new city's name, and
+// an edit left open would be saved against a city it does not belong to.
+watch(
+  () => preferences.municipality,
+  () => {
+    cancelNoticeEdit();
+    loadNotices();
+  }
+);
 </script>
 
 <template>
@@ -963,6 +992,8 @@ onMounted(() => {
         <div class="admin-panel-title">
           <h2>{{ t("admin.notices") }}</h2>
         </div>
+
+        <p class="admin-note notice-city">{{ t("city.label") }}: {{ noticeCityName }}</p>
 
         <p v-if="noticeError" class="auth-error">{{ noticeError }}</p>
 

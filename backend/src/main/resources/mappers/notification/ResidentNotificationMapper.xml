@@ -11,9 +11,15 @@
     -->
     <insert id="fanOutToResidentsWithReminders">
         insert ignore into resident_notification (user_id, notice_id, event_id)
-        select p.user_id, #{noticeId}, #{eventId}
-        from user_preference p
-        where p.reminder_enabled = true
+        select p.user_id, s.id, #{eventId}
+        from special_notice s
+        <!-- Only residents of the notice's own city: a postponed collection in
+             Blainville is noise, or worse a wrong instruction, in Rosemere.
+             Read from the notice row rather than passed in, so no caller can
+             fan a notice out to a city it was not published for. -->
+        join user_preference p on p.municipality_id = s.municipality_id
+        where s.id = #{noticeId}
+          and p.reminder_enabled = true
     </insert>
 
     <select id="findForUser" resultType="com.tririvenord.notification.ResidentNotification">

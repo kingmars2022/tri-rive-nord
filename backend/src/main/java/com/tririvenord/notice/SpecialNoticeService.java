@@ -33,11 +33,14 @@ public class SpecialNoticeService {
      * Read on every page load alongside the collection schedule. Cached by
      * day for the same reason {@code CollectionService.upcoming} is: the
      * query is "what is visible today", so the day has to be part of the key
-     * or a notice would stay visible past its {@code endsOn} date.
+     * or a notice would stay visible past its {@code endsOn} date. The city
+     * is part of it too, or the first city asked for on a given day would
+     * answer for every other.
      */
-    @Cacheable(cacheNames = CacheConfig.ACTIVE_NOTICES, key = "#root.target.today().toString()")
-    public List<SpecialNotice> active() {
-        return mapper.findActive(today());
+    @Cacheable(cacheNames = CacheConfig.ACTIVE_NOTICES,
+            key = "#municipalityId + ':' + #root.target.today().toString()")
+    public List<SpecialNotice> active(long municipalityId) {
+        return mapper.findActive(municipalityId, today());
     }
 
     /** Exposed so the cache key above can depend on the same clock this service reads. */
@@ -45,13 +48,13 @@ public class SpecialNoticeService {
         return LocalDate.now(clock);
     }
 
-    public List<SpecialNotice> all() {
-        return mapper.findAll();
+    public List<SpecialNotice> all(long municipalityId) {
+        return mapper.findAll(municipalityId);
     }
 
     /** The most recent notices, bounded - see CollectionService.forPlanning. */
-    public List<SpecialNotice> recent(int limit) {
-        return mapper.findRecent(limit);
+    public List<SpecialNotice> recent(long municipalityId, int limit) {
+        return mapper.findRecent(municipalityId, limit);
     }
 
     // A notice publish is the one write residents notice immediately (a
@@ -63,10 +66,13 @@ public class SpecialNoticeService {
     // pattern degrades into the dual-write bug it exists to prevent.
     @Transactional
     @CacheEvict(cacheNames = CacheConfig.ACTIVE_NOTICES, allEntries = true)
-    public SpecialNotice create(NoticeRequest request) {
+    public SpecialNotice create(long municipalityId, NoticeRequest request) {
         requireValidDateRange(request);
 
         Map<String, Object> params = new HashMap<>();
+        // The city decides who the notice reaches: the inbox fan-out and the
+        // push both read it from this row.
+        params.put("municipalityId", municipalityId);
         params.put("startsOn", request.startsOn());
         params.put("endsOn", request.endsOn());
         params.put("titleFr", request.titleFr());
@@ -88,10 +94,10 @@ public class SpecialNoticeService {
 
     @Transactional
     @CacheEvict(cacheNames = CacheConfig.ACTIVE_NOTICES, allEntries = true)
-    public SpecialNotice update(Long id, NoticeRequest request) {
-        SpecialNotice before = requireExists(id);
+    public SpecialNotice update(long municipalityId, Long id, NoticeRequest request) {
+        SpecialNotice before = requireExists(municipalityId, id);
         requireValidDateRange(request);
-        mapper.update(toNotice(id, request));
+        mapper.update(toNotice(id, before.municipalityId(), request));
         SpecialNotice after = mapper.findById(id).orElseThrow();
 
         // Both sides captured from the database rather than from the request,
@@ -102,8 +108,8 @@ public class SpecialNoticeService {
 
     @Transactional
     @CacheEvict(cacheNames = CacheConfig.ACTIVE_NOTICES, allEntries = true)
-    public void delete(Long id) {
-        SpecialNotice before = requireExists(id);
+    public void delete(long municipalityId, Long id) {
+        SpecialNotice before = requireExists(municipalityId, id);
         mapper.delete(id);
 
         // Recorded before the row is gone for good - after the delete there is
@@ -117,9 +123,20 @@ public class SpecialNoticeService {
         }
     }
 
-    private SpecialNotice requireExists(Long id) {
-        return mapper.findById(id).orElseThrow(() ->
-                new ResponseStatusException(HttpStatus.NOT_FOUND, "Notice " + id + " not found"));
+    /**
+     * The notice, if it belongs to the city the caller is administering.
+     *
+     * <p>Another city's notice is a 404, not a 403 and not a silent edit: an
+     * administrator working in one city, or an agent plan drawn up for it,
+     * reaching a notice by a stale or guessed id must not change what another
+     * city's residents read. A notice never moves between cities on update;
+     * one posted to the wrong city is deleted and posted again.
+     */
+    private SpecialNotice requireExists(long municipalityId, Long id) {
+        return mapper.findById(id)
+                .filter(notice -> notice.municipalityId() == municipalityId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND, "Notice " + id + " not found"));
     }
 
     /**
@@ -134,9 +151,10 @@ public class SpecialNoticeService {
         return authentication == null ? "system" : authentication.getName();
     }
 
-    private SpecialNotice toNotice(Long id, NoticeRequest request) {
+    private SpecialNotice toNotice(Long id, long municipalityId, NoticeRequest request) {
         return new SpecialNotice(
                 id,
+                municipalityId,
                 request.startsOn(),
                 request.endsOn(),
                 request.titleFr(),

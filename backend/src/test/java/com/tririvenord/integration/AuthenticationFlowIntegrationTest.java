@@ -177,10 +177,10 @@ class AuthenticationFlowIntegrationTest {
         String residentToken = registerAndGetToken();
         String adminToken = loginAdminAndGetToken();
 
-        mockMvc.perform(get("/api/admin/notices").header("Authorization", "Bearer " + residentToken))
+        mockMvc.perform(get("/api/admin/notices?municipality=" + CITY).header("Authorization", "Bearer " + residentToken))
                 .andExpect(status().isForbidden());
 
-        mockMvc.perform(get("/api/admin/notices").header("Authorization", "Bearer " + adminToken))
+        mockMvc.perform(get("/api/admin/notices?municipality=" + CITY).header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk());
     }
 
@@ -200,7 +200,7 @@ class AuthenticationFlowIntegrationTest {
                 "active", true
         );
 
-        MvcResult created = mockMvc.perform(post("/api/admin/notices")
+        MvcResult created = mockMvc.perform(post("/api/admin/notices?municipality=" + CITY)
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(notice)))
@@ -210,7 +210,7 @@ class AuthenticationFlowIntegrationTest {
         long id = objectMapper.readTree(created.getResponse().getContentAsString()).get("id").asLong();
         assertThat(id).isPositive();
 
-        mockMvc.perform(delete("/api/admin/notices/" + id).header("Authorization", "Bearer " + adminToken))
+        mockMvc.perform(delete("/api/admin/notices/" + id + "?municipality=" + CITY).header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isNoContent());
     }
 
@@ -226,7 +226,7 @@ class AuthenticationFlowIntegrationTest {
                 "active", true
         );
 
-        mockMvc.perform(post("/api/admin/notices")
+        mockMvc.perform(post("/api/admin/notices?municipality=" + CITY)
                         .header("Authorization", "Bearer " + adminToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(notice)))

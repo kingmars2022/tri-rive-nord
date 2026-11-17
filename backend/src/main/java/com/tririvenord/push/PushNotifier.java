@@ -51,7 +51,7 @@ public class PushNotifier {
             if (notice == null) {
                 return;
             }
-            List<PushSubscription> targets = subscriptions.findForResidentsWithReminders();
+            List<PushSubscription> targets = subscriptions.findForResidentsWithReminders(notice.municipalityId());
             int sent = 0;
             int dropped = 0;
             for (PushSubscription subscription : targets) {

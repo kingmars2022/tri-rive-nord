@@ -74,7 +74,7 @@ public class AgentToolCatalog {
                         properties(), List.of()),
 
                 tool(AgentToolName.list_notices,
-                        "List public notices, including inactive and expired ones, newest first, at "
+                        "List this city's public notices, including inactive and expired ones, newest first, at "
                                 + "most " + PLANNING_LIMIT + " of them. Call this before changing or "
                                 + "deleting a notice.",
                         properties(), List.of()),
@@ -133,7 +133,7 @@ public class AgentToolCatalog {
         return switch (tool) {
             case list_collections ->
                     objectMapper.writeValueAsString(collections.forPlanning(municipalityId, PLANNING_LIMIT));
-            case list_notices -> objectMapper.writeValueAsString(notices.recent(PLANNING_LIMIT));
+            case list_notices -> objectMapper.writeValueAsString(notices.recent(municipalityId, PLANNING_LIMIT));
             default -> throw new IllegalArgumentException(tool + " is not a read tool");
         };
     }
@@ -157,17 +157,17 @@ public class AgentToolCatalog {
                 yield "Deleted collection event " + id;
             }
             case create_notice -> {
-                SpecialNotice created = notices.create(validated(step.input(), NoticeRequest.class));
+                SpecialNotice created = notices.create(municipalityId, validated(step.input(), NoticeRequest.class));
                 yield "Created notice " + created.id();
             }
             case update_notice -> {
                 Long id = requireId(step.input());
-                notices.update(id, validated(withoutId(step.input()), NoticeRequest.class));
+                notices.update(municipalityId, id, validated(withoutId(step.input()), NoticeRequest.class));
                 yield "Updated notice " + id;
             }
             case delete_notice -> {
                 Long id = requireId(step.input());
-                notices.delete(id);
+                notices.delete(municipalityId, id);
                 yield "Deleted notice " + id;
             }
             default -> throw new IllegalArgumentException(step.tool() + " is not a write tool");

@@ -76,6 +76,10 @@ class NoticeEventPipelineIntegrationTest {
     private JdbcTemplate jdbc;
 
     private static final String RESIDENT_EMAIL = "notice-pipeline-resident@test.local";
+    /** Lives in another city, with reminders on: must never hear about Blainville's notices. */
+    private static final String OTHER_CITY_RESIDENT_EMAIL = "notice-pipeline-other-city@test.local";
+
+    private long blainville;
 
     /**
      * A resident with reminders on, so the inbox fan-out has someone to reach.
@@ -87,14 +91,20 @@ class NoticeEventPipelineIntegrationTest {
      */
     @BeforeEach
     void aResidentWithRemindersOn() {
+        blainville = jdbc.queryForObject("select id from municipality where slug = 'blainville'", Long.class);
+        resident(RESIDENT_EMAIL, "blainville", "north");
+        resident(OTHER_CITY_RESIDENT_EMAIL, "sainte-therese", "a");
+    }
+
+    private void resident(String email, String city, String sector) {
         jdbc.update("insert ignore into app_user (email, password_hash, role) values (?, 'not-a-login', 'USER')",
-                RESIDENT_EMAIL);
+                email);
         jdbc.update("""
                 insert ignore into user_preference (user_id, sector, language_code, reminder_enabled, municipality_id)
-                select u.id, 'north', 'fr', true, m.id
+                select u.id, ?, 'fr', true, m.id
                 from app_user u, municipality m
-                where u.email = ? and m.slug = 'blainville'
-                """, RESIDENT_EMAIL);
+                where u.email = ? and m.slug = ?
+                """, sector, email, city);
     }
 
     @AfterEach
@@ -104,18 +114,20 @@ class NoticeEventPipelineIntegrationTest {
         jdbc.update("delete from resident_notification where notice_id in "
                 + "(select id from special_notice where source_url = ?)", MARKER);
         jdbc.update("delete from special_notice where source_url = ?", MARKER);
-        jdbc.update("delete from resident_notification where user_id = (select id from app_user where email = ?)",
-                RESIDENT_EMAIL);
-        jdbc.update("delete from user_preference where user_id = (select id from app_user where email = ?)",
-                RESIDENT_EMAIL);
-        jdbc.update("delete from app_user where email = ?", RESIDENT_EMAIL);
+        for (String email : List.of(RESIDENT_EMAIL, OTHER_CITY_RESIDENT_EMAIL)) {
+            jdbc.update("delete from resident_notification where user_id = (select id from app_user where email = ?)",
+                    email);
+            jdbc.update("delete from user_preference where user_id = (select id from app_user where email = ?)",
+                    email);
+            jdbc.update("delete from app_user where email = ?", email);
+        }
     }
 
     @Test
     void theEventIsCommittedWithTheNoticeAndOnlyThenReachesTheBroker() {
         long before = outbox.countUnpublished();
 
-        SpecialNotice created = notices.create(request("Collecte reportee"));
+        SpecialNotice created = notices.create(blainville, request("Collecte reportee"));
 
         // Committed with the notice, in the same transaction - and not yet sent.
         List<com.tririvenord.events.OutboxEntry> pending = outbox.findUnpublished(50);
@@ -135,7 +147,7 @@ class NoticeEventPipelineIntegrationTest {
         // Two independent groups on one topic is the only thing here a direct
         // method call could not do: each tracks its own offset, so a slow or
         // broken consumer cannot stall the other.
-        SpecialNotice created = notices.create(request("Avis de tempete"));
+        SpecialNotice created = notices.create(blainville, request("Avis de tempete"));
         relay.publishPending();
 
         await().atMost(20, TimeUnit.SECONDS).untilAsserted(() -> {
@@ -155,9 +167,31 @@ class NoticeEventPipelineIntegrationTest {
     }
 
     @Test
+    void theConsumerDeliversOnlyToResidentsOfTheNoticesCity() {
+        // End to end through the real broker and consumer group. The fan-out
+        // is one INSERT ... SELECT, so once the Blainville resident has the
+        // notice the statement has run, and the other city's empty inbox is
+        // a result rather than a delivery still on its way.
+        SpecialNotice created = notices.create(blainville, request("Collecte reportee a Blainville"));
+        relay.publishPending();
+
+        await().atMost(20, TimeUnit.SECONDS).untilAsserted(() ->
+                assertThat(inboxCount(RESIDENT_EMAIL, created.id())).isEqualTo(1));
+        assertThat(inboxCount(OTHER_CITY_RESIDENT_EMAIL, created.id())).isZero();
+    }
+
+    private int inboxCount(String email, long noticeId) {
+        return jdbc.queryForObject("""
+                select count(*) from resident_notification n
+                join app_user u on u.id = n.user_id
+                where u.email = ? and n.notice_id = ?
+                """, Integer.class, email, noticeId);
+    }
+
+    @Test
     void theAuditTrailRecordsBothSidesOfAnUpdate() {
-        SpecialNotice created = notices.create(request("Titre initial"));
-        notices.update(created.id(), request("Titre corrige"));
+        SpecialNotice created = notices.create(blainville, request("Titre initial"));
+        notices.update(blainville, created.id(), request("Titre corrige"));
         relay.publishPending();
 
         await().atMost(20, TimeUnit.SECONDS).untilAsserted(() -> {
@@ -178,7 +212,7 @@ class NoticeEventPipelineIntegrationTest {
         // Delivery is at-least-once by design, so the consumer has to make the
         // effect exactly-once. Asserting that directly is more useful than
         // trusting the broker not to redeliver.
-        SpecialNotice created = notices.create(request("Avis unique"));
+        SpecialNotice created = notices.create(blainville, request("Avis unique"));
         relay.publishPending();
 
         await().atMost(20, TimeUnit.SECONDS).untilAsserted(() ->

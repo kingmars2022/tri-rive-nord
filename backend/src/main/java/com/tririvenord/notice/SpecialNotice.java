@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 public record SpecialNotice(
         Long id,
+        long municipalityId,
         LocalDate startsOn,
         LocalDate endsOn,
         String titleFr,

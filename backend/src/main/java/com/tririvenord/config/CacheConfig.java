@@ -67,7 +67,7 @@ public class CacheConfig implements CachingConfigurer {
     /** Keyed by day + sector + horizon; see {@code CollectionService.upcoming}. */
     public static final String UPCOMING_COLLECTIONS = "collections:upcoming";
 
-    /** Keyed by day; see {@code SpecialNoticeService.active}. */
+    /** Keyed by city and day; see {@code SpecialNoticeService.active}. */
     public static final String ACTIVE_NOTICES = "notices:active";
 
     @Bean
