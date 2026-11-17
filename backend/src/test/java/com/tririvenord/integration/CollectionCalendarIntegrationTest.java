@@ -76,19 +76,31 @@ class CollectionCalendarIntegrationTest {
     private JdbcTemplate jdbc;
 
     private LocalDate watermark;
+    /**
+     * The same for every other city. The top-ups here run every city's rules,
+     * not only Blainville's, and what they generate elsewhere has to go too -
+     * but only that: the other cities' own rows are not this test's to touch.
+     */
+    private LocalDate otherCitiesWatermark;
     private Map<Long, LocalDate> marksBefore;
 
     @BeforeEach
     void snapshot() {
         watermark = jdbc.queryForObject(
-                "select coalesce(max(collection_date), '2000-01-01') from collection_event", LocalDate.class);
+                "select coalesce(max(collection_date), '2000-01-01') from collection_event where municipality_id = ?",
+                LocalDate.class, MUNI);
+        otherCitiesWatermark = jdbc.queryForObject(
+                "select coalesce(max(collection_date), '2000-01-01') from collection_event where municipality_id <> ?",
+                LocalDate.class, MUNI);
         marksBefore = rules.findActive().stream()
                 .collect(Collectors.toMap(rule -> rule.id(), rule -> rule.generatedThrough()));
     }
 
     @AfterEach
     void restore() {
-        jdbc.update("delete from collection_event where collection_date > ?", watermark);
+        jdbc.update("delete from collection_event where municipality_id = ? and collection_date > ?", MUNI, watermark);
+        jdbc.update("delete from collection_event where municipality_id <> ? and auto_generated = true "
+                + "and collection_date > ?", MUNI, otherCitiesWatermark);
         jdbc.update("delete from collection_holiday where source_url = 'test://holiday-shift'");
         marksBefore.forEach((id, mark) ->
                 jdbc.update("update collection_schedule_rule set generated_through = ? where id = ?", mark, id));
@@ -176,8 +188,9 @@ class CollectionCalendarIntegrationTest {
      * otherwise have filled. The marks are restored by {@link #restore()}.
      */
     private LocalDate closeTheNextOrganicsCollection(LocalDate today) {
-        jdbc.update("update collection_schedule_rule set generated_through = ?", today.minusDays(1));
-        jdbc.update("delete from collection_event where collection_date >= ?", today);
+        jdbc.update("update collection_schedule_rule set generated_through = ? where municipality_id = ?",
+                today.minusDays(1), MUNI);
+        jdbc.update("delete from collection_event where municipality_id = ? and collection_date >= ?", MUNI, today);
 
         CollectionScheduleRule organics = rules.findActive().stream()
                 .filter(rule -> rule.collectionType() == CollectionType.organic)
@@ -244,8 +257,9 @@ class CollectionCalendarIntegrationTest {
     @Test
     void theGeneratedCalendarMatchesTheCityPrintedCalendar() {
         LocalDate today = LocalDate.parse("2026-10-20");
-        jdbc.update("update collection_schedule_rule set generated_through = ?", today.minusDays(1));
-        jdbc.update("delete from collection_event where collection_date >= ?", today);
+        jdbc.update("update collection_schedule_rule set generated_through = ? where municipality_id = ?",
+                today.minusDays(1), MUNI);
+        jdbc.update("delete from collection_event where municipality_id = ? and collection_date >= ?", MUNI, today);
 
         topUpOn(today.toString()).topUp();
 
@@ -288,7 +302,8 @@ class CollectionCalendarIntegrationTest {
     @Test
     void theOnlyHolidayTheCityPrintsIsTheOneInTheDatabase() {
         assertThat(jdbc.queryForList(
-                "select holiday_date, shift_days, source_url from collection_holiday where active = true"))
+                "select holiday_date, shift_days, source_url from collection_holiday where active = true and municipality_id = ?",
+                MUNI))
                 .as("V14's guesses were removed by V15; only the cited one survives")
                 .singleElement()
                 .satisfies(row -> {

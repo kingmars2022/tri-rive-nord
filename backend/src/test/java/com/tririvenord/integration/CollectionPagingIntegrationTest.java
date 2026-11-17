@@ -62,7 +62,9 @@ class CollectionPagingIntegrationTest {
     @Test
     void everyRowAppearsOnExactlyOnePage() throws Exception {
         String token = adminToken();
-        long total = jdbc.queryForObject("select count(*) from collection_event", Long.class);
+        long total = jdbc.queryForObject(
+                "select count(*) from collection_event where municipality_id = (select id from municipality where slug = ?)",
+                Long.class, CITY);
         int size = 7;
 
         List<Integer> seen = new ArrayList<>();
@@ -85,12 +87,16 @@ class CollectionPagingIntegrationTest {
         // any single page looking wrong.
         assertThat(seen).doesNotHaveDuplicates();
         assertThat(seen).containsExactlyInAnyOrderElementsOf(
-                jdbc.queryForList("select id from collection_event", Integer.class));
+                jdbc.queryForList(
+                        "select id from collection_event where municipality_id = (select id from municipality where slug = ?)",
+                        Integer.class, CITY));
     }
 
     @Test
     void reportsTheTotalRatherThanThePageLength() throws Exception {
-        long total = jdbc.queryForObject("select count(*) from collection_event", Long.class);
+        long total = jdbc.queryForObject(
+                "select count(*) from collection_event where municipality_id = (select id from municipality where slug = ?)",
+                Long.class, CITY);
 
         mockMvc.perform(get("/api/admin/collections")
                         .param("municipality", CITY)
