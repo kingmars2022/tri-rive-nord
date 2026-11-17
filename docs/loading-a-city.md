@@ -61,7 +61,7 @@ that the city stays unloaded. The application already renders that honestly.
 |---|---|---|---|
 | Blainville | yes | yes | V15, V17 |
 | Sainte-Therese | yes, 2026 grids | yes, regulation 1373 | V22, V23 |
-| Boisbriand | no | no | |
+| Boisbriand | no -- site refuses automated requests, see below | no | |
 | Rosemere | no | no | |
 
 ## What Sainte-Therese added to the list of things to get wrong
@@ -130,6 +130,16 @@ hand from the Actions tab), and commits the raw pages and PDFs back to the same
 branch under `data/municipal-sources/<slug>/<date>/`, along with a
 `manifest.json` that gives each file's source URL and sha256. `git pull`
 afterwards.
+
+**Boisbriand refuses it.** On 2026-11-17 the city's site,
+`www.ville.boisbriand.qc.ca`, answered the runner with 403 Forbidden;
+`boisbriand.qc.ca` and `www.boisbriand.qc.ca` do not resolve (the North Shore
+environment allows the wrong one). The manifest under
+`data/municipal-sources/boisbriand/2026-11-17/` records it. A 403 is the site
+saying no, so the fetcher does not retry with a browser's identity. Boisbriand's
+calendar and regulation have to be downloaded by hand in a browser and added
+under `data/municipal-sources/boisbriand/`, with their URLs, which is how
+Blainville's were read.
 
 It is a downloader, not a parser. It follows only links on the city's own host
 that look like they are about collection, honours robots.txt, and waits two
