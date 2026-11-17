@@ -102,17 +102,23 @@ class CollectionHolidayAdminIntegrationTest {
     private LocalDate anAlreadyGeneratedOrganicsDate() {
         List<LocalDate> dates = jdbc.queryForList(
                 "select collection_date from collection_event "
-                        + "where collection_type = 'organic' and collection_date > date_add(current_date, interval 21 day) "
+                        + "where municipality_id = (select id from municipality where slug = ?) "
+                        + "and collection_type = 'organic' and collection_date > date_add(current_date, interval 21 day) "
                         + "order by collection_date asc limit 1",
-                LocalDate.class);
+                LocalDate.class, CITY);
         assertThat(dates).as("the calendar should already be materialized this far out").isNotEmpty();
         return dates.getFirst();
     }
 
     private boolean collectionExistsOn(LocalDate date) {
         Integer count = jdbc.queryForObject(
-                "select count(*) from collection_event where collection_type = 'organic' and collection_date = ?",
-                Integer.class, date);
+                // The holiday is this city's, so only this city's collections
+                // can answer whether it moved one: another city collecting
+                // organics on the same day is not a bug in this one.
+                "select count(*) from collection_event where municipality_id = "
+                        + "(select id from municipality where slug = ?) "
+                        + "and collection_type = 'organic' and collection_date = ?",
+                Integer.class, CITY, date);
         return count != null && count > 0;
     }
 
