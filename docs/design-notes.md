@@ -1008,7 +1008,7 @@ Completed:
 - Docker Compose setup for MySQL, Redis, and backend.
 - Backend Dockerfile.
 - Environment-variable-based configuration (database, JWT secret, seeded admin credentials).
-- 248 tests: 112 that need nothing but the JVM, 101 that run against real infrastructure, and 35 in the browser runtime.
+- 254 tests: 115 that need nothing but the JVM, 101 that run against real infrastructure, and 38 in the browser runtime. `mvn test` runs the first 115; `mvn test -Pintegration-test` runs 216, which is those 115 plus the 101, not 216 more.
 - Successful backend Maven build.
 - Successful frontend Vite production build (including `vue-tsc` type-checking).
 - `docker compose --env-file .env.example config` validates the Compose file.
@@ -1166,7 +1166,7 @@ Long-term:
 - A transactional outbox so a publish is never half-done, with idempotent consumers on the other side.
 - A recurring calendar that extends itself without ever undoing an administrator's cancellation.
 - Photo uploads that never pass through the application, with EXIF stripped before anything is served.
-- 248 tests, of which 101 run against real infrastructure rather than mocks - which is how most of the bugs in the history of this repository were found.
+- 254 tests, of which 101 run against real infrastructure rather than mocks - which is how most of the bugs in the history of this repository were found, including both defects the multi-city change introduced: a registration that could not succeed because the default preference row named no city, and a default sector of `all`, which matches only city-wide collections and would have hidden half of what a resident needs.
 
 ## Project Positioning
 

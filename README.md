@@ -108,7 +108,7 @@ means garbage sitting at home for another week or two.
 - **Keeps working when something breaks.** If a service behind the site goes down, pages
   still load instead of freezing.
 - **Handles busy moments.** 200 residents using the site at once, every request succeeded.
-- **Thoroughly tested.** 248 automated tests, many of them against the same kind of setup
+- **Thoroughly tested.** 254 automated tests, many of them against the same kind of setup
   the site runs on in real life.
 
 ## About this project
