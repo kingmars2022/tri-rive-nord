@@ -10,6 +10,7 @@ import com.tririvenord.notice.SpecialNoticeService;
 import com.tririvenord.notice.dto.NoticeRequest;
 import com.tririvenord.support.InMemoryMongo;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,28 @@ class NoticeEventPipelineIntegrationTest {
     @Autowired
     private JdbcTemplate jdbc;
 
+    private static final String RESIDENT_EMAIL = "notice-pipeline-resident@test.local";
+
+    /**
+     * A resident with reminders on, so the inbox fan-out has someone to reach.
+     *
+     * <p>This test used to rely on one already existing - registered by
+     * whichever authentication test happened to run first. On CI, adding test
+     * classes changed the run order, this class ran second on a fresh
+     * database, and the fan-out correctly delivered to nobody.
+     */
+    @BeforeEach
+    void aResidentWithRemindersOn() {
+        jdbc.update("insert ignore into app_user (email, password_hash, role) values (?, 'not-a-login', 'USER')",
+                RESIDENT_EMAIL);
+        jdbc.update("""
+                insert ignore into user_preference (user_id, sector, language_code, reminder_enabled, municipality_id)
+                select u.id, 'north', 'fr', true, m.id
+                from app_user u, municipality m
+                where u.email = ? and m.slug = 'blainville'
+                """, RESIDENT_EMAIL);
+    }
+
     @AfterEach
     void cleanUp() {
         jdbc.update("delete from outbox_event where aggregate_id in "
@@ -81,6 +104,11 @@ class NoticeEventPipelineIntegrationTest {
         jdbc.update("delete from resident_notification where notice_id in "
                 + "(select id from special_notice where source_url = ?)", MARKER);
         jdbc.update("delete from special_notice where source_url = ?", MARKER);
+        jdbc.update("delete from resident_notification where user_id = (select id from app_user where email = ?)",
+                RESIDENT_EMAIL);
+        jdbc.update("delete from user_preference where user_id = (select id from app_user where email = ?)",
+                RESIDENT_EMAIL);
+        jdbc.update("delete from app_user where email = ?", RESIDENT_EMAIL);
     }
 
     @Test

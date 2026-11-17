@@ -56,6 +56,13 @@ class RedisCacheIntegrationTest {
         // This class exists to test the cache, so it pins the cache on even if
         // a developer has CACHE_TYPE=none in their shell.
         registry.add("CACHE_TYPE", () -> "redis");
+        // And the scheduled calendar top-up off. It runs once when this
+        // context starts, and whenever it writes it evicts the collections
+        // cache - correct in production, and a race here: on CI it wrote 546
+        // rows for a city another test class had just reset, between
+        // the two calls of upcomingCollectionsAreServedFromRedisOnTheSecondCall,
+        // and the second call missed the cache it was asserting on.
+        registry.add("app.collection.calendar.enabled", () -> "false");
     }
 
     private static final String MARKER = "redis-cache-integration-test";
