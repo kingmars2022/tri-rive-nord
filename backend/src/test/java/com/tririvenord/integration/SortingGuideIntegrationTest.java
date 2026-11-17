@@ -98,9 +98,10 @@ class SortingGuideIntegrationTest {
         // saw two cards, and retrieval split the relevance score across both,
         // pushing the real entry down the results.
         Integer shreddingEntries = jdbc.queryForObject(
-                "select count(*) from sorting_item_translation "
-                        + "where language_code = 'en' and name like '%shredding%'",
-                Integer.class);
+                "select count(*) from sorting_item_translation t join sorting_item i on i.id = t.item_id "
+                        + "where i.municipality_id = (select id from municipality where slug = ?) "
+                        + "and t.language_code = 'en' and t.name like '%shredding%'",
+                Integer.class, CITY);
         assertThat(shreddingEntries).isEqualTo(1);
 
         // The thin duplicate's search terms were merged in before it went, so
@@ -118,7 +119,9 @@ class SortingGuideIntegrationTest {
         // diverged again, a resident could be shown a card the assistant
         // cannot find, or vice versa.
         int inGuide = fetchGuide().size();
-        Integer inDatabase = jdbc.queryForObject("select count(*) from sorting_item", Integer.class);
+        Integer inDatabase = jdbc.queryForObject(
+                "select count(*) from sorting_item where municipality_id = (select id from municipality where slug = ?)",
+                Integer.class, CITY);
 
         assertThat(inGuide).isEqualTo(inDatabase);
     }

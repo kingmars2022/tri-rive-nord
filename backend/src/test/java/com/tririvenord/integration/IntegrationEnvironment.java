@@ -33,6 +33,15 @@ public final class IntegrationEnvironment {
                 + "&allowPublicKeyRetrieval=true&useSSL=false");
         registry.add("DB_USERNAME", () -> env("DB_USERNAME", "blainville_app"));
         registry.add("DB_PASSWORD", () -> env("DB_PASSWORD", "replace_with_a_local_dev_password"));
+        // Small pools. Spring caches one application context per test class
+        // configuration, and every context holds its own pool open for the
+        // whole run: at Hikari's default of 10, seventeen integration classes
+        // ask for 170 connections from a MySQL that allows 151, and whichever
+        // class starts last fails with "Too many connections" - an error about
+        // the suite's size that reads like one about the test it lands on. The
+        // most any test here runs concurrently is two threads.
+        registry.add("spring.datasource.hikari.maximum-pool-size", () -> "4");
+        registry.add("spring.datasource.hikari.minimum-idle", () -> "1");
         registry.add("APP_JWT_SECRET", () -> "integration-test-jwt-secret-long-enough-for-hmac-sha384");
         registry.add("APP_ADMIN_EMAIL", () -> ADMIN_EMAIL);
         registry.add("APP_ADMIN_PASSWORD", () -> ADMIN_PASSWORD);
