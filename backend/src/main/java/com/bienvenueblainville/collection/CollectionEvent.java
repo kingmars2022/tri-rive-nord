@@ -6,6 +6,7 @@ import java.time.LocalDate;
 
 public record CollectionEvent(
         Long id,
+        Long municipalityId,
         LocalDate collectionDate,
         Sector sector,
         CollectionType collectionType,

@@ -29,6 +29,9 @@ import static org.mockito.Mockito.when;
  * which is exactly why it went unnoticed.
  */
 class SortingItemListingTest {
+    /** Any one city; these tests are about behaviour, not about which. */
+    private static final long MUNI = 1L;
+
     @Mock
     private SortingItemMapper itemMapper;
     @Mock
@@ -52,11 +55,11 @@ class SortingItemListingTest {
         List<SortingItem> items = new ArrayList<>();
         List<SortingItemTranslation> translations = new ArrayList<>();
         for (long id = 1; id <= itemCount; id++) {
-            items.add(new SortingItem(id, DestinationType.organic, BinColor.brown, null));
+            items.add(new SortingItem(id,MUNI,"an-item",   DestinationType.organic, BinColor.brown, null));
             translations.add(new SortingItemTranslation(
                     id, id, LanguageCode.fr, "Nom " + id, "Instruction", null, null));
         }
-        when(itemMapper.findAll()).thenReturn(items);
+        when(itemMapper.findAll(MUNI)).thenReturn(items);
         when(translationMapper.findByItemIds(any())).thenReturn(translations);
         when(keywordMapper.findByItemIds(any())).thenReturn(List.of());
         when(exampleMapper.findByItemIds(any())).thenReturn(List.of());
@@ -66,10 +69,10 @@ class SortingItemListingTest {
     void listingCostsTheSameFourQueriesWhateverTheGuideHolds() {
         guideOf(50);
 
-        List<?> listed = service.all();
+        List<?> listed = service.all(MUNI);
 
         assertThat(listed).hasSize(50);
-        verify(itemMapper).findAll();
+        verify(itemMapper).findAll(MUNI);
         verify(translationMapper).findByItemIds(any());
         verify(keywordMapper).findByItemIds(any());
         verify(exampleMapper).findByItemIds(any());
@@ -83,16 +86,16 @@ class SortingItemListingTest {
     void asksForEveryItemIdExactlyOnce() {
         guideOf(3);
 
-        service.all();
+        service.all(MUNI);
 
         verify(translationMapper, times(1)).findByItemIds(List.of(1L, 2L, 3L));
     }
 
     @Test
     void doesNotQueryTheChildTablesAtAllForAnEmptyGuide() {
-        when(itemMapper.findAll()).thenReturn(List.of());
+        when(itemMapper.findAll(MUNI)).thenReturn(List.of());
 
-        assertThat(service.all()).isEmpty();
+        assertThat(service.all(MUNI)).isEmpty();
 
         // `where item_id in ()` is not valid SQL, so the empty case has to
         // short-circuit rather than build a query with no values in it.

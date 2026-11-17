@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Mapper
 public interface SortingItemMapper {
-    List<SortingItem> findAll();
+    List<SortingItem> findAll(@Param("municipalityId") long municipalityId);
 
     Optional<SortingItem> findById(@Param("id") Long id);
 

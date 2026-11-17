@@ -28,6 +28,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class SortingItemServiceTest {
+    /** Any one city; these tests are about behaviour, not about which. */
+    private static final long MUNI = 1L;
+
     @Mock
     private SortingItemMapper itemMapper;
     @Mock
@@ -48,7 +51,7 @@ class SortingItemServiceTest {
     }
 
     private SortingItemRequest sampleRequest() {
-        return new SortingItemRequest(
+        return new SortingItemRequest("an-item", 
                 DestinationType.organic,
                 BinColor.brown,
                 "https://blainville.ca/example",
@@ -77,12 +80,12 @@ class SortingItemServiceTest {
             return null;
         }).when(itemMapper).insert(any());
 
-        SortingItem created = new SortingItem(42L, DestinationType.organic, BinColor.brown, "https://blainville.ca/example");
+        SortingItem created = new SortingItem(42L,MUNI,"an-item",   DestinationType.organic, BinColor.brown, "https://blainville.ca/example");
         when(itemMapper.findById(42L)).thenReturn(Optional.of(created));
         when(translationMapper.findByItemId(42L)).thenReturn(List.of());
         when(keywordMapper.findByItemId(42L)).thenReturn(List.of());
 
-        SortingItemResponse response = service.create(sampleRequest());
+        SortingItemResponse response = service.create(MUNI, sampleRequest());
 
         assertThat(response.id()).isEqualTo(42L);
         verify(translationMapper).insert(eq(42L), eq(LanguageCode.fr), any(), any(), any(), any());
@@ -103,12 +106,12 @@ class SortingItemServiceTest {
         }).when(itemMapper).insert(any());
 
         when(itemMapper.findById(42L)).thenReturn(Optional.of(
-                new SortingItem(42L, DestinationType.organic, BinColor.brown, null)));
+                new SortingItem(42L,MUNI,"an-item",   DestinationType.organic, BinColor.brown, null)));
         when(translationMapper.findByItemId(42L)).thenReturn(List.of());
         when(keywordMapper.findByItemId(42L)).thenReturn(List.of());
         when(exampleMapper.findByItemId(42L)).thenReturn(List.of());
 
-        service.create(sampleRequest());
+        service.create(MUNI, sampleRequest());
 
         verify(translationMapper).insert(eq(42L), eq(LanguageCode.en), any(), any(), any(), eq("Year round"));
         // Blank entries trimmed away, order preserved.
@@ -124,11 +127,11 @@ class SortingItemServiceTest {
             return null;
         }).when(itemMapper).insert(any());
         when(itemMapper.findById(1L)).thenReturn(Optional.of(
-                new SortingItem(1L, DestinationType.organic, BinColor.brown, null)));
+                new SortingItem(1L,MUNI,"an-item",   DestinationType.organic, BinColor.brown, null)));
         when(translationMapper.findByItemId(1L)).thenReturn(List.of());
         when(keywordMapper.findByItemId(1L)).thenReturn(List.of());
 
-        service.create(sampleRequest());
+        service.create(MUNI, sampleRequest());
 
         verify(keywordMapper).insertBatch(eq(1L), eq(LanguageCode.fr), eq(List.of("fruit", "legume")));
         verify(keywordMapper).insertBatch(eq(1L), eq(LanguageCode.en), eq(List.of("fruit")));
@@ -138,7 +141,7 @@ class SortingItemServiceTest {
     @Test
     void deleteRemovesChildRowsBeforeTheParentToRespectForeignKeys() {
         when(itemMapper.findById(5L)).thenReturn(Optional.of(
-                new SortingItem(5L, DestinationType.organic, BinColor.brown, null)));
+                new SortingItem(5L,MUNI,"an-item",   DestinationType.organic, BinColor.brown, null)));
 
         service.delete(5L);
 

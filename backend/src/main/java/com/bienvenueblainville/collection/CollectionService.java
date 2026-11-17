@@ -38,11 +38,16 @@ public class CollectionService {
      */
     @Cacheable(
             cacheNames = CacheConfig.UPCOMING_COLLECTIONS,
-            key = "#root.target.today().toString() + ':' + #sector + ':' + #days"
+            // The municipality is in the key for the same reason it is in the
+            // assistant's: collections are per city, the rest of the key is
+            // not, and two cities sharing an entry would show one city's bins
+            // to the other. A cache key that omits what the value depends on
+            // is a correctness bug wearing a performance costume.
+            key = "#municipalityId + ':' + #root.target.today().toString() + ':' + #sector + ':' + #days"
     )
-    public List<CollectionEvent> upcoming(Sector sector, int days) {
+    public List<CollectionEvent> upcoming(long municipalityId, Sector sector, int days) {
         LocalDate today = today();
-        return mapper.findUpcoming(sector, today, today.plusDays(days));
+        return mapper.findUpcoming(municipalityId, sector, today, today.plusDays(days));
     }
 
     /** Exposed so the cache key above can depend on the same clock this service reads. */
@@ -50,8 +55,8 @@ public class CollectionService {
         return LocalDate.now(clock);
     }
 
-    public List<CollectionEvent> all() {
-        return mapper.findAll();
+    public List<CollectionEvent> all(long municipalityId) {
+        return mapper.findAll(municipalityId);
     }
 
     /**
@@ -68,8 +73,8 @@ public class CollectionService {
      * window is naturally around fifty rows - in case an administrator bulk
      * loads a real municipal calendar.
      */
-    public List<CollectionEvent> forPlanning(int limit) {
-        return mapper.findFrom(today(), limit);
+    public List<CollectionEvent> forPlanning(long municipalityId, int limit) {
+        return mapper.findFrom(municipalityId, today(), limit);
     }
 
     /**
@@ -81,17 +86,18 @@ public class CollectionService {
      * - and an administrator looking for next Thursday had to scroll past
      * every collection since August.
      */
-    public Page<CollectionEvent> page(int page, int size) {
-        long total = mapper.countAll();
-        return new Page<>(mapper.findPage(page * size, size), page, size, total);
+    public Page<CollectionEvent> page(long municipalityId, int page, int size) {
+        long total = mapper.countAll(municipalityId);
+        return new Page<>(mapper.findPage(municipalityId, page * size, size), page, size, total);
     }
 
     // allEntries: a single schedule edit can change the answer for several
     // sectors and every horizon at once, so there is no useful narrower key
     // to evict. The cache refills on the next request.
     @CacheEvict(cacheNames = CacheConfig.UPCOMING_COLLECTIONS, allEntries = true)
-    public CollectionEvent create(CollectionEventRequest request) {
+    public CollectionEvent create(long municipalityId, CollectionEventRequest request) {
         Map<String, Object> params = new HashMap<>();
+        params.put("municipalityId", municipalityId);
         params.put("collectionDate", request.collectionDate());
         params.put("sector", request.sector());
         params.put("collectionType", request.collectionType());

@@ -13,13 +13,13 @@ public interface CollectionHolidayMapper {
      * Holidays on or after {@code from}. The top-up only ever generates
      * forward, so loading the whole table would be loading the past.
      */
-    List<CollectionHoliday> findActiveFrom(LocalDate from);
+    List<CollectionHoliday> findActiveFrom(@Param("municipalityId") long municipalityId, LocalDate from);
 
-    List<CollectionHoliday> findAll();
+    List<CollectionHoliday> findAll(@Param("municipalityId") long municipalityId);
 
     CollectionHoliday findById(Long id);
 
-    CollectionHoliday findByDateAndSector(
+    CollectionHoliday findByDateAndSector(@Param("municipalityId") long municipalityId, 
             @Param("holidayDate") LocalDate holidayDate, @Param("sector") Sector sector);
 
     void insert(CollectionHoliday holiday);

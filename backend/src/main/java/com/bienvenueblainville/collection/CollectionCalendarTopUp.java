@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -128,11 +130,17 @@ public class CollectionCalendarTopUp {
         LocalDate horizon = today.plusDays(horizonDays);
         int written = 0;
 
-        // Loaded once per run rather than per rule: the table is small, and
-        // every rule asks it the same questions.
-        HolidayShift shift = HolidayShift.of(holidays.findActiveFrom(today.minusDays(1)));
+        // Once per city per run rather than once per rule: the table is
+        // small and every rule in a city asks it the same questions, but a
+        // holiday is a local fact, so one city's closures must not move
+        // another city's collections.
+        Map<Long, HolidayShift> shiftsByCity = new HashMap<>();
 
         for (CollectionScheduleRule rule : rules.findActive()) {
+            HolidayShift shift = shiftsByCity.computeIfAbsent(
+                    rule.municipalityId(),
+                    id -> HolidayShift.of(holidays.findActiveFrom(id, today.minusDays(1))));
+
             // Exclusive lower bound. Clamped to yesterday when the mark has
             // fallen behind, so a deployment that was down still generates
             // today's collection - the one a resident needs tonight - without
@@ -162,7 +170,11 @@ public class CollectionCalendarTopUp {
                 }
 
                 generated.add(new CollectionEvent(
-                        null, shifted.date(), rule.sector(), rule.collectionType(), rule.binColor(),
+                        // The city comes from the rule rather than from a
+                        // parameter: a generated occurrence belongs to
+                        // whichever city's pattern produced it, and there is
+                        // no second answer to get wrong.
+                        null, rule.municipalityId(), shifted.date(), rule.sector(), rule.collectionType(), rule.binColor(),
                         shifted.explain(rule.noteFr(), CollectionHoliday::nameFr, MOVED_FR),
                         shifted.explain(rule.noteEn(), CollectionHoliday::nameEn, MOVED_EN),
                         shifted.explain(rule.noteZh(), CollectionHoliday::nameZh, MOVED_ZH),

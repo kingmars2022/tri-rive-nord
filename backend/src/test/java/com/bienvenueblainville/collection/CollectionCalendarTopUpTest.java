@@ -16,12 +16,16 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class CollectionCalendarTopUpTest {
+    /** Any one city; these tests are about behaviour, not about which. */
+    private static final long MUNI = 1L;
+
     private static final ZoneId ZONE = ZoneId.of("America/Toronto");
 
     @Mock
@@ -36,7 +40,7 @@ class CollectionCalendarTopUpTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        when(holidays.findActiveFrom(any())).thenReturn(List.of());
+        when(holidays.findActiveFrom(eq(MUNI), any())).thenReturn(List.of());
     }
 
     private CollectionCalendarTopUp topUpOn(String today, int horizonDays) {
@@ -46,7 +50,7 @@ class CollectionCalendarTopUpTest {
     }
 
     private CollectionScheduleRule weeklyThursday(String anchor, String generatedThrough) {
-        return new CollectionScheduleRule(1L, Sector.all, CollectionType.organic, BinColor.brown,
+        return new CollectionScheduleRule(1L,MUNI,  Sector.ALL, CollectionType.organic, BinColor.brown,
                 LocalDate.parse(anchor), 1, LocalDate.parse(generatedThrough),
                 "fr", "en", "zh", "https://blainville.ca", true);
     }
@@ -112,7 +116,7 @@ class CollectionCalendarTopUpTest {
 
     @Test
     void keepsBiweeklyRulesOnTheirOwnPhase() {
-        CollectionScheduleRule south = new CollectionScheduleRule(2L, Sector.south,
+        CollectionScheduleRule south = new CollectionScheduleRule(2L,MUNI,  Sector.of("south"),
                 CollectionType.recycling, BinColor.blue,
                 LocalDate.parse("2026-09-15"), 2, LocalDate.parse("2026-10-27"),
                 null, null, null, null, true);
@@ -143,7 +147,7 @@ class CollectionCalendarTopUpTest {
 
         assertThat(captor.getValue()).singleElement().satisfies(event -> {
             assertThat(event.id()).isNull();
-            assertThat(event.sector()).isEqualTo(Sector.all);
+            assertThat(event.sector()).isEqualTo(Sector.ALL);
             assertThat(event.collectionType()).isEqualTo(CollectionType.organic);
             assertThat(event.binColor()).isEqualTo(BinColor.brown);
             assertThat(event.noteFr()).isEqualTo("fr");

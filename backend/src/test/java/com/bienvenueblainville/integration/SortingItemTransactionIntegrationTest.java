@@ -38,6 +38,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @Tag("integration")
 @SpringBootTest
 class SortingItemTransactionIntegrationTest {
+    /** Any one city; these tests are about behaviour, not about which. */
+    private static final long MUNI = 1L;
+
 
     @DynamicPropertySource
     static void infrastructureProperties(DynamicPropertyRegistry registry) {
@@ -59,7 +62,7 @@ class SortingItemTransactionIntegrationTest {
         // translation insert before this one succeeds.
         String tooLong = "x".repeat(300);
 
-        assertThatThrownBy(() -> service.create(new SortingItemRequest(
+        assertThatThrownBy(() -> service.create(MUNI, new SortingItemRequest("an-item", 
                 DestinationType.organic, BinColor.brown, "https://blainville.ca/rollback-test",
                 new TranslationInput("Valide", "Instruction", null, null, List.of("un")),
                 new TranslationInput(tooLong, "Instruction", null, null, List.of("one")),
@@ -83,7 +86,7 @@ class SortingItemTransactionIntegrationTest {
     void aSuccessfulCreateStillWritesEveryChildRow() {
         // The other half: a transaction that rolls back everything is only
         // correct if the committing path still commits all of it.
-        var created = service.create(new SortingItemRequest(
+        var created = service.create(MUNI, new SortingItemRequest("an-item", 
                 DestinationType.recycling, BinColor.blue, "https://blainville.ca/commit-test",
                 new TranslationInput("Bouteille", "Bac bleu", null, "Toute l'annee", List.of("verre", "plastique")),
                 new TranslationInput("Bottle", "Blue bin", null, "Year round", List.of("glass")),

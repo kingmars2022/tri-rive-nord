@@ -46,6 +46,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Tag("integration")
 @SpringBootTest
 class RedisCacheIntegrationTest {
+    /** Any one city; these tests are about behaviour, not about which. */
+    private static final long MUNI = 1L;
+
 
     @DynamicPropertySource
     static void infrastructureProperties(DynamicPropertyRegistry registry) {
@@ -83,12 +86,12 @@ class RedisCacheIntegrationTest {
 
     @Test
     void upcomingCollectionsAreServedFromRedisOnTheSecondCall() {
-        List<CollectionEvent> first = collectionService.upcoming(Sector.north, 30);
+        List<CollectionEvent> first = collectionService.upcoming(MUNI, Sector.of("north"), 30);
 
         // A row appears in MySQL that the service never saw go in.
         insertCollectionRow(LocalDate.now().plusDays(1));
 
-        List<CollectionEvent> second = collectionService.upcoming(Sector.north, 30);
+        List<CollectionEvent> second = collectionService.upcoming(MUNI, Sector.of("north"), 30);
 
         // Identical despite the new row: the second call never reached MySQL.
         assertThat(second).isEqualTo(first);
@@ -97,9 +100,9 @@ class RedisCacheIntegrationTest {
 
     @Test
     void theCacheKeyIsScopedByDaySectorAndHorizon() {
-        collectionService.upcoming(Sector.north, 30);
-        collectionService.upcoming(Sector.south, 30);
-        collectionService.upcoming(Sector.north, 7);
+        collectionService.upcoming(MUNI, Sector.of("north"), 30);
+        collectionService.upcoming(MUNI, Sector.of("south"), 30);
+        collectionService.upcoming(MUNI, Sector.of("north"), 7);
 
         Set<String> keys = redis.keys(CacheConfig.UPCOMING_COLLECTIONS + "::*");
         assertThat(keys).containsExactlyInAnyOrder(
@@ -110,14 +113,14 @@ class RedisCacheIntegrationTest {
 
     @Test
     void cachedValuesRoundTripThroughJsonWithTheirDatesIntact() {
-        List<CollectionEvent> fromDatabase = collectionService.upcoming(Sector.north, 30);
+        List<CollectionEvent> fromDatabase = collectionService.upcoming(MUNI, Sector.of("north"), 30);
         cacheManager.getCache(CacheConfig.UPCOMING_COLLECTIONS).clear();
-        collectionService.upcoming(Sector.north, 30);
+        collectionService.upcoming(MUNI, Sector.of("north"), 30);
 
         // Second read comes back out of Redis as JSON. Records, enums and
         // LocalDate all have to survive that; an ISO date string rather than
         // a timestamp array is what JavaTimeModule buys.
-        List<CollectionEvent> fromRedis = collectionService.upcoming(Sector.north, 30);
+        List<CollectionEvent> fromRedis = collectionService.upcoming(MUNI, Sector.of("north"), 30);
         assertThat(fromRedis).isEqualTo(fromDatabase);
 
         String raw = redis.opsForValue().get(key(CacheConfig.UPCOMING_COLLECTIONS, LocalDate.now() + ":north:30"));
@@ -129,19 +132,19 @@ class RedisCacheIntegrationTest {
 
     @Test
     void anAdminWriteEvictsTheCollectionCache() {
-        collectionService.upcoming(Sector.north, 30);
+        collectionService.upcoming(MUNI, Sector.of("north"), 30);
         assertThat(redis.keys(CacheConfig.UPCOMING_COLLECTIONS + "::*")).isNotEmpty();
 
-        collectionService.create(new CollectionEventRequest(
+        collectionService.create(MUNI, new CollectionEventRequest(
                 LocalDate.now().plusDays(2),
-                Sector.north,
+                Sector.of("north"),
                 CollectionType.garbage,
                 BinColor.black,
                 null, null, null,
                 MARKER));
 
         assertThat(redis.keys(CacheConfig.UPCOMING_COLLECTIONS + "::*")).isEmpty();
-        assertThat(collectionService.upcoming(Sector.north, 30))
+        assertThat(collectionService.upcoming(MUNI, Sector.of("north"), 30))
                 .anyMatch(event -> MARKER.equals(event.sourceUrl()));
     }
 
@@ -168,9 +171,9 @@ class RedisCacheIntegrationTest {
 
     private void insertCollectionRow(LocalDate date) {
         jdbc.update("insert into collection_event"
-                        + " (collection_date, sector, collection_type, bin_color, source_url)"
-                        + " values (?, ?, ?, ?, ?)",
-                date, Sector.north.name(), CollectionType.garbage.name(), BinColor.black.name(), MARKER);
+                        + " (municipality_id, collection_date, sector, collection_type, bin_color, source_url)"
+                        + " values (?, ?, ?, ?, ?, ?)",
+                MUNI, date, Sector.of("north").code(), CollectionType.garbage.name(), BinColor.black.name(), MARKER);
     }
 
 }

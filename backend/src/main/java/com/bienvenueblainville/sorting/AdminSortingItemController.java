@@ -12,7 +12,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.bienvenueblainville.municipality.MunicipalityService;
 
 import java.util.List;
 
@@ -20,20 +23,23 @@ import java.util.List;
 @RequestMapping("/api/admin/sorting-items")
 public class AdminSortingItemController {
     private final SortingItemService service;
+    private final MunicipalityService municipalities;
 
-    public AdminSortingItemController(SortingItemService service) {
+    public AdminSortingItemController(SortingItemService service, MunicipalityService municipalities) {
         this.service = service;
+        this.municipalities = municipalities;
     }
 
     @GetMapping
-    public List<SortingItemResponse> all() {
-        return service.all();
+    public List<SortingItemResponse> all(@RequestParam String municipality) {
+        return service.all(municipalities.requireBySlug(municipality).id());
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public SortingItemResponse create(@Valid @RequestBody SortingItemRequest request) {
-        return service.create(request);
+    public SortingItemResponse create(@RequestParam String municipality,
+                                      @Valid @RequestBody SortingItemRequest request) {
+        return service.create(municipalities.requireBySlug(municipality).id(), request);
     }
 
     @PutMapping("/{id}")

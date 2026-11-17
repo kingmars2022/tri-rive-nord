@@ -18,6 +18,7 @@ import java.util.List;
  */
 public record CollectionScheduleRule(
         Long id,
+        Long municipalityId,
         Sector sector,
         CollectionType collectionType,
         BinColor binColor,

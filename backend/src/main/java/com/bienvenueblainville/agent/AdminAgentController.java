@@ -4,11 +4,13 @@ import com.bienvenueblainville.agent.dto.AgentExecutionView;
 import com.bienvenueblainville.agent.dto.AgentInstruction;
 import com.bienvenueblainville.agent.dto.AgentPlanView;
 import com.bienvenueblainville.security.AppUserPrincipal;
+import com.bienvenueblainville.municipality.MunicipalityService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,18 +27,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/admin/agent")
 public class AdminAgentController {
     private final AdminAgentService service;
+    private final MunicipalityService municipalities;
 
-    public AdminAgentController(AdminAgentService service) {
+    public AdminAgentController(AdminAgentService service, MunicipalityService municipalities) {
         this.service = service;
+        this.municipalities = municipalities;
     }
 
     /** Reads the schedule, proposes writes, changes nothing. */
     @PostMapping("/plan")
     public AgentPlanView plan(
+            @RequestParam String municipality,
             @Valid @RequestBody AgentInstruction request,
             @AuthenticationPrincipal AppUserPrincipal principal
     ) {
-        return service.plan(request.instruction(), principal.id());
+        return service.plan(
+                municipalities.requireBySlug(municipality).id(),
+                request.instruction(),
+                principal.id());
     }
 
     /** Runs a plan this same administrator was shown. */

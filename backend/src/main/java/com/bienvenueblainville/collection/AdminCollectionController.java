@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import com.bienvenueblainville.common.Page;
+import com.bienvenueblainville.municipality.MunicipalityService;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.springframework.validation.annotation.Validated;
@@ -25,9 +26,11 @@ import java.util.List;
 @RequestMapping("/api/admin/collections")
 public class AdminCollectionController {
     private final CollectionService service;
+    private final MunicipalityService municipalities;
 
-    public AdminCollectionController(CollectionService service) {
+    public AdminCollectionController(CollectionService service, MunicipalityService municipalities) {
         this.service = service;
+        this.municipalities = municipalities;
     }
 
     /**
@@ -39,16 +42,18 @@ public class AdminCollectionController {
      */
     @GetMapping
     public Page<CollectionEvent> list(
+            @RequestParam String municipality,
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "25") @Min(1) @Max(100) int size
     ) {
-        return service.page(page, size);
+        return service.page(municipalities.requireBySlug(municipality).id(), page, size);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CollectionEvent create(@Valid @RequestBody CollectionEventRequest request) {
-        return service.create(request);
+    public CollectionEvent create(@RequestParam String municipality,
+                                  @Valid @RequestBody CollectionEventRequest request) {
+        return service.create(municipalities.requireBySlug(municipality).id(), request);
     }
 
     @PutMapping("/{id}")

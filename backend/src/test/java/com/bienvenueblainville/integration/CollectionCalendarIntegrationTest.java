@@ -50,6 +50,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Tag("integration")
 @SpringBootTest
 class CollectionCalendarIntegrationTest {
+    /** Any one city; these tests are about behaviour, not about which. */
+    private static final long MUNI = 1L;
+
 
     @DynamicPropertySource
     static void infrastructureProperties(DynamicPropertyRegistry registry) {
@@ -101,16 +104,16 @@ class CollectionCalendarIntegrationTest {
     void theCalendarStillHasCollectionsAYearFromNow() {
         LocalDate aYearOut = LocalDate.now().plusYears(1);
 
-        assertThat(events.findUpcoming(Sector.north, aYearOut, aYearOut.plusDays(30)))
+        assertThat(events.findUpcoming(MUNI, Sector.of("north"), aYearOut, aYearOut.plusDays(30)))
                 .as("before the top-up, the hand-written rows have long run out")
                 .isEmpty();
 
         topUpOn(aYearOut.toString()).topUp();
 
-        assertThat(events.findUpcoming(Sector.north, aYearOut, aYearOut.plusDays(30)))
+        assertThat(events.findUpcoming(MUNI, Sector.of("north"), aYearOut, aYearOut.plusDays(30)))
                 .as("north: organics citywide plus biweekly recycling")
                 .isNotEmpty();
-        assertThat(events.findUpcoming(Sector.south, aYearOut, aYearOut.plusDays(30)))
+        assertThat(events.findUpcoming(MUNI, Sector.of("south"), aYearOut, aYearOut.plusDays(30)))
                 .as("south: the other half of the biweekly cycle")
                 .isNotEmpty();
     }
@@ -121,7 +124,7 @@ class CollectionCalendarIntegrationTest {
 
         topUpOn(aYearOut.toString()).topUp();
 
-        List<CollectionEvent> month = events.findUpcoming(Sector.north, aYearOut, aYearOut.plusDays(30));
+        List<CollectionEvent> month = events.findUpcoming(MUNI, Sector.of("north"), aYearOut, aYearOut.plusDays(30));
 
         assertThat(month).extracting(CollectionEvent::collectionType)
                 .contains(com.bienvenueblainville.collection.CollectionType.organic,
@@ -135,14 +138,14 @@ class CollectionCalendarIntegrationTest {
         LocalDate aYearOut = LocalDate.now().plusYears(1);
 
         topUpOn(aYearOut.toString()).topUp();
-        List<CollectionEvent> afterFirst = events.findUpcoming(Sector.north, aYearOut, aYearOut.plusDays(30));
+        List<CollectionEvent> afterFirst = events.findUpcoming(MUNI, Sector.of("north"), aYearOut, aYearOut.plusDays(30));
 
         // Same clock, same rules: the high-water mark should make this a no-op,
         // and the unique key should make it harmless even if it were not.
         int second = topUpOn(aYearOut.toString()).topUp();
 
         assertThat(second).isZero();
-        assertThat(events.findUpcoming(Sector.north, aYearOut, aYearOut.plusDays(30)))
+        assertThat(events.findUpcoming(MUNI, Sector.of("north"), aYearOut, aYearOut.plusDays(30)))
                 .hasSameSizeAs(afterFirst);
     }
 
@@ -151,13 +154,13 @@ class CollectionCalendarIntegrationTest {
         LocalDate aYearOut = LocalDate.now().plusYears(1);
         topUpOn(aYearOut.toString()).topUp();
 
-        CollectionEvent cancelled = events.findUpcoming(Sector.north, aYearOut, aYearOut.plusDays(30)).get(0);
+        CollectionEvent cancelled = events.findUpcoming(MUNI, Sector.of("north"), aYearOut, aYearOut.plusDays(30)).get(0);
         events.delete(cancelled.id());
 
         // A holiday cancellation. The next morning's run must not undo it.
         topUpOn(aYearOut.plusDays(1).toString()).topUp();
 
-        assertThat(events.findUpcoming(Sector.north, aYearOut, aYearOut.plusDays(30)))
+        assertThat(events.findUpcoming(MUNI, Sector.of("north"), aYearOut, aYearOut.plusDays(30)))
                 .noneMatch(event -> event.collectionDate().equals(cancelled.collectionDate())
                         && event.collectionType() == cancelled.collectionType()
                         && event.sector() == cancelled.sector());
@@ -196,7 +199,7 @@ class CollectionCalendarIntegrationTest {
 
         topUpOn(today.toString()).topUp();
 
-        List<CollectionEvent> window = events.findUpcoming(Sector.all, closed, closed.plusDays(1));
+        List<CollectionEvent> window = events.findUpcoming(MUNI, Sector.ALL, closed, closed.plusDays(1));
         assertThat(window)
                 .as("nothing is collected on the closed day")
                 .noneMatch(event -> event.collectionDate().equals(closed));
@@ -214,7 +217,7 @@ class CollectionCalendarIntegrationTest {
 
         // A resident who sees an unfamiliar day is owed the reason, in their
         // own language, rather than being left to assume the site is wrong.
-        assertThat(events.findUpcoming(Sector.all, closed.plusDays(1), closed.plusDays(1)))
+        assertThat(events.findUpcoming(MUNI, Sector.ALL, closed.plusDays(1), closed.plusDays(1)))
                 .anySatisfy(event -> {
                     assertThat(event.noteFr()).contains("Jour test");
                     assertThat(event.noteEn()).contains("Test holiday");
@@ -251,7 +254,7 @@ class CollectionCalendarIntegrationTest {
 
         // Tuesdays south of boulevard de la Seigneurie, plus the city-wide
         // Thursday organics that findUpcoming folds in.
-        assertThat(events.findUpcoming(Sector.south, from, to))
+        assertThat(events.findUpcoming(MUNI, Sector.of("south"), from, to))
                 .extracting(CollectionEvent::collectionDate, CollectionEvent::collectionType)
                 .containsExactlyInAnyOrder(
                         Tuple.tuple(LocalDate.parse("2026-11-03"), CollectionType.recycling),
@@ -264,7 +267,7 @@ class CollectionCalendarIntegrationTest {
                         Tuple.tuple(LocalDate.parse("2026-11-26"), CollectionType.organic));
 
         // Wednesdays north of it, one day behind the south throughout.
-        assertThat(events.findUpcoming(Sector.north, from, to))
+        assertThat(events.findUpcoming(MUNI, Sector.of("north"), from, to))
                 .extracting(CollectionEvent::collectionDate, CollectionEvent::collectionType)
                 .containsExactlyInAnyOrder(
                         Tuple.tuple(LocalDate.parse("2026-11-04"), CollectionType.recycling),

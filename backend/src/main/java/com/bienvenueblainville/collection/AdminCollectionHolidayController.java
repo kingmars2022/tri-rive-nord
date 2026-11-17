@@ -2,6 +2,7 @@ package com.bienvenueblainville.collection;
 
 import com.bienvenueblainville.collection.dto.CollectionHolidayRequest;
 import jakarta.validation.Valid;
+import com.bienvenueblainville.municipality.MunicipalityService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,20 +28,24 @@ import java.util.List;
 @RequestMapping("/api/admin/collection-holidays")
 public class AdminCollectionHolidayController {
     private final CollectionHolidayService service;
+    private final MunicipalityService municipalities;
 
-    public AdminCollectionHolidayController(CollectionHolidayService service) {
+    public AdminCollectionHolidayController(CollectionHolidayService service,
+                                            MunicipalityService municipalities) {
         this.service = service;
+        this.municipalities = municipalities;
     }
 
     @GetMapping
-    public List<CollectionHoliday> list() {
-        return service.list();
+    public List<CollectionHoliday> list(@RequestParam String municipality) {
+        return service.list(municipalities.requireBySlug(municipality).id());
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CollectionHoliday create(@Valid @RequestBody CollectionHolidayRequest request) {
-        return service.create(request);
+    public CollectionHoliday create(@RequestParam String municipality,
+                                    @Valid @RequestBody CollectionHolidayRequest request) {
+        return service.create(municipalities.requireBySlug(municipality).id(), request);
     }
 
     @PutMapping("/{id}")

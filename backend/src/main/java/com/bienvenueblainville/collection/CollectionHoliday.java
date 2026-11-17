@@ -14,6 +14,7 @@ import java.time.LocalDate;
  */
 public record CollectionHoliday(
         Long id,
+        Long municipalityId,
         LocalDate holidayDate,
         String nameFr,
         String nameEn,
@@ -34,6 +35,11 @@ public record CollectionHoliday(
      * which is what a statutory holiday is.
      */
     public boolean applies(Sector ruleSector) {
-        return sector == Sector.all || sector == ruleSector;
+        // equals, not ==: Sector stopped being an enum when sectors became
+        // per-city data, so identity comparison would now be false for two
+        // values that read the same. This is the one place in the codebase
+        // that compared sectors rather than passing them through, which is
+        // why it is the one place the change could have gone wrong silently.
+        return sector.isAll() || sector.equals(ruleSector);
     }
 }

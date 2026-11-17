@@ -51,8 +51,8 @@ public class SortingItemService {
      * was not, which is the usual shape of the bug - the path someone
      * measured is fast and the one beside it never got the same treatment.
      */
-    public List<SortingItemResponse> all() {
-        List<SortingItem> items = itemMapper.findAll();
+    public List<SortingItemResponse> all(long municipalityId) {
+        List<SortingItem> items = itemMapper.findAll(municipalityId);
         if (items.isEmpty()) {
             return List.of();
         }
@@ -86,11 +86,13 @@ public class SortingItemService {
      * that says which.
      */
     @Transactional
-    public SortingItemResponse create(SortingItemRequest request) {
+    public SortingItemResponse create(long municipalityId, SortingItemRequest request) {
         // A new entry changes the answer to questions that previously had
         // none, so every cached refusal is now potentially wrong.
 
         Map<String, Object> params = new HashMap<>();
+        params.put("municipalityId", municipalityId);
+        params.put("itemKey", request.itemKey());
         params.put("destinationType", request.destinationType());
         params.put("binColor", request.binColor());
         params.put("sourceUrl", request.sourceUrl());
@@ -184,7 +186,8 @@ public class SortingItemService {
      * page. This is the read that replaced the frontend's static copy of the
      * guide, so it is the one that has to be cheap.
      */
-    public List<SortingItemResponse> guide() {
+    public List<SortingItemResponse> guide(long municipalityId) {
+        List<SortingItem> items = itemMapper.findAll(municipalityId);
         Map<Long, List<SortingItemTranslation>> translations = translationMapper.findAll().stream()
                 .collect(Collectors.groupingBy(SortingItemTranslation::itemId));
         Map<Long, List<SortingItemKeyword>> keywords = keywordMapper.findAll().stream()
@@ -192,7 +195,7 @@ public class SortingItemService {
         Map<Long, List<SortingItemExample>> examples = exampleMapper.findAll().stream()
                 .collect(Collectors.groupingBy(SortingItemExample::itemId));
 
-        return itemMapper.findAll().stream()
+        return items.stream()
                 .map(item -> toResponse(
                         item,
                         translations.getOrDefault(item.id(), List.of()),

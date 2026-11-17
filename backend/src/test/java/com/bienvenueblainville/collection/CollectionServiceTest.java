@@ -24,6 +24,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class CollectionServiceTest {
+    /** Any one city; these tests are about behaviour, not about which. */
+    private static final long MUNI = 1L;
+
     @Mock
     private CollectionEventMapper mapper;
 
@@ -37,13 +40,13 @@ class CollectionServiceTest {
 
     @Test
     void upcomingQueriesFromTodayThroughTheRequestedWindow() {
-        when(mapper.findUpcoming(eq(Sector.north), any(), any())).thenReturn(List.of());
+        when(mapper.findUpcoming(eq(MUNI), eq(Sector.of("north")), any(), any())).thenReturn(List.of());
 
-        service.upcoming(Sector.north, 14);
+        service.upcoming(MUNI, Sector.of("north"), 14);
 
         ArgumentCaptor<LocalDate> startCaptor = ArgumentCaptor.forClass(LocalDate.class);
         ArgumentCaptor<LocalDate> endCaptor = ArgumentCaptor.forClass(LocalDate.class);
-        verify(mapper).findUpcoming(eq(Sector.north), startCaptor.capture(), endCaptor.capture());
+        verify(mapper).findUpcoming(eq(MUNI), eq(Sector.of("north")), startCaptor.capture(), endCaptor.capture());
 
         LocalDate today = LocalDate.now();
         assertThat(startCaptor.getValue()).isEqualTo(today);
@@ -61,12 +64,12 @@ class CollectionServiceTest {
         }).when(mapper).insert(any());
 
         CollectionEvent created = new CollectionEvent(
-                3L, LocalDate.now(), Sector.all, CollectionType.organic, BinColor.brown,
+                3L,MUNI,  LocalDate.now(), Sector.ALL, CollectionType.organic, BinColor.brown,
                 null, null, null, null);
         when(mapper.findById(3L)).thenReturn(Optional.of(created));
 
-        CollectionEvent result = service.create(new CollectionEventRequest(
-                LocalDate.now(), Sector.all, CollectionType.organic, BinColor.brown, null, null, null, null));
+        CollectionEvent result = service.create(MUNI, new CollectionEventRequest(
+                LocalDate.now(), Sector.ALL, CollectionType.organic, BinColor.brown, null, null, null, null));
 
         assertThat(result.id()).isEqualTo(3L);
     }

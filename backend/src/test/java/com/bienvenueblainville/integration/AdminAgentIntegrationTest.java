@@ -51,6 +51,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 class AdminAgentIntegrationTest {
+    /** Any one city; these tests are about behaviour, not about which. */
+    private static final long MUNI = 1L;
+
     private static final String MARKER = "admin-agent-integration-test";
 
     @DynamicPropertySource
@@ -116,7 +119,7 @@ class AdminAgentIntegrationTest {
 
         assertThat(countCollections()).isZero();
 
-        catalog.executeWrite(planStore.consume(planId, 1L).steps().get(0));
+        catalog.executeWrite(MUNI, planStore.consume(planId, 1L).steps().get(0));
 
         assertThat(countCollections()).isOne();
     }
@@ -201,7 +204,7 @@ class AdminAgentIntegrationTest {
         PlannedStep missingDate = new PlannedStep(AgentToolName.create_collection, Map.of(
                 "sector", "north", "collectionType", "bulky", "binColor", "none"), "Incomplete");
 
-        assertThatThrownBy(() -> catalog.executeWrite(missingDate))
+        assertThatThrownBy(() -> catalog.executeWrite(MUNI, missingDate))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("collectionDate");
 
@@ -212,7 +215,7 @@ class AdminAgentIntegrationTest {
     void readToolsReturnTheRealSchedule() throws Exception {
         // What the model plans against. If this ever returned something other
         // than the live rows, every plan built on it would be wrong.
-        JsonNode rows = objectMapper.readTree(catalog.executeRead(AgentToolName.list_collections));
+        JsonNode rows = objectMapper.readTree(catalog.executeRead(MUNI, AgentToolName.list_collections));
 
         assertThat(rows.isArray()).isTrue();
         assertThat(rows.size()).isEqualTo(jdbc.queryForObject(
@@ -234,7 +237,7 @@ class AdminAgentIntegrationTest {
                 .as("the seeded calendar has to contain past rows or this proves nothing")
                 .isPositive();
 
-        JsonNode rows = objectMapper.readTree(catalog.executeRead(AgentToolName.list_collections));
+        JsonNode rows = objectMapper.readTree(catalog.executeRead(MUNI, AgentToolName.list_collections));
 
         assertThat(rows).isNotEmpty();
         LocalDate today = LocalDate.now();
@@ -253,8 +256,8 @@ class AdminAgentIntegrationTest {
         // The cap is a backstop for a bulk import, so it cannot be asserted
         // against the seeded data directly - what can be asserted is that
         // neither listing is the unbounded one any more.
-        JsonNode collections = objectMapper.readTree(catalog.executeRead(AgentToolName.list_collections));
-        JsonNode notices = objectMapper.readTree(catalog.executeRead(AgentToolName.list_notices));
+        JsonNode collections = objectMapper.readTree(catalog.executeRead(MUNI, AgentToolName.list_collections));
+        JsonNode notices = objectMapper.readTree(catalog.executeRead(MUNI, AgentToolName.list_notices));
 
         assertThat(collections.size()).isLessThanOrEqualTo(200);
         assertThat(notices.size()).isLessThanOrEqualTo(200);
@@ -265,7 +268,7 @@ class AdminAgentIntegrationTest {
     private String storePlan(Long adminUserId, PlannedStep... steps) {
         String planId = AgentPlanStore.newPlanId();
         planStore.save(new com.bienvenueblainville.agent.AgentPlan(
-                planId, adminUserId, "test instruction", "test narrative",
+                planId, adminUserId, MUNI, "test instruction", "test narrative",
                 java.util.List.of(steps), java.time.Instant.now()));
         return planId;
     }

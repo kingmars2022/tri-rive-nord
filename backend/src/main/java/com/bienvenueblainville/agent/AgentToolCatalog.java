@@ -129,19 +129,21 @@ public class AgentToolCatalog {
     // ------------------------------------------------------------- dispatch
 
     /** Runs a read tool immediately; the model needs real data to plan against. */
-    public String executeRead(AgentToolName tool) throws JsonProcessingException {
+    public String executeRead(long municipalityId, AgentToolName tool) throws JsonProcessingException {
         return switch (tool) {
-            case list_collections -> objectMapper.writeValueAsString(collections.forPlanning(PLANNING_LIMIT));
+            case list_collections ->
+                    objectMapper.writeValueAsString(collections.forPlanning(municipalityId, PLANNING_LIMIT));
             case list_notices -> objectMapper.writeValueAsString(notices.recent(PLANNING_LIMIT));
             default -> throw new IllegalArgumentException(tool + " is not a read tool");
         };
     }
 
     /** Runs an approved write. Only ever reached from {@code AdminAgentService.execute}. */
-    public String executeWrite(PlannedStep step) {
+    public String executeWrite(long municipalityId, PlannedStep step) {
         return switch (step.tool()) {
             case create_collection -> {
-                CollectionEvent created = collections.create(validated(step.input(), CollectionEventRequest.class));
+                CollectionEvent created = collections.create(
+                        municipalityId, validated(step.input(), CollectionEventRequest.class));
                 yield "Created collection event " + created.id();
             }
             case update_collection -> {

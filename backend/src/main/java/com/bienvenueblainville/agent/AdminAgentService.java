@@ -102,7 +102,7 @@ public class AdminAgentService {
 
     // ------------------------------------------------------------------ plan
 
-    public AgentPlanView plan(String instruction, Long adminUserId) {
+    public AgentPlanView plan(long municipalityId, String instruction, Long adminUserId) {
         // 503 rather than a degraded imitation. Unlike the sorting assistant,
         // whose retrieval step already does the hard part and can answer
         // without a model, there is no honest non-model version of "read this
@@ -157,14 +157,14 @@ public class AdminAgentService {
                                 "Recorded as step " + steps.size() + " of the plan. Not executed yet - "
                                         + "a human administrator will approve it."));
                     } else {
-                        toolResults.add(toolResult(use.id(), read(tool)));
+                        toolResults.add(toolResult(use.id(), read(municipalityId, tool)));
                     }
                 });
             }
 
             if (toolResults.isEmpty()) {
                 // No tool calls left: the model has said its piece.
-                return view(instruction, narrative, steps, adminUserId);
+                return view(municipalityId, instruction, narrative, steps, adminUserId);
             }
 
             conversation.add(MessageParam.builder()
@@ -174,10 +174,11 @@ public class AdminAgentService {
         }
 
         log.warn("Admin agent hit the {}-turn ceiling; returning whatever it had proposed", MAX_TURNS);
-        return view(instruction, narrative, steps, adminUserId);
+        return view(municipalityId, instruction, narrative, steps, adminUserId);
     }
 
-    private AgentPlanView view(String instruction, String narrative, List<PlannedStep> steps, Long adminUserId) {
+    private AgentPlanView view(long municipalityId, String instruction, String narrative,
+                               List<PlannedStep> steps, Long adminUserId) {
         List<AgentPlanView.AgentStepView> stepViews = steps.stream()
                 .map(step -> new AgentPlanView.AgentStepView(step.tool().name(), step.summary()))
                 .toList();
@@ -190,7 +191,8 @@ public class AdminAgentService {
         }
 
         String planId = planStore.save(new AgentPlan(
-                AgentPlanStore.newPlanId(), adminUserId, instruction, narrative, steps, Instant.now(clock)));
+                AgentPlanStore.newPlanId(), adminUserId, municipalityId,
+                instruction, narrative, steps, Instant.now(clock)));
 
         return new AgentPlanView(planId, instruction, narrative, stepViews);
     }
@@ -212,7 +214,9 @@ public class AdminAgentService {
         List<String> results = new ArrayList<>();
         for (PlannedStep step : plan.steps()) {
             try {
-                results.add(catalog.executeWrite(step));
+                // The city comes off the stored plan, never off the approval
+                // request, so approving cannot retarget the writes.
+                results.add(catalog.executeWrite(plan.municipalityId(), step));
             } catch (RuntimeException e) {
                 log.warn("Admin agent plan {} failed at step {}", planId, results.size() + 1, e);
                 return new AgentExecutionView(results.size(), plan.steps().size(), results,
@@ -226,9 +230,9 @@ public class AdminAgentService {
 
     // ----------------------------------------------------------------- utils
 
-    private String read(AgentToolName tool) {
+    private String read(long municipalityId, AgentToolName tool) {
         try {
-            return catalog.executeRead(tool);
+            return catalog.executeRead(municipalityId, tool);
         } catch (Exception e) {
             log.warn("Admin agent read tool {} failed", tool, e);
             // Handed back as a tool result rather than thrown: the model can

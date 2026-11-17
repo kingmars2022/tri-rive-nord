@@ -18,7 +18,7 @@ import java.util.Optional;
 /**
  * Administering the days the city does not collect.
  *
- * <p>The part worth reading is {@link #rebuildFrom(LocalDate)}. Writing the
+ * <p>The part worth reading is {@link #rebuildFrom(long, LocalDate)}. Writing the
  * row is not enough: {@link CollectionCalendarTopUp} only ever generates
  * <em>after</em> each rule's high-water mark, so a holiday added for next
  * month would be recorded and then ignored, because the collection it is
@@ -63,15 +63,16 @@ public class CollectionHolidayService {
         this.clock = clock;
     }
 
-    public List<CollectionHoliday> list() {
-        return holidays.findAll();
+    public List<CollectionHoliday> list(long municipalityId) {
+        return holidays.findAll(municipalityId);
     }
 
     @Transactional
-    public CollectionHoliday create(CollectionHolidayRequest request) {
-        holidays.insert(from(null, request));
-        rebuildFrom(request.holidayDate());
-        CollectionHoliday saved = holidays.findByDateAndSector(request.holidayDate(), request.sector());
+    public CollectionHoliday create(long municipalityId, CollectionHolidayRequest request) {
+        holidays.insert(from(municipalityId, null, request));
+        rebuildFrom(municipalityId, request.holidayDate());
+        CollectionHoliday saved = holidays.findByDateAndSector(
+                municipalityId, request.holidayDate(), request.sector());
         if (saved == null) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Holiday was not stored");
         }
@@ -81,12 +82,15 @@ public class CollectionHolidayService {
     @Transactional
     public CollectionHoliday update(Long id, CollectionHolidayRequest request) {
         CollectionHoliday existing = require(id);
-        if (holidays.update(from(id, request)) == 0) {
+        // The city comes from the stored row, not the request: moving a
+        // holiday between cities is not an edit, it is two edits.
+        long municipalityId = existing.municipalityId();
+        if (holidays.update(from(municipalityId, id, request)) == 0) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Holiday not found");
         }
         // Moving a holiday invalidates both days: the one it no longer closes
         // and the one it now does. Rebuilding from the earlier covers both.
-        rebuildFrom(earlier(existing.holidayDate(), request.holidayDate()));
+        rebuildFrom(municipalityId, earlier(existing.holidayDate(), request.holidayDate()));
         return require(id);
     }
 
@@ -95,7 +99,7 @@ public class CollectionHolidayService {
         CollectionHoliday existing = require(id);
         holidays.delete(id);
         // The collection it was moving has to come back to its ordinary day.
-        rebuildFrom(existing.holidayDate());
+        rebuildFrom(existing.municipalityId(), existing.holidayDate());
     }
 
     /**
@@ -114,12 +118,15 @@ public class CollectionHolidayService {
      * for the calendar to change, and a stale collection on a day the city is
      * closed is the exact error this table exists to prevent.
      */
-    private void rebuildFrom(LocalDate date) {
+    private void rebuildFrom(long municipalityId, LocalDate date) {
         LocalDate today = LocalDate.now(clock);
         LocalDate from = date.isBefore(today) ? today : date;
 
-        events.deleteGeneratedFrom(from);
-        rules.rewindGeneratedThrough(from.minusDays(1));
+        // Scoped to the city whose holiday changed. Rewinding every city's
+        // rules would regenerate three calendars nobody asked about, and the
+        // generated_through marks are what make the top-up cheap.
+        events.deleteGeneratedFrom(municipalityId, from);
+        rules.rewindGeneratedThrough(municipalityId, from.minusDays(1));
         topUp.topUp();
 
         // topUp only clears the cache when it wrote something. A rebuild that
@@ -140,8 +147,8 @@ public class CollectionHolidayService {
         return a.isBefore(b) ? a : b;
     }
 
-    private static CollectionHoliday from(Long id, CollectionHolidayRequest request) {
-        return new CollectionHoliday(id, request.holidayDate(), request.nameFr(), request.nameEn(),
+    private static CollectionHoliday from(long municipalityId, Long id, CollectionHolidayRequest request) {
+        return new CollectionHoliday(id, municipalityId, request.holidayDate(), request.nameFr(), request.nameEn(),
                 request.nameZh(), request.shiftDays(), request.sector(), request.sourceUrl(), request.active());
     }
 }

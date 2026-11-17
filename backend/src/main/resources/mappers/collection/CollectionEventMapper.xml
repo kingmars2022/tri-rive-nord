@@ -3,13 +3,15 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.bienvenueblainville.collection.CollectionEventMapper">
     <sql id="columns">
-        id, collection_date, sector, collection_type, bin_color, note_fr, note_en, note_zh, source_url
+        id, municipality_id as municipalityId, collection_date, sector, collection_type,
+        bin_color, note_fr, note_en, note_zh, source_url
     </sql>
 
     <select id="findUpcoming" resultType="com.bienvenueblainville.collection.CollectionEvent">
         select <include refid="columns"/>
         from collection_event
-        where collection_date between #{startDate} and #{endDate}
+        where municipality_id = #{municipalityId}
+          and collection_date between #{startDate} and #{endDate}
           and (sector = #{sector} or sector = 'all')
         order by collection_date asc, collection_type asc
     </select>
@@ -21,13 +23,15 @@
     -->
     <delete id="deleteGeneratedFrom">
         delete from collection_event
-        where auto_generated = true
+        where municipality_id = #{municipalityId}
+          and auto_generated = true
           and collection_date &gt;= #{from}
     </delete>
 
     <select id="findAll" resultType="com.bienvenueblainville.collection.CollectionEvent">
         select <include refid="columns"/>
         from collection_event
+        where municipality_id = #{municipalityId}
         order by collection_date desc, collection_type asc
     </select>
 
@@ -40,6 +44,7 @@
     <select id="findPage" resultType="com.bienvenueblainville.collection.CollectionEvent">
         select <include refid="columns"/>
         from collection_event
+        where municipality_id = #{municipalityId}
         order by collection_date desc, collection_type asc, id asc
         limit #{limit} offset #{offset}
     </select>
@@ -52,13 +57,14 @@
     <select id="findFrom" resultType="com.bienvenueblainville.collection.CollectionEvent">
         select <include refid="columns"/>
         from collection_event
-        where collection_date &gt;= #{startDate}
+        where municipality_id = #{municipalityId}
+          and collection_date &gt;= #{startDate}
         order by collection_date asc, collection_type asc, id asc
         limit #{limit}
     </select>
 
     <select id="countAll" resultType="long">
-        select count(*) from collection_event
+        select count(*) from collection_event where municipality_id = #{municipalityId}
     </select>
 
     <select id="findById" resultType="com.bienvenueblainville.collection.CollectionEvent">
@@ -68,18 +74,18 @@
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="map">
-        insert into collection_event (collection_date, sector, collection_type, bin_color, note_fr, note_en, note_zh, source_url)
-        values (#{collectionDate}, #{sector}, #{collectionType}, #{binColor}, #{noteFr}, #{noteEn}, #{noteZh}, #{sourceUrl})
+        insert into collection_event (municipality_id, collection_date, sector, collection_type, bin_color, note_fr, note_en, note_zh, source_url)
+        values (#{municipalityId}, #{collectionDate}, #{sector}, #{collectionType}, #{binColor}, #{noteFr}, #{noteEn}, #{noteZh}, #{sourceUrl})
     </insert>
 
     <insert id="insertGenerated">
-        insert into collection_event (collection_date, sector, collection_type, bin_color, note_fr, note_en, note_zh, source_url, auto_generated)
+        insert into collection_event (municipality_id, collection_date, sector, collection_type, bin_color, note_fr, note_en, note_zh, source_url, auto_generated)
         values
         <foreach collection="events" item="event" separator=",">
-            (#{event.collectionDate}, #{event.sector}, #{event.collectionType}, #{event.binColor},
+            (#{event.municipalityId}, #{event.collectionDate}, #{event.sector}, #{event.collectionType}, #{event.binColor},
              #{event.noteFr}, #{event.noteEn}, #{event.noteZh}, #{event.sourceUrl}, true)
         </foreach>
-        <!-- Repeatable by design: see the unique key added in V12. -->
+        <!-- Repeatable by design: see the unique key, widened per city in V21. -->
         on duplicate key update collection_event.id = collection_event.id
     </insert>
 

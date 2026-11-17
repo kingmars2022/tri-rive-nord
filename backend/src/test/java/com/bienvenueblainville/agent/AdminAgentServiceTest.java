@@ -18,6 +18,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -33,6 +34,9 @@ import static org.mockito.Mockito.when;
  * makes them reproducible.
  */
 class AdminAgentServiceTest {
+    /** Any one city; these tests are about behaviour, not about which. */
+    private static final long MUNI = 1L;
+
     private static final Long ADMIN_ID = 42L;
 
     @Mock
@@ -73,9 +77,9 @@ class AdminAgentServiceTest {
                         """))
                 .thenReturn(textMessage("Proposing one extra bulky collection."));
 
-        AgentPlanView plan = service.plan("Add a bulky pickup on October 2 for the north", ADMIN_ID);
+        AgentPlanView plan = service.plan(MUNI, "Add a bulky pickup on October 2 for the north", ADMIN_ID);
 
-        verify(catalog, never()).executeWrite(any());
+        verify(catalog, never()).executeWrite(eq(MUNI), any());
         assertThat(plan.steps()).singleElement().satisfies(step -> {
             assertThat(step.tool()).isEqualTo("create_collection");
             // Summarised from the arguments that would actually run, not from
@@ -89,14 +93,14 @@ class AdminAgentServiceTest {
 
     @Test
     void runsReadToolsImmediatelySoThePlanIsBuiltOnRealData() throws Exception {
-        when(catalog.executeRead(AgentToolName.list_collections)).thenReturn("[{\"id\":7}]");
+        when(catalog.executeRead(MUNI, AgentToolName.list_collections)).thenReturn("[{\"id\":7}]");
         when(messages.create(any(MessageCreateParams.class)))
                 .thenReturn(toolUseMessage("t1", "list_collections", "{}"))
                 .thenReturn(textMessage("There are no Thursday organics to move."));
 
-        service.plan("Move Thursday organics to Friday", ADMIN_ID);
+        service.plan(MUNI, "Move Thursday organics to Friday", ADMIN_ID);
 
-        verify(catalog).executeRead(AgentToolName.list_collections);
+        verify(catalog).executeRead(MUNI, AgentToolName.list_collections);
     }
 
     @Test
@@ -106,7 +110,7 @@ class AdminAgentServiceTest {
         when(messages.create(any(MessageCreateParams.class)))
                 .thenReturn(textMessage("Which Thursday did you mean? There are four this month."));
 
-        AgentPlanView plan = service.plan("move it", ADMIN_ID);
+        AgentPlanView plan = service.plan(MUNI, "move it", ADMIN_ID);
 
         assertThat(plan.steps()).isEmpty();
         assertThat(plan.planId()).isNull();
@@ -117,11 +121,11 @@ class AdminAgentServiceTest {
     void stopsCallingTheModelAtTheTurnCeiling() throws Exception {
         // A model that keeps calling tools must cost a bounded number of
         // requests, not an afternoon's budget.
-        when(catalog.executeRead(any())).thenReturn("[]");
+        when(catalog.executeRead(eq(MUNI), any())).thenReturn("[]");
         when(messages.create(any(MessageCreateParams.class)))
                 .thenReturn(toolUseMessage("t1", "list_collections", "{}"));
 
-        service.plan("keep going", ADMIN_ID);
+        service.plan(MUNI, "keep going", ADMIN_ID);
 
         verify(messages, times(8)).create(any(MessageCreateParams.class));
     }

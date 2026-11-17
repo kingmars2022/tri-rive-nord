@@ -65,6 +65,10 @@ spring:
 
 mybatis:
   mapper-locations: classpath:mappers/**/*.xml
+  # Sector stopped being an enum when the application stopped being one city;
+  # without this handler MyBatis writes the record's toString into a column
+  # that holds bare codes.
+  type-handlers-package: com.bienvenueblainville.common
   configuration:
     map-underscore-to-camel-case: true
 

@@ -3,7 +3,10 @@ package com.bienvenueblainville.sorting;
 import com.bienvenueblainville.sorting.dto.SortingItemResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.bienvenueblainville.municipality.MunicipalityService;
 
 import java.util.List;
 
@@ -20,13 +23,15 @@ import java.util.List;
 @RequestMapping("/api/sorting-items")
 public class SortingItemController {
     private final SortingItemService service;
+    private final MunicipalityService municipalities;
 
-    public SortingItemController(SortingItemService service) {
+    public SortingItemController(SortingItemService service, MunicipalityService municipalities) {
         this.service = service;
+        this.municipalities = municipalities;
     }
 
     @GetMapping
-    public List<SortingItemResponse> guide() {
-        return service.guide();
+    public List<SortingItemResponse> guide(@RequestParam String municipality) {
+        return service.guide(municipalities.requireBySlug(municipality).id());
     }
 }

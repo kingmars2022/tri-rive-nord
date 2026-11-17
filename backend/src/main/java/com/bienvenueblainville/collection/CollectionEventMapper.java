@@ -12,22 +12,27 @@ import java.util.Optional;
 @Mapper
 public interface CollectionEventMapper {
     /** Removes generated occurrences from {@code from} onward, leaving hand-entered ones. */
-    void deleteGeneratedFrom(@Param("from") LocalDate from);
+    void deleteGeneratedFrom(@Param("municipalityId") long municipalityId,
+                             @Param("from") LocalDate from);
 
     List<CollectionEvent> findUpcoming(
+            @Param("municipalityId") long municipalityId,
             @Param("sector") Sector sector,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
 
-    List<CollectionEvent> findAll();
+    List<CollectionEvent> findAll(@Param("municipalityId") long municipalityId);
 
-    List<CollectionEvent> findPage(@Param("offset") int offset, @Param("limit") int limit);
+    List<CollectionEvent> findPage(@Param("municipalityId") long municipalityId,
+                                   @Param("offset") int offset,
+                                   @Param("limit") int limit);
 
-    long countAll();
+    long countAll(@Param("municipalityId") long municipalityId);
 
     /** All sectors, from a date forward, bounded. See CollectionService.forPlanning. */
     List<CollectionEvent> findFrom(
+            @Param("municipalityId") long municipalityId,
             @Param("startDate") LocalDate startDate,
             @Param("limit") int limit
     );

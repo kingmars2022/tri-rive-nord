@@ -17,5 +17,5 @@ public interface CollectionScheduleRuleMapper {
      * it has gone past it, so the next top-up regenerates the window a holiday
      * change has invalidated.
      */
-    void rewindGeneratedThrough(@Param("generatedThrough") LocalDate generatedThrough);
+    void rewindGeneratedThrough(@Param("municipalityId") long municipalityId, @Param("generatedThrough") LocalDate generatedThrough);
 }

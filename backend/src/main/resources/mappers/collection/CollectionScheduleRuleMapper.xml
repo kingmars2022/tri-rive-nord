@@ -3,7 +3,7 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.bienvenueblainville.collection.CollectionScheduleRuleMapper">
     <select id="findActive" resultType="com.bienvenueblainville.collection.CollectionScheduleRule">
-        select id, sector, collection_type, bin_color, anchor_date, interval_weeks,
+        select id, municipality_id as municipalityId, sector, collection_type, bin_color, anchor_date, interval_weeks,
                generated_through, note_fr, note_en, note_zh, source_url, active
         from collection_schedule_rule
         where active = true
@@ -20,6 +20,7 @@
     <update id="rewindGeneratedThrough">
         update collection_schedule_rule
         set generated_through = #{generatedThrough}
-        where generated_through &gt; #{generatedThrough}
+        where municipality_id = #{municipalityId}
+          and generated_through &gt; #{generatedThrough}
     </update>
 </mapper>
