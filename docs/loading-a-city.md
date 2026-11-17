@@ -38,8 +38,8 @@ that the city stays unloaded. The application already renders that honestly.
      boulevard; another city may use three zones, or none)
    - statutory holidays, and how many days a collection moves when one lands
      on its day
-3. **Write the migration.** `V26` onward (`V22` and `V23` are Sainte-Therese, `V24` a Blainville
-   search fix that loading it made necessary, `V25` Boisbriand). Insert the sectors into
+3. **Write the migration.** `V27` onward (`V22` and `V23` are Sainte-Therese, `V24` a Blainville
+   search fix that loading it made necessary, `V25` and `V26` Boisbriand). Insert the sectors into
    `municipality_sector`, the rules into `collection_schedule_rule`, the
    holidays into `collection_holiday`, and the guide into `sorting_item` and
    its three child tables. Set `calendar_verified` and `guide_verified` on the
@@ -51,7 +51,7 @@ that the city stays unloaded. The application already renders that honestly.
    migration before believing it.
 5. **Run everything.** `mvn test -Pintegration-test` needs a real MySQL and
    Redis; see `docs/deployment.md`. All green before and after: 216 before
-   Sainte-Therese, 243 after its calendar and guide, 248 after Boisbriand. Then run
+   Sainte-Therese, 243 after its calendar and guide, 254 after Boisbriand and its street table. Then run
    `docs/verification/guide_rank_sweep.py` for every city already loaded, before
    and after, and compare (see below).
 
@@ -214,8 +214,19 @@ owner chose on 2026-11-17 to load from 2025 rather than wait. So:
   and points to boisbriand.ca.
 - `BoisbriandCalendarIntegrationTest` checks that the migration does what the
   2025 calendar describes. It cannot check 2026.
-- Residents pick "Secteur A, mardi" and so on, but the street-to-sector table
-  that tells them which one is theirs is only in the 2025 PDF, not in the app.
+- Residents find their sector by typing their street on the settings page.
+  The table behind it (V26, 252 streets and civic ranges) is parsed from the
+  same 2025 PDF by `docs/verification/generate_v26_boisbriand_streets.py`,
+  which refuses to write unless every weekday cell on the page is paired with
+  exactly one street. Like V25, it is 2025's; replace it with V25.
 
 **First thing to do when the 2026 (or 2027) calendar is in hand:** read it
 against V25 and replace the rules. That is the step this city skipped.
+
+## Sectors a resident cannot name
+
+A city that assigns sectors street by street needs a street table
+(`municipality_street`), and the settings page offers the lookup whenever the
+city has one (`hasStreetDirectory`). Each street's sector must exist (a foreign
+key) and must have collection rules (`BoisbriandStreetDirectoryIntegrationTest`);
+otherwise a resident lands on an empty calendar.

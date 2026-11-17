@@ -79,6 +79,28 @@ public class MunicipalityService {
                         HttpStatus.NOT_FOUND, "Unknown municipality: " + slug));
     }
 
+    /** Enough to choose from, few enough to read on a phone. */
+    private static final int STREET_RESULTS = 15;
+
+    /**
+     * Streets of this city whose name contains {@code query}, best first.
+     *
+     * <p>Fewer than two characters returns nothing rather than the first
+     * fifteen streets: a list that matches everything answers no question.
+     */
+    public List<MunicipalityStreet> streetsMatching(Municipality municipality, String query) {
+        String typed = query == null ? "" : query.trim();
+        if (typed.length() < 2) {
+            return List.of();
+        }
+        String escaped = typed.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_");
+        return mapper.findStreets(municipality.id(), escaped, STREET_RESULTS);
+    }
+
+    public boolean hasStreetDirectory(Municipality municipality) {
+        return mapper.countStreets(municipality.id()) > 0;
+    }
+
     public List<MunicipalitySector> sectorsOf(Municipality municipality) {
         return mapper.findSectors(municipality.id());
     }

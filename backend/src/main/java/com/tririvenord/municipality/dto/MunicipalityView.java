@@ -18,8 +18,14 @@ public record MunicipalityView(
         String sourceUrl,
         boolean calendarVerified,
         boolean guideVerified,
-        List<SectorView> sectors
+        List<SectorView> sectors,
+        // True when residents choose a sector by street (Boisbriand), so the
+        // settings page knows to offer the lookup.
+        boolean hasStreetDirectory
 ) {
     public record SectorView(String code, String nameFr, String nameEn, String nameZh) {
+    }
+
+    public record StreetView(String name, String sectorCode) {
     }
 }

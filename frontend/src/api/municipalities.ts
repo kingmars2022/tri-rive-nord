@@ -20,8 +20,25 @@ export type Municipality = {
   calendarVerified: boolean;
   guideVerified: boolean;
   sectors: MunicipalitySector[];
+  /**
+   * True where residents find their sector by street rather than by name -
+   * Boisbriand, which sets the collection weekday street by street.
+   */
+  hasStreetDirectory: boolean;
+};
+
+/** A street, or one civic-number range of it, and the sector it is in. */
+export type Street = {
+  name: string;
+  sectorCode: string;
 };
 
 export function fetchMunicipalities(): Promise<Municipality[]> {
   return api.get<Municipality[]>("/municipalities");
+}
+
+export function fetchStreets(slug: string, query: string): Promise<Street[]> {
+  return api.get<Street[]>(
+    `/municipalities/${encodeURIComponent(slug)}/streets?q=${encodeURIComponent(query)}`
+  );
 }

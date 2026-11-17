@@ -29,4 +29,25 @@
         where municipality_id = #{municipalityId}
         order by position
     </select>
+
+    <!--
+        Hyphens and spaces are treated alike, because residents type
+        "grande allee" for Grande-Allée; accents and case are already ignored
+        by the column's collation. Streets whose name starts with what was
+        typed come first, so "bo" offers Bolduc before Ambroise-Lafortune.
+        #{query} arrives with % and _ escaped by the service: a resident's
+        "100%" is text to find, not a pattern.
+    -->
+    <select id="findStreets" resultType="com.tririvenord.municipality.MunicipalityStreet">
+        select name, sector_code as sectorCode
+        from municipality_street
+        where municipality_id = #{municipalityId}
+          and replace(name, '-', ' ') like concat('%', replace(#{query}, '-', ' '), '%')
+        order by replace(name, '-', ' ') like concat(replace(#{query}, '-', ' '), '%') desc, name
+        limit #{limit}
+    </select>
+
+    <select id="countStreets" resultType="int">
+        select count(*) from municipality_street where municipality_id = #{municipalityId}
+    </select>
 </mapper>

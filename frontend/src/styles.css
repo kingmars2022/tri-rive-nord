@@ -399,6 +399,50 @@ textarea {
   gap: 10px;
 }
 
+/*
+  Street lookup (cities that assign sectors by street). The matches read as a
+  list of choices joined to the field above, not as a dropdown that hides
+  them: there are rarely more than a handful, and each one carries the civic
+  range a resident has to read before choosing.
+*/
+.street-lookup label {
+  margin-bottom: 0;
+}
+
+.street-results {
+  border: 1px solid var(--rule-strong);
+  border-top: 0;
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+}
+
+.street-results li + li {
+  border-top: 1px solid var(--rule);
+}
+
+.street-results button {
+  background: var(--paper-raised);
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  padding: 10px 12px;
+  text-align: left;
+  width: 100%;
+}
+
+.street-results button:hover {
+  background: var(--paper);
+  color: var(--civic-dark);
+}
+
+.street-chosen {
+  border-left: 3px solid var(--civic);
+  color: var(--ink);
+  padding-left: 10px;
+}
+
 .search {
   max-width: 520px;
   width: 100%;

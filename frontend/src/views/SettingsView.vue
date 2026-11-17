@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from "vue";
 import { useI18n } from "../useI18n";
 import { usePreferenceStore } from "../stores/preferences";
 import { useMunicipalityStore } from "../stores/municipality";
-import type { MunicipalitySector } from "../api/municipalities";
+import { fetchStreets, type MunicipalitySector, type Street } from "../api/municipalities";
 import { useAuthStore } from "../stores/auth";
 import { api } from "../api/client";
 import {
@@ -35,6 +35,63 @@ function sectorName(sector: MunicipalitySector) {
       ? sector.nameZh
       : sector.nameFr;
 }
+// Street lookup, for cities where a resident cannot name their sector from
+// memory. Boisbriand's sectors are "A, Tuesday" and so on, assigned street
+// by street; choosing from the list unaided is a guess, and a wrong guess
+// shows another street's calendar.
+const hasStreetDirectory = computed(() => municipalities.current?.hasStreetDirectory ?? false);
+const streetQuery = ref("");
+const streetResults = ref<Street[]>([]);
+const streetSearched = ref(false);
+const chosenStreet = ref<Street | null>(null);
+let streetTimer: ReturnType<typeof setTimeout> | undefined;
+let streetRequest = 0;
+
+function sectorNameByCode(code: string) {
+  const sector = sectors.value.find((s) => s.code === code);
+  return sector ? sectorName(sector) : code;
+}
+
+function onStreetInput(event: Event) {
+  streetQuery.value = (event.target as HTMLInputElement).value;
+  chosenStreet.value = null;
+  clearTimeout(streetTimer);
+  const query = streetQuery.value.trim();
+  if (query.length < 2) {
+    streetResults.value = [];
+    streetSearched.value = false;
+    return;
+  }
+  streetTimer = setTimeout(() => searchStreets(query), 250);
+}
+
+async function searchStreets(query: string) {
+  const city = municipalities.current;
+  if (!city) return;
+  // Only the newest request may write the list: a slow answer to "gr"
+  // arriving after the answer to "grande" must not replace it.
+  const request = ++streetRequest;
+  try {
+    const found = await fetchStreets(city.slug, query);
+    if (request === streetRequest) {
+      streetResults.value = found;
+      streetSearched.value = true;
+    }
+  } catch {
+    if (request === streetRequest) {
+      streetResults.value = [];
+      streetSearched.value = true;
+    }
+  }
+}
+
+function chooseStreet(street: Street) {
+  chosenStreet.value = street;
+  streetResults.value = [];
+  preferences.setSector(street.sectorCode as Sector);
+  persistToBackend();
+}
+
 const auth = useAuthStore();
 const synced = ref(false);
 
@@ -165,6 +222,33 @@ function onReminderChange(event: Event) {
         </option>
       </select>
     </label>
+
+    <div v-if="hasStreetDirectory" class="street-lookup">
+      <label>
+        {{ t("settings.streetLookup") }}
+        <input
+          type="search"
+          :value="streetQuery"
+          :placeholder="t('settings.streetPlaceholder')"
+          autocomplete="off"
+          @input="onStreetInput"
+        />
+      </label>
+      <ul v-if="streetResults.length" class="street-results">
+        <li v-for="street in streetResults" :key="street.name">
+          <button type="button" @click="chooseStreet(street)">
+            {{ street.name }} — {{ sectorNameByCode(street.sectorCode) }}
+          </button>
+        </li>
+      </ul>
+      <p v-else-if="streetSearched && !chosenStreet" class="admin-note">{{ t("settings.streetNotFound") }}</p>
+      <p v-if="chosenStreet" class="admin-note street-chosen">
+        {{ t("settings.streetChosen") }} {{ sectorNameByCode(chosenStreet.sectorCode) }}
+      </p>
+      <!-- Where the table comes from, every time it is used: it is the
+           city's 2025 edition, and a street moved for 2026 would be wrong. -->
+      <p class="admin-note">{{ t("settings.streetSource") }}</p>
+    </div>
 
     <label class="checkbox">
       <input

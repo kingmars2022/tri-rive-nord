@@ -13,4 +13,10 @@ public interface MunicipalityMapper {
     Optional<Municipality> findBySlug(@Param("slug") String slug);
 
     List<MunicipalitySector> findSectors(@Param("municipalityId") long municipalityId);
+
+    List<MunicipalityStreet> findStreets(@Param("municipalityId") long municipalityId,
+                                         @Param("query") String query,
+                                         @Param("limit") int limit);
+
+    int countStreets(@Param("municipalityId") long municipalityId);
 }
