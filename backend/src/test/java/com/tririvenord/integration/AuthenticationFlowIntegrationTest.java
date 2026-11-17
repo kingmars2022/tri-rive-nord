@@ -215,6 +215,9 @@ class AuthenticationFlowIntegrationTest {
 
         Map<String, Object> translation = Map.of("name", "n", "instruction", "i");
         Map<String, Object> item = Map.of(
+                // Shared across cities, so the same logical entry can be
+                // compared between the four guides.
+                "itemKey", "a-test-item",
                 "destinationType", "organic",
                 "binColor", "brown",
                 "fr", translation,

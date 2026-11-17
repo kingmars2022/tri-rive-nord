@@ -38,6 +38,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @EmbeddedKafka(partitions = 1, topics = "blainville.resident.queries")
 class ResidentQueryInsightsIntegrationTest {
+    private static final String CITY = "blainville";
+
 
     @DynamicPropertySource
     static void infrastructureProperties(DynamicPropertyRegistry registry) {
@@ -157,6 +159,7 @@ class ResidentQueryInsightsIntegrationTest {
         mockMvc.perform(post("/api/assistant/ask")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
+                                "municipality", CITY,
                                 "question", question, "language", language))))
                 .andExpect(status().isOk());
     }

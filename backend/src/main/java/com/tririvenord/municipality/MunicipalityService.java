@@ -44,11 +44,29 @@ public class MunicipalityService {
         return all.get(0);
     }
 
-    /** That city's first sector, or the city-wide one when it has none on file. */
+    /**
+     * Where a new resident starts, before they say which part of town they
+     * live in.
+     *
+     * <p>The first sector that is a real part of the city, which means
+     * skipping {@code all}. That code is a wildcard for collections covering
+     * the whole territory, not a place anybody lives, and the upcoming query
+     * reads {@code sector = ? or sector = 'all'} -- so a resident whose own
+     * sector is {@code all} matches only the city-wide collections and never
+     * sees the garbage or recycling for either half. An integration test
+     * caught this: picking the first row returned {@code all}, which is worse
+     * than the hard-coded 'north' it replaced.
+     *
+     * <p>Falls back to {@code all} only for a city that genuinely has no
+     * subdivisions, where it is the right answer rather than a wildcard.
+     */
     public Sector defaultSectorOf(Municipality municipality) {
-        return mapper.findSectors(municipality.id()).stream()
+        List<MunicipalitySector> sectors = mapper.findSectors(municipality.id());
+        return sectors.stream()
+                .map(MunicipalitySector::code)
+                .filter(code -> !Sector.ALL.code().equals(code))
                 .findFirst()
-                .map(s -> Sector.of(s.code()))
+                .map(Sector::of)
                 .orElse(Sector.ALL);
     }
 

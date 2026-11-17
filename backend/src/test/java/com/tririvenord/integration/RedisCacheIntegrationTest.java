@@ -106,9 +106,9 @@ class RedisCacheIntegrationTest {
 
         Set<String> keys = redis.keys(CacheConfig.UPCOMING_COLLECTIONS + "::*");
         assertThat(keys).containsExactlyInAnyOrder(
-                key(CacheConfig.UPCOMING_COLLECTIONS, LocalDate.now() + ":north:30"),
-                key(CacheConfig.UPCOMING_COLLECTIONS, LocalDate.now() + ":south:30"),
-                key(CacheConfig.UPCOMING_COLLECTIONS, LocalDate.now() + ":north:7"));
+                key(CacheConfig.UPCOMING_COLLECTIONS, MUNI + ":" + LocalDate.now() + ":north:30"),
+                key(CacheConfig.UPCOMING_COLLECTIONS, MUNI + ":" + LocalDate.now() + ":south:30"),
+                key(CacheConfig.UPCOMING_COLLECTIONS, MUNI + ":" + LocalDate.now() + ":north:7"));
     }
 
     @Test
@@ -123,7 +123,7 @@ class RedisCacheIntegrationTest {
         List<CollectionEvent> fromRedis = collectionService.upcoming(MUNI, Sector.of("north"), 30);
         assertThat(fromRedis).isEqualTo(fromDatabase);
 
-        String raw = redis.opsForValue().get(key(CacheConfig.UPCOMING_COLLECTIONS, LocalDate.now() + ":north:30"));
+        String raw = redis.opsForValue().get(key(CacheConfig.UPCOMING_COLLECTIONS, MUNI + ":" + LocalDate.now() + ":north:30"));
         assertThat(raw).isNotNull();
         if (!fromDatabase.isEmpty()) {
             assertThat(raw).contains("\"" + fromDatabase.get(0).collectionDate() + "\"");
