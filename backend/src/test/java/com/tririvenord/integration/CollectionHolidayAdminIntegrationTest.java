@@ -219,6 +219,74 @@ class CollectionHolidayAdminIntegrationTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    private Map<String, Object> collection(String sector) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("collectionDate", LocalDate.now().plusDays(40).toString());
+        body.put("sector", sector);
+        body.put("collectionType", "bulky");
+        body.put("binColor", "none");
+        body.put("sourceUrl", "test://admin-holiday");
+        return body;
+    }
+
+    /**
+     * The console used to offer Blainville's north/south/all whichever city
+     * was selected, and the server saved whatever arrived: a collection in a
+     * sector the city does not have, which no resident there can ever see.
+     */
+    @Test
+    void aSectorTheCityDoesNotHaveIsRefused_andTheErrorNamesTheRealOnes() throws Exception {
+        String token = adminToken();
+
+        mockMvc.perform(post("/api/admin/collections")
+                        .param("municipality", "sainte-therese")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(collection("north"))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString(
+                        "Sainte-Therese has no sector 'north'. Its sectors are: all, a, b, c, d")));
+
+        Map<String, Object> holiday = request(LocalDate.now().plusDays(40), 1);
+        holiday.put("sector", "south");
+        mockMvc.perform(post("/api/admin/collection-holidays")
+                        .param("municipality", "sainte-therese")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(holiday)))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(post("/api/admin/collections")
+                        .param("municipality", "sainte-therese")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(collection("a"))))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    void anUpdateIsCheckedAgainstTheRowsOwnCity_notTheOneSelectedNow() throws Exception {
+        String token = adminToken();
+        long blainvilleRow = objectMapper.readTree(mockMvc.perform(post("/api/admin/collections")
+                        .param("municipality", "blainville")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(collection("north"))))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString()).get("id").asLong();
+
+        // The console has since switched to Sainte-Therese, where "a" exists;
+        // the row is still Blainville's, where it does not.
+        mockMvc.perform(put("/api/admin/collections/" + blainvilleRow)
+                        .param("municipality", "sainte-therese")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(collection("a"))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString(
+                        "Blainville has no sector 'a'")));
+    }
+
     @Test
     void aShiftOfZeroIsRefusedBeforeItCanReachTheCascadeLoop() throws Exception {
         mockMvc.perform(post("/api/admin/collection-holidays")

@@ -269,6 +269,54 @@ class AdminAgentIntegrationTest {
                 jdbc.queryForObject("select count(*) from special_notice", Integer.class));
     }
 
+    private long sainteTherese() {
+        return jdbc.queryForObject("select id from municipality where slug = 'sainte-therese'", Long.class);
+    }
+
+    @Test
+    void theAgentIsOfferedTheSelectedCitysSectors_notBlainvilles() throws Exception {
+        // It was told it worked for Blainville and offered north/south in
+        // every city, so elsewhere it could not name a real sector.
+        String tools = objectMapper.writeValueAsString(catalog.tools(sainteTherese()));
+        assertThat(tools).contains("[\"all\",\"a\",\"b\",\"c\",\"d\"]").doesNotContain("north");
+
+        assertThat(catalog.describeCity(sainteTherese()))
+                .contains("Sainte-Therese")
+                .contains("a (Zone A)");
+    }
+
+    @Test
+    void aStepNamingASectorTheCityDoesNotHaveIsRefused() {
+        PlannedStep north = new PlannedStep(AgentToolName.create_collection, Map.of(
+                "collectionDate", "2026-12-07",
+                "sector", "north",
+                "collectionType", "bulky",
+                "binColor", "none",
+                "sourceUrl", MARKER), "Add a bulky collection");
+
+        assertThatThrownBy(() -> catalog.executeWrite(sainteTherese(), north))
+                .hasMessageContaining("Sainte-Therese has no sector 'north'")
+                .hasMessageContaining("all, a, b, c, d");
+        assertThat(countCollections()).isZero();
+    }
+
+    @Test
+    void aPlanForOneCityCannotTouchAnotherCitysRow() {
+        catalog.executeWrite(MUNI, new PlannedStep(AgentToolName.create_collection, Map.of(
+                "collectionDate", "2026-12-07",
+                "sector", "north",
+                "collectionType", "bulky",
+                "binColor", "none",
+                "sourceUrl", MARKER), "Add a bulky collection in Blainville"));
+        long blainvilleRow = jdbc.queryForObject(
+                "select id from collection_event where source_url = ?", Long.class, MARKER);
+
+        assertThatThrownBy(() -> catalog.executeWrite(sainteTherese(),
+                new PlannedStep(AgentToolName.delete_collection, Map.of("id", blainvilleRow), "Delete it")))
+                .hasMessageContaining("belongs to another city");
+        assertThat(countCollections()).isOne();
+    }
+
     private String storePlan(Long adminUserId, PlannedStep... steps) {
         String planId = AgentPlanStore.newPlanId();
         planStore.save(new com.tririvenord.agent.AgentPlan(

@@ -51,7 +51,8 @@ that the city stays unloaded. The application already renders that honestly.
    migration before believing it.
 5. **Run everything.** `mvn test -Pintegration-test` needs a real MySQL and
    Redis; see `docs/deployment.md`. All green before and after: 216 before
-   Sainte-Therese, 243 after its calendar and guide, 254 after Boisbriand and its street table. Then run
+   Sainte-Therese, 243 after its calendar and guide, 254 after Boisbriand and its street table,
+   259 after the admin console learned each city's sectors. Then run
    `docs/verification/guide_rank_sweep.py` for every city already loaded, before
    and after, and compare (see below).
 
@@ -222,6 +223,14 @@ owner chose on 2026-11-17 to load from 2025 rather than wait. So:
 
 **First thing to do when the 2026 (or 2027) calendar is in hand:** read it
 against V25 and replace the rules. That is the step this city skipped.
+
+## The admin side reads sectors from the city too
+
+The admin console's pickers, the admin agent's tool schema and its system
+prompt were all written for Blainville (north/south, "Blainville, Quebec").
+They now come from the selected city, and the server refuses an admin or
+agent write naming a sector the city does not have (400, listing the real
+ones). A new city needs no admin code, only its `municipality_sector` rows.
 
 ## Sectors a resident cannot name
 

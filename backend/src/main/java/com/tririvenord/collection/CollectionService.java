@@ -112,6 +112,12 @@ public class CollectionService {
         return mapper.findById(generatedId).orElseThrow();
     }
 
+    /** One collection, or 404. Admin writes need its city before changing it. */
+    public CollectionEvent get(Long id) {
+        return mapper.findById(id).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Collection event not found"));
+    }
+
     @CacheEvict(cacheNames = CacheConfig.UPCOMING_COLLECTIONS, allEntries = true)
     public CollectionEvent update(Long id, CollectionEventRequest request) {
         requireExists(id);

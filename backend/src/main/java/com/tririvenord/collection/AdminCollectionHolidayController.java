@@ -45,11 +45,15 @@ public class AdminCollectionHolidayController {
     @ResponseStatus(HttpStatus.CREATED)
     public CollectionHoliday create(@RequestParam String municipality,
                                     @Valid @RequestBody CollectionHolidayRequest request) {
-        return service.create(municipalities.requireBySlug(municipality).id(), request);
+        long city = municipalities.requireBySlug(municipality).id();
+        municipalities.requireWritableSector(city, request.sector());
+        return service.create(city, request);
     }
 
+    /** Checked against the holiday's own city; see AdminCollectionController. */
     @PutMapping("/{id}")
     public CollectionHoliday update(@PathVariable Long id, @Valid @RequestBody CollectionHolidayRequest request) {
+        municipalities.requireWritableSector(service.get(id).municipalityId(), request.sector());
         return service.update(id, request);
     }
 

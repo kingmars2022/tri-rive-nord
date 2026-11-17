@@ -119,6 +119,34 @@ public class MunicipalityService {
      * the worst of the available answers: a resident cannot tell it from a
      * quiet week.
      */
+    public Municipality requireById(long id) {
+        return mapper.findAll().stream()
+                .filter(m -> m.id() == id)
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Unknown municipality: " + id));
+    }
+
+    /**
+     * The check for anything an administrator (or the admin agent) writes.
+     *
+     * <p>A 400 rather than {@link #requireSector}'s 404, because here the
+     * request is what is wrong, and naming the city's real sectors tells the
+     * person how to fix it. Without this, the admin console saved Blainville's
+     * "north" for any city: a collection no resident of that city could ever
+     * see, which looks exactly like the collection never existing.
+     */
+    public void requireWritableSector(long municipalityId, Sector sector) {
+        List<MunicipalitySector> sectors = mapper.findSectors(municipalityId);
+        if (sectors.stream().noneMatch(s -> s.code().equals(sector.code()))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "%s has no sector '%s'. Its sectors are: %s".formatted(
+                            requireById(municipalityId).name(),
+                            sector.code(),
+                            sectors.stream().map(MunicipalitySector::code).collect(java.util.stream.Collectors.joining(", "))));
+        }
+    }
+
     public void requireSector(Municipality municipality, Sector sector) {
         boolean known = mapper.findSectors(municipality.id()).stream()
                 .anyMatch(s -> s.code().equals(sector.code()));

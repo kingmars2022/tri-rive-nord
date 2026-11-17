@@ -94,6 +94,11 @@ public class CollectionHolidayService {
         return require(id);
     }
 
+    /** One holiday, or 404. Admin writes need its city before changing it. */
+    public CollectionHoliday get(Long id) {
+        return require(id);
+    }
+
     @Transactional
     public void delete(Long id) {
         CollectionHoliday existing = require(id);
