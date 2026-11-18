@@ -14,6 +14,30 @@ afterwards: the sorting guide serves 35 entries rather than 14, and the
 October calendar shows the recycling collection on Wednesday 21 October that
 the pre-`V15` data did not generate at all.
 
+It was redeployed again on 18 November 2026 at `8137430`, applying `V19`–`V29`
+(four cities, Sainte-Therese and Boisbriand loaded, per-city notices). Two
+things went wrong first, both now written into the steps below:
+
+- The Aiven database had been powered off for idling, so the site was down
+  before anything was deployed. It was powered on from the console, and a
+  backup taken on power-on was confirmed before deploying.
+- The deploy itself **failed Render's health check for 18 minutes while the
+  application was healthy.** The check path was `/api/sorting-items`, which
+  since the four-city change requires `?municipality=`; the new version
+  answered every check with 400, Render never saw a 200, and it kept the old
+  version serving - the old code on the *already migrated* database, which
+  showed all three cities' sorting guides to everyone. Flyway had applied all
+  eleven migrations before the first check. Changing the check path to
+  `/api/municipalities` and deploying again fixed it. Checked live afterwards:
+  four cities, guides of 35 / 62 / 39 entries, each city's calendar, and the
+  Boisbriand street lookup.
+
+**Aiven retires its free MySQL tier on 21 December 2026** (the console says
+so). Before then the database needs the paid Developer plan or another MySQL
+host. Schema and reference data come back from the migrations on an empty
+database; accounts, admin edits and notices exist only in the current one and
+need a dump first.
+
 The optional services are the part that has *not* been deployed — Redis,
 Kafka, MongoDB and the S3 photo pipeline are switched off there, and they
 stay verified against local real equivalents rather than hosted ones.
@@ -192,9 +216,14 @@ the port at 7860 instead, so set `PORT=7860` as a Space variable.
 **Memory.** The image already sets `JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=75`,
 because a 512 MB box is small and the JVM's default sizing assumes it is not.
 
-**Health check.** There is no actuator here. Use `GET /api/sorting-items` — it
-is public, returns 200, and touches MySQL, so it is a real readiness check
-rather than a liveness fiction.
+**Health check.** There is no actuator here. Use `GET /api/municipalities` — it
+is public, needs no parameters, returns 200, and touches MySQL, so it is a real
+readiness check rather than a liveness fiction. **Not** `/api/sorting-items`,
+which this section used to recommend: since the four-city change it requires
+`?municipality=`, so a check without it gets a 400 from a perfectly healthy
+application and Render refuses the deploy. That cost one failed deploy in
+November 2026. A health-check path has to be re-checked whenever the endpoint
+behind it changes its parameters.
 
 **Auto-deploy.** Turn it on — **Settings → Auto-Deploy → On Commit**. Render
 does not enable it for every service, and a service with it off is the
@@ -240,7 +269,8 @@ this repository has not made.
 ### 5. Check it
 
 ```bash
-curl -s https://your-app/api/sorting-items | head -c 80   # a JSON array
+curl -s https://your-app/api/municipalities | head -c 80  # a JSON array of cities
+curl -s "https://your-app/api/sorting-items?municipality=blainville" | head -c 80
 curl -s -o /dev/null -w "%{http_code}\n" https://your-app/        # 200, the page itself
 curl -s -o /dev/null -w "%{http_code}\n" https://your-app/tri     # 200, history-mode deep link
 ```
