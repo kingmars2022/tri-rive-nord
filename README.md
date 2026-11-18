@@ -6,7 +6,7 @@ tonight and where any item belongs.
 It is built for four municipalities -- Blainville, Sainte-Therese, Boisbriand and
 Rosemere. **Blainville and Sainte-Therese are loaded, calendar and sorting guide. Boisbriand's
 calendar is projected from its 2025 edition, because the 2026 one could not be obtained, and
-says so on every collection. Rosemere has nothing yet.** A city without data appears
+says so on every collection; its sorting guide is loaded too. Rosemere has nothing yet.** A city without data appears
 in the city switcher and says so when you pick it, rather than showing an empty week as if
 there were no collection. Each city's schedule and sorting rules have to be read from that city's
 own published calendar before they go in, because inheriting one city's rules into another

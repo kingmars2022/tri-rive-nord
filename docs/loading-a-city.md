@@ -38,8 +38,9 @@ that the city stays unloaded. The application already renders that honestly.
      boulevard; another city may use three zones, or none)
    - statutory holidays, and how many days a collection moves when one lands
      on its day
-3. **Write the migration.** `V28` onward (`V22` and `V23` are Sainte-Therese, `V24` a Blainville
-   search fix that loading it made necessary, `V25` and `V26` Boisbriand, `V27` per-city notices). Insert the sectors into
+3. **Write the migration.** `V30` onward (`V22` and `V23` are Sainte-Therese, `V24` a Blainville
+   search fix that loading it made necessary, `V25`, `V26` and `V28` Boisbriand, `V27` per-city
+   notices, `V29` a Sainte-Therese search fix that loading Boisbriand made necessary). Insert the sectors into
    `municipality_sector`, the rules into `collection_schedule_rule`, the
    holidays into `collection_holiday`, and the guide into `sorting_item` and
    its three child tables. Set `calendar_verified` and `guide_verified` on the
@@ -52,7 +53,8 @@ that the city stays unloaded. The application already renders that honestly.
 5. **Run everything.** `mvn test -Pintegration-test` needs a real MySQL and
    Redis; see `docs/deployment.md`. All green before and after: 216 before
    Sainte-Therese, 243 after its calendar and guide, 254 after Boisbriand and its street table,
-   259 after the admin console learned each city's sectors, 265 after notices became per city. Then run
+   259 after the admin console learned each city's sectors, 265 after notices became per city,
+   271 after Boisbriand's guide. Then run
    `docs/verification/guide_rank_sweep.py` for every city already loaded, before
    and after, and compare (see below).
 
@@ -62,7 +64,7 @@ that the city stays unloaded. The application already renders that honestly.
 |---|---|---|---|
 | Blainville | yes | yes | V15, V17 |
 | Sainte-Therese | yes, 2026 grids | yes, regulation 1373 | V22, V23 |
-| Boisbriand | **projected from the 2025 calendar** -- not checked against 2026, see below | no | V25 |
+| Boisbriand | **projected from the 2025 calendar** -- not checked against 2026, see below | yes: 2026 page + 2025 calendar pp. 3-5 | V25, V26, V28 |
 | Rosemere | no -- site does not answer automated requests | no | |
 
 ## What Sainte-Therese added to the list of things to get wrong
@@ -246,3 +248,15 @@ A city that assigns sectors street by street needs a street table
 city has one (`hasStreetDirectory`). Each street's sector must exist (a foreign
 key) and must have collection rules (`BoisbriandStreetDirectoryIntegrationTest`);
 otherwise a resident lands on an empty calendar.
+
+## Boisbriand's guide, and the second cross-city search fix
+
+Boisbriand prints no regulation with annexes; its "where does it go" link is
+RECYC-QUEBEC's app. V28 (`docs/verification/generate_v28_boisbriand_guide.py`)
+is built from its 2026 page and pages 3-5 of the 2025 calendar, and leaves out
+what neither says the destination of (syringes). Cards cite the 2026 page.
+
+Loading it made one Sainte-Therese entry unreachable by its own name ("Aerosol
+cans" returned "Tin cans") - the same effect V24 fixed for Blainville, caught
+this time by `SainteThereseGuideIntegrationTest`, and fixed in V29 the same
+way. Every loaded city's own-name test has to pass after every load.
