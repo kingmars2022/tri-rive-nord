@@ -9,11 +9,14 @@
         residents the same notice twice. Kafka is at-least-once, so this is the
         expected path and not an error path.
     -->
+    <!-- Only the notice's own city (V27): before, a Blainville notice reached
+         every city's residents. -->
     <insert id="fanOutToResidentsWithReminders">
         insert ignore into resident_notification (user_id, notice_id, event_id)
         select p.user_id, #{noticeId}, #{eventId}
         from user_preference p
         where p.reminder_enabled = true
+          and p.municipality_id = (select n.municipality_id from special_notice n where n.id = #{noticeId})
     </insert>
 
     <select id="findForUser" resultType="com.tririvenord.notification.ResidentNotification">

@@ -29,6 +29,7 @@
         from push_subscription s
         join user_preference p on p.user_id = s.user_id
         where p.reminder_enabled = true
+          and p.municipality_id = #{municipalityId}
     </select>
 
     <select id="findForUser" resultType="com.tririvenord.push.PushSubscription">

@@ -75,6 +75,7 @@ class NoticeEventPipelineIntegrationTest {
     @Autowired
     private JdbcTemplate jdbc;
 
+    private static final long BLAINVILLE = 1L;
     private static final String RESIDENT_EMAIL = "notice-pipeline-resident@test.local";
 
     /**
@@ -115,7 +116,7 @@ class NoticeEventPipelineIntegrationTest {
     void theEventIsCommittedWithTheNoticeAndOnlyThenReachesTheBroker() {
         long before = outbox.countUnpublished();
 
-        SpecialNotice created = notices.create(request("Collecte reportee"));
+        SpecialNotice created = notices.create(BLAINVILLE, request("Collecte reportee"));
 
         // Committed with the notice, in the same transaction - and not yet sent.
         List<com.tririvenord.events.OutboxEntry> pending = outbox.findUnpublished(50);
@@ -135,7 +136,7 @@ class NoticeEventPipelineIntegrationTest {
         // Two independent groups on one topic is the only thing here a direct
         // method call could not do: each tracks its own offset, so a slow or
         // broken consumer cannot stall the other.
-        SpecialNotice created = notices.create(request("Avis de tempete"));
+        SpecialNotice created = notices.create(BLAINVILLE, request("Avis de tempete"));
         relay.publishPending();
 
         await().atMost(20, TimeUnit.SECONDS).untilAsserted(() -> {
@@ -156,7 +157,7 @@ class NoticeEventPipelineIntegrationTest {
 
     @Test
     void theAuditTrailRecordsBothSidesOfAnUpdate() {
-        SpecialNotice created = notices.create(request("Titre initial"));
+        SpecialNotice created = notices.create(BLAINVILLE, request("Titre initial"));
         notices.update(created.id(), request("Titre corrige"));
         relay.publishPending();
 
@@ -178,7 +179,7 @@ class NoticeEventPipelineIntegrationTest {
         // Delivery is at-least-once by design, so the consumer has to make the
         // effect exactly-once. Asserting that directly is more useful than
         // trusting the broker not to redeliver.
-        SpecialNotice created = notices.create(request("Avis unique"));
+        SpecialNotice created = notices.create(BLAINVILLE, request("Avis unique"));
         relay.publishPending();
 
         await().atMost(20, TimeUnit.SECONDS).untilAsserted(() ->

@@ -317,6 +317,31 @@ class AdminAgentIntegrationTest {
         assertThat(countCollections()).isOne();
     }
 
+    @Test
+    void noticesAreThePlansCitysOnly() throws Exception {
+        jdbc.update("insert into special_notice (municipality_id, starts_on, ends_on, title_fr, title_en, title_zh, "
+                + "body_fr, body_en, body_zh, source_url, active) values (?, current_date, current_date, "
+                + "'Avis Blainville', 'Notice', '通知', 'c', 'b', 'z', ?, true)", MUNI, MARKER);
+        long blainvilleNotice = jdbc.queryForObject(
+                "select id from special_notice where source_url = ?", Long.class, MARKER);
+
+        try {
+            // Listed for its own city, not for another.
+            assertThat(catalog.executeRead(MUNI, AgentToolName.list_notices)).contains("Avis Blainville");
+            assertThat(catalog.executeRead(sainteTherese(), AgentToolName.list_notices)).doesNotContain("Avis Blainville");
+
+            // And a plan for another city cannot delete it.
+            assertThatThrownBy(() -> catalog.executeWrite(sainteTherese(),
+                    new PlannedStep(AgentToolName.delete_notice, Map.of("id", blainvilleNotice), "Delete it")))
+                    .hasMessageContaining("belongs to another city");
+            assertThat(jdbc.queryForObject("select count(*) from special_notice where id = ?",
+                    Integer.class, blainvilleNotice)).isOne();
+        } finally {
+            jdbc.update("delete from outbox_event where aggregate_id = ?", blainvilleNotice);
+            jdbc.update("delete from special_notice where id = ?", blainvilleNotice);
+        }
+    }
+
     private String storePlan(Long adminUserId, PlannedStep... steps) {
         String planId = AgentPlanStore.newPlanId();
         planStore.save(new com.tririvenord.agent.AgentPlan(

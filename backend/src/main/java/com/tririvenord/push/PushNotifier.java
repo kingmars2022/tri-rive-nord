@@ -51,7 +51,8 @@ public class PushNotifier {
             if (notice == null) {
                 return;
             }
-            List<PushSubscription> targets = subscriptions.findForResidentsWithReminders();
+            // The notice's city only, matching the inbox fan-out.
+            List<PushSubscription> targets = subscriptions.findForResidentsWithReminders(notice.municipalityId());
             int sent = 0;
             int dropped = 0;
             for (PushSubscription subscription : targets) {
