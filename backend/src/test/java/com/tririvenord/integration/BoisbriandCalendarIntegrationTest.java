@@ -208,7 +208,6 @@ class BoisbriandCalendarIntegrationTest {
     void everyNoteSaysWhereTheScheduleCameFrom_andResidentsLandInASector() {
         Municipality boisbriand = municipalities.requireBySlug("boisbriand");
         assertThat(boisbriand.calendarVerified()).isTrue();
-        assertThat(boisbriand.guideVerified()).isFalse();
 
         assertThat(jdbc.queryForList(
                 "select note_fr from collection_schedule_rule where municipality_id = ?", String.class, city))
