@@ -156,6 +156,12 @@ GitHub runner both `ville.rosemere.qc.ca` and `www.ville.rosemere.qc.ca` time
 out, and from the session the connection is reset; `rosemere.ca` does not
 resolve. Its documents need the same manual download.
 
+Retried on 2026-11-18 (`data/municipal-sources/rosemere/2026-11-18/`): all four
+of `http(s)://(www.)ville.rosemere.qc.ca/` time out from the runner, plain HTTP
+included, so it is not a TLS problem - the server does not answer these
+networks at all. From the session the tunnel opens and is closed after about
+ten seconds. Same conclusion: download by hand.
+
 It is a downloader, not a parser. It follows only links on the city's own host
 that look like they are about collection, honours robots.txt, and waits two
 seconds between requests. What it saves is the input to step 2 above, not a

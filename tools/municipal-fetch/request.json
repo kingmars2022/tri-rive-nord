@@ -8,7 +8,8 @@
       "start_urls": [
         "https://www.ville.rosemere.qc.ca/",
         "https://ville.rosemere.qc.ca/",
-        "https://www.rosemere.ca/"
+        "http://www.ville.rosemere.qc.ca/",
+        "http://ville.rosemere.qc.ca/"
       ]
     }
   ]
