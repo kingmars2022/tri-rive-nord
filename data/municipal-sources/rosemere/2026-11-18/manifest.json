@@ -1,0 +1,33 @@
+{
+  "slug": "rosemere",
+  "name": "Rosemere",
+  "fetched_at": "2026-11-18T04:58:43+00:00",
+  "start_urls": [
+    "https://www.ville.rosemere.qc.ca/",
+    "https://ville.rosemere.qc.ca/",
+    "http://www.ville.rosemere.qc.ca/",
+    "http://ville.rosemere.qc.ca/"
+  ],
+  "pages_fetched": 0,
+  "page_cap_reached": false,
+  "files": [],
+  "errors": [
+    {
+      "url": "https://www.ville.rosemere.qc.ca/",
+      "error": "URLError: <urlopen error timed out>"
+    },
+    {
+      "url": "https://ville.rosemere.qc.ca/",
+      "error": "URLError: <urlopen error timed out>"
+    },
+    {
+      "url": "http://www.ville.rosemere.qc.ca/",
+      "error": "URLError: <urlopen error timed out>"
+    },
+    {
+      "url": "http://ville.rosemere.qc.ca/",
+      "error": "URLError: <urlopen error timed out>"
+    }
+  ],
+  "note": "Raw copies of the city's own pages and documents. Not parsed, not verified. See docs/loading-a-city.md before using."
+}
