@@ -38,8 +38,8 @@ that the city stays unloaded. The application already renders that honestly.
      boulevard; another city may use three zones, or none)
    - statutory holidays, and how many days a collection moves when one lands
      on its day
-3. **Write the migration.** `V27` onward (`V22` and `V23` are Sainte-Therese, `V24` a Blainville
-   search fix that loading it made necessary, `V25` and `V26` Boisbriand). Insert the sectors into
+3. **Write the migration.** `V28` onward (`V22` and `V23` are Sainte-Therese, `V24` a Blainville
+   search fix that loading it made necessary, `V25` and `V26` Boisbriand, `V27` per-city notices). Insert the sectors into
    `municipality_sector`, the rules into `collection_schedule_rule`, the
    holidays into `collection_holiday`, and the guide into `sorting_item` and
    its three child tables. Set `calendar_verified` and `guide_verified` on the
@@ -52,7 +52,7 @@ that the city stays unloaded. The application already renders that honestly.
 5. **Run everything.** `mvn test -Pintegration-test` needs a real MySQL and
    Redis; see `docs/deployment.md`. All green before and after: 216 before
    Sainte-Therese, 243 after its calendar and guide, 254 after Boisbriand and its street table,
-   259 after the admin console learned each city's sectors. Then run
+   259 after the admin console learned each city's sectors, 265 after notices became per city. Then run
    `docs/verification/guide_rank_sweep.py` for every city already loaded, before
    and after, and compare (see below).
 
@@ -231,6 +231,13 @@ prompt were all written for Blainville (north/south, "Blainville, Quebec").
 They now come from the selected city, and the server refuses an admin or
 agent write naming a sector the city does not have (400, listing the real
 ones). A new city needs no admin code, only its `municipality_sector` rows.
+
+## Notices are per city too
+
+Since V27 a notice belongs to one city: the public list, the admin list, the
+agent's notice tools, the inbox fan-out and browser push all stay inside it.
+Nothing to do when loading a city; `NoticeScopingIntegrationTest` holds the
+line.
 
 ## Sectors a resident cannot name
 

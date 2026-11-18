@@ -157,10 +157,10 @@ class RedisCacheIntegrationTest {
 
     @Test
     void publishingANoticeEvictsTheNoticeCache() {
-        List<SpecialNotice> before = noticeService.active();
+        List<SpecialNotice> before = noticeService.active(MUNI);
         assertThat(redis.keys(CacheConfig.ACTIVE_NOTICES + "::*")).isNotEmpty();
 
-        noticeService.create(new NoticeRequest(
+        noticeService.create(MUNI, new NoticeRequest(
                 LocalDate.now().minusDays(1),
                 LocalDate.now().plusDays(1),
                 "Avis de test", "Test notice", "测试通知",
@@ -169,7 +169,7 @@ class RedisCacheIntegrationTest {
                 true));
 
         assertThat(redis.keys(CacheConfig.ACTIVE_NOTICES + "::*")).isEmpty();
-        assertThat(noticeService.active()).hasSize(before.size() + 1);
+        assertThat(noticeService.active(MUNI)).hasSize(before.size() + 1);
     }
 
     private String key(String cacheName, String suffix) {

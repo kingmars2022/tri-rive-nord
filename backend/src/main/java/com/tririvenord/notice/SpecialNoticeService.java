@@ -35,9 +35,12 @@ public class SpecialNoticeService {
      * query is "what is visible today", so the day has to be part of the key
      * or a notice would stay visible past its {@code endsOn} date.
      */
-    @Cacheable(cacheNames = CacheConfig.ACTIVE_NOTICES, key = "#root.target.today().toString()")
-    public List<SpecialNotice> active() {
-        return mapper.findActive(today());
+    // The city is part of the key: with one shared entry per day, whichever
+    // city asked first would have had its notices served to every city.
+    @Cacheable(cacheNames = CacheConfig.ACTIVE_NOTICES,
+            key = "#municipalityId + ':' + #root.target.today().toString()")
+    public List<SpecialNotice> active(long municipalityId) {
+        return mapper.findActive(municipalityId, today());
     }
 
     /** Exposed so the cache key above can depend on the same clock this service reads. */
@@ -45,13 +48,18 @@ public class SpecialNoticeService {
         return LocalDate.now(clock);
     }
 
-    public List<SpecialNotice> all() {
-        return mapper.findAll();
+    public List<SpecialNotice> all(long municipalityId) {
+        return mapper.findAll(municipalityId);
+    }
+
+    /** One notice, or 404. */
+    public SpecialNotice get(Long id) {
+        return requireExists(id);
     }
 
     /** The most recent notices, bounded - see CollectionService.forPlanning. */
-    public List<SpecialNotice> recent(int limit) {
-        return mapper.findRecent(limit);
+    public List<SpecialNotice> recent(long municipalityId, int limit) {
+        return mapper.findRecent(municipalityId, limit);
     }
 
     // A notice publish is the one write residents notice immediately (a
@@ -63,10 +71,11 @@ public class SpecialNoticeService {
     // pattern degrades into the dual-write bug it exists to prevent.
     @Transactional
     @CacheEvict(cacheNames = CacheConfig.ACTIVE_NOTICES, allEntries = true)
-    public SpecialNotice create(NoticeRequest request) {
+    public SpecialNotice create(long municipalityId, NoticeRequest request) {
         requireValidDateRange(request);
 
         Map<String, Object> params = new HashMap<>();
+        params.put("municipalityId", municipalityId);
         params.put("startsOn", request.startsOn());
         params.put("endsOn", request.endsOn());
         params.put("titleFr", request.titleFr());

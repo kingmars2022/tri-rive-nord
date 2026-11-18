@@ -158,7 +158,7 @@ public class AgentToolCatalog {
         return switch (tool) {
             case list_collections ->
                     objectMapper.writeValueAsString(collections.forPlanning(municipalityId, PLANNING_LIMIT));
-            case list_notices -> objectMapper.writeValueAsString(notices.recent(PLANNING_LIMIT));
+            case list_notices -> objectMapper.writeValueAsString(notices.recent(municipalityId, PLANNING_LIMIT));
             default -> throw new IllegalArgumentException(tool + " is not a read tool");
         };
     }
@@ -187,16 +187,18 @@ public class AgentToolCatalog {
                 yield "Deleted collection event " + id;
             }
             case create_notice -> {
-                SpecialNotice created = notices.create(validated(step.input(), NoticeRequest.class));
+                SpecialNotice created = notices.create(municipalityId, validated(step.input(), NoticeRequest.class));
                 yield "Created notice " + created.id();
             }
             case update_notice -> {
                 Long id = requireId(step.input());
+                requireNoticeInCity(id, municipalityId);
                 notices.update(id, validated(withoutId(step.input()), NoticeRequest.class));
                 yield "Updated notice " + id;
             }
             case delete_notice -> {
                 Long id = requireId(step.input());
+                requireNoticeInCity(id, municipalityId);
                 notices.delete(id);
                 yield "Deleted notice " + id;
             }
@@ -313,6 +315,13 @@ public class AgentToolCatalog {
      * is just a number in the model's output and nothing else stopped a plan
      * from naming another city's row.
      */
+    /** As requireInCity, for notices: a plan touches only its own city's rows. */
+    private void requireNoticeInCity(Long id, long municipalityId) {
+        if (!java.util.Objects.equals(notices.get(id).municipalityId(), municipalityId)) {
+            throw new IllegalArgumentException("Notice " + id + " belongs to another city");
+        }
+    }
+
     private void requireInCity(Long id, long municipalityId) {
         if (collections.get(id).municipalityId() != municipalityId) {
             throw new IllegalArgumentException("Collection event " + id + " belongs to another city");

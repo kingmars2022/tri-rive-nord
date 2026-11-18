@@ -48,7 +48,7 @@ class SpecialNoticeServiceTest {
                 "fr", "en", "zh", "corps fr", "corps en", "corps zh", null, true);
         when(mapper.findById(7L)).thenReturn(Optional.of(created));
 
-        SpecialNotice result = service.create(new NoticeRequest(
+        SpecialNotice result = service.create(1L, new NoticeRequest(
                 LocalDate.now(), LocalDate.now().plusDays(1),
                 "fr", "en", "zh", "corps fr", "corps en", "corps zh", null, true));
 
@@ -70,7 +70,7 @@ class SpecialNoticeServiceTest {
                 "fr", "en", "zh", "corps fr", "corps en", "corps zh", null, true);
         when(mapper.findById(7L)).thenReturn(Optional.of(stored));
 
-        service.create(new NoticeRequest(
+        service.create(1L, new NoticeRequest(
                 LocalDate.now(), LocalDate.now().plusDays(1),
                 "fr", "en", "zh", "corps fr", "corps en", "corps zh", null, true));
 

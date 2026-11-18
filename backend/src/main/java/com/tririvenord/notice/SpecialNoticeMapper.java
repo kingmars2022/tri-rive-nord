@@ -10,11 +10,11 @@ import java.util.Optional;
 
 @Mapper
 public interface SpecialNoticeMapper {
-    List<SpecialNotice> findActive(@Param("today") LocalDate today);
+    List<SpecialNotice> findActive(@Param("municipalityId") long municipalityId, @Param("today") LocalDate today);
 
-    List<SpecialNotice> findAll();
+    List<SpecialNotice> findAll(@Param("municipalityId") long municipalityId);
 
-    List<SpecialNotice> findRecent(@Param("limit") int limit);
+    List<SpecialNotice> findRecent(@Param("municipalityId") long municipalityId, @Param("limit") int limit);
 
     Optional<SpecialNotice> findById(@Param("id") Long id);
 

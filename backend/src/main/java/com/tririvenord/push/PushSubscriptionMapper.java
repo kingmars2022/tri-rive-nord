@@ -13,7 +13,7 @@ public interface PushSubscriptionMapper {
 
     int deleteByEndpointForUser(@Param("endpoint") String endpoint, @Param("userId") Long userId);
 
-    List<PushSubscription> findForResidentsWithReminders();
+    List<PushSubscription> findForResidentsWithReminders(@Param("municipalityId") long municipalityId);
 
     List<PushSubscription> findForUser(@Param("userId") Long userId);
 }

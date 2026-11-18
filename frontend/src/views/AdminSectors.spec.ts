@@ -116,5 +116,6 @@ describe("AdminView sectors", () => {
     expect(paths).toContain("/admin/collection-holidays");
     expect(paths.some((p) => p.startsWith("/admin/collections"))).toBe(true);
     expect(paths).toContain("/admin/sorting-items");
+    expect(paths).toContain("/admin/notices");
   });
 });

@@ -614,11 +614,14 @@ watch(
     cancelHolidayEdit();
     cancelEventEdit();
     cancelSortingEdit();
+    cancelNoticeEdit();
     // A plan is executed against the city it was made for; leaving it on
     // screen under another city's name invites approving it by mistake.
     agentPlan.value = null;
     agentExecution.value = null;
     eventPage.value = 0;
+    // Notices too, since V27 made them per city.
+    loadNotices();
     loadHolidays();
     loadEvents();
     loadSortingItems();

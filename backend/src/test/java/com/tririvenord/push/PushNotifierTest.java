@@ -34,7 +34,7 @@ class PushNotifierTest {
     private static final SpecialNotice NOTICE = new SpecialNotice(
             12L, LocalDate.parse("2026-12-20"), LocalDate.parse("2026-12-27"),
             "Collecte deplacee", "Collection moved", "收集顺延",
-            "Noel.", "Christmas.", "圣诞节。", null, true);
+            "Noel.", "Christmas.", "圣诞节。", null, true, 1L);
 
     @Mock
     private PushSubscriptionMapper subscriptions;
@@ -58,7 +58,7 @@ class PushNotifierTest {
     @Test
     void sendsEachDeviceTheLanguageItAskedFor() {
         when(notices.findById(12L)).thenReturn(Optional.of(NOTICE));
-        when(subscriptions.findForResidentsWithReminders())
+        when(subscriptions.findForResidentsWithReminders(1L))
                 .thenReturn(List.of(subscription(1, "fr"), subscription(2, "en"), subscription(3, "zh")));
         when(sender.send(any(), any())).thenReturn(PushSender.Result.SENT);
 
@@ -74,7 +74,7 @@ class PushNotifierTest {
     @Test
     void removesASubscriptionThePushServiceSaysIsGone() {
         when(notices.findById(12L)).thenReturn(Optional.of(NOTICE));
-        when(subscriptions.findForResidentsWithReminders()).thenReturn(List.of(subscription(1, "fr")));
+        when(subscriptions.findForResidentsWithReminders(1L)).thenReturn(List.of(subscription(1, "fr")));
         when(sender.send(any(), any())).thenReturn(PushSender.Result.GONE);
 
         notifier.pushNotice(12L);
@@ -87,7 +87,7 @@ class PushNotifierTest {
         // Deleting here would cost a resident every future notification
         // because a push service had a bad minute.
         when(notices.findById(12L)).thenReturn(Optional.of(NOTICE));
-        when(subscriptions.findForResidentsWithReminders()).thenReturn(List.of(subscription(1, "fr")));
+        when(subscriptions.findForResidentsWithReminders(1L)).thenReturn(List.of(subscription(1, "fr")));
         when(sender.send(any(), any())).thenReturn(PushSender.Result.RETRYABLE);
 
         notifier.pushNotice(12L);
@@ -98,7 +98,7 @@ class PushNotifierTest {
     @Test
     void oneBrokenDeviceDoesNotStopTheRest() {
         when(notices.findById(12L)).thenReturn(Optional.of(NOTICE));
-        when(subscriptions.findForResidentsWithReminders())
+        when(subscriptions.findForResidentsWithReminders(1L))
                 .thenReturn(List.of(subscription(1, "fr"), subscription(2, "en")));
         when(sender.send(eq(subscription(1, "fr")), any())).thenThrow(new IllegalStateException("boom"));
 

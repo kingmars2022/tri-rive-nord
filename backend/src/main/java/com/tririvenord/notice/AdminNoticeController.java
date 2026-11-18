@@ -1,5 +1,7 @@
 package com.tririvenord.notice;
 
+import org.springframework.web.bind.annotation.RequestParam;
+import com.tririvenord.municipality.MunicipalityService;
 import com.tririvenord.notice.dto.NoticeRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -19,20 +21,22 @@ import java.util.List;
 @RequestMapping("/api/admin/notices")
 public class AdminNoticeController {
     private final SpecialNoticeService service;
+    private final MunicipalityService municipalities;
 
-    public AdminNoticeController(SpecialNoticeService service) {
+    public AdminNoticeController(SpecialNoticeService service, MunicipalityService municipalities) {
         this.service = service;
+        this.municipalities = municipalities;
     }
 
     @GetMapping
-    public List<SpecialNotice> all() {
-        return service.all();
+    public List<SpecialNotice> all(@RequestParam String municipality) {
+        return service.all(municipalities.requireBySlug(municipality).id());
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public SpecialNotice create(@Valid @RequestBody NoticeRequest request) {
-        return service.create(request);
+    public SpecialNotice create(@RequestParam String municipality, @Valid @RequestBody NoticeRequest request) {
+        return service.create(municipalities.requireBySlug(municipality).id(), request);
     }
 
     @PutMapping("/{id}")
