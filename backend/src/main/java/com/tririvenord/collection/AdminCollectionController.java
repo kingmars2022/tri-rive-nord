@@ -53,11 +53,19 @@ public class AdminCollectionController {
     @ResponseStatus(HttpStatus.CREATED)
     public CollectionEvent create(@RequestParam String municipality,
                                   @Valid @RequestBody CollectionEventRequest request) {
-        return service.create(municipalities.requireBySlug(municipality).id(), request);
+        long city = municipalities.requireBySlug(municipality).id();
+        municipalities.requireWritableSector(city, request.sector());
+        return service.create(city, request);
     }
 
+    /**
+     * Checked against the row's own city, not the one in the URL: a row keeps
+     * the city it was created for, whichever city the console has switched to
+     * since.
+     */
     @PutMapping("/{id}")
     public CollectionEvent update(@PathVariable Long id, @Valid @RequestBody CollectionEventRequest request) {
+        municipalities.requireWritableSector(service.get(id).municipalityId(), request.sector());
         return service.update(id, request);
     }
 

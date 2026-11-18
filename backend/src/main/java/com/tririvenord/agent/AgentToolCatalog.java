@@ -6,6 +6,8 @@ import com.anthropic.models.messages.ToolUnion;
 import com.tririvenord.collection.CollectionEvent;
 import com.tririvenord.collection.CollectionService;
 import com.tririvenord.collection.dto.CollectionEventRequest;
+import com.tririvenord.municipality.MunicipalitySector;
+import com.tririvenord.municipality.MunicipalityService;
 import com.tririvenord.notice.SpecialNotice;
 import com.tririvenord.notice.SpecialNoticeService;
 import com.tririvenord.notice.dto.NoticeRequest;
@@ -37,17 +39,37 @@ public class AgentToolCatalog {
     private final SpecialNoticeService notices;
     private final ObjectMapper objectMapper;
     private final Validator validator;
+    private final MunicipalityService municipalities;
 
     public AgentToolCatalog(
             CollectionService collections,
             SpecialNoticeService notices,
             ObjectMapper objectMapper,
-            Validator validator
+            Validator validator,
+            MunicipalityService municipalities
     ) {
         this.collections = collections;
         this.notices = notices;
         this.objectMapper = objectMapper;
         this.validator = validator;
+        this.municipalities = municipalities;
+    }
+
+    /**
+     * The city the agent is working on, in words: its name and its sectors.
+     *
+     * <p>The agent used to be told it worked for Blainville and offered
+     * Blainville's north/south whichever city the console had selected, so in
+     * any other city it could not name a real sector - and a sector it
+     * guessed would save a collection no resident there could see.
+     */
+    public String describeCity(long municipalityId) {
+        var city = municipalities.requireById(municipalityId);
+        String sectors = municipalities.sectorsOf(city).stream()
+                .map(s -> s.code() + " (" + s.nameFr() + ")")
+                .collect(Collectors.joining(", "));
+        return "City: " + city.name() + ". Its sectors are: " + sectors
+                + ". \"all\" means the whole city; use the most specific sector the instruction names.";
     }
 
     /**
@@ -63,7 +85,10 @@ public class AgentToolCatalog {
 
     // ---------------------------------------------------------------- schemas
 
-    public List<ToolUnion> tools() {
+    public List<ToolUnion> tools(long municipalityId) {
+        List<String> sectors = municipalities.sectorsOf(municipalities.requireById(municipalityId)).stream()
+                .map(MunicipalitySector::code)
+                .toList();
         return List.of(
                 tool(AgentToolName.list_collections,
                         "List the upcoming collection schedule: every sector, from today forward, "
@@ -81,13 +106,13 @@ public class AgentToolCatalog {
 
                 tool(AgentToolName.create_collection,
                         "Add one collection event to the schedule.",
-                        collectionProperties(false), List.of("collectionDate", "sector", "collectionType", "binColor")),
+                        collectionProperties(false, sectors), List.of("collectionDate", "sector", "collectionType", "binColor")),
 
                 tool(AgentToolName.update_collection,
                         "Replace one existing collection event. Every field is overwritten, so pass "
                                 + "the fields you want kept as well as the ones you are changing. Get "
                                 + "the id from list_collections.",
-                        collectionProperties(true), List.of("id", "collectionDate", "sector", "collectionType", "binColor")),
+                        collectionProperties(true, sectors), List.of("id", "collectionDate", "sector", "collectionType", "binColor")),
 
                 tool(AgentToolName.delete_collection,
                         "Remove one collection event from the schedule. Get the id from list_collections.",
@@ -142,17 +167,22 @@ public class AgentToolCatalog {
     public String executeWrite(long municipalityId, PlannedStep step) {
         return switch (step.tool()) {
             case create_collection -> {
-                CollectionEvent created = collections.create(
-                        municipalityId, validated(step.input(), CollectionEventRequest.class));
+                CollectionEventRequest request = validated(step.input(), CollectionEventRequest.class);
+                municipalities.requireWritableSector(municipalityId, request.sector());
+                CollectionEvent created = collections.create(municipalityId, request);
                 yield "Created collection event " + created.id();
             }
             case update_collection -> {
                 Long id = requireId(step.input());
-                collections.update(id, validated(withoutId(step.input()), CollectionEventRequest.class));
+                requireInCity(id, municipalityId);
+                CollectionEventRequest request = validated(withoutId(step.input()), CollectionEventRequest.class);
+                municipalities.requireWritableSector(municipalityId, request.sector());
+                collections.update(id, request);
                 yield "Updated collection event " + id;
             }
             case delete_collection -> {
                 Long id = requireId(step.input());
+                requireInCity(id, municipalityId);
                 collections.delete(id);
                 yield "Deleted collection event " + id;
             }
@@ -225,13 +255,14 @@ public class AgentToolCatalog {
         return Map.entry(name, schema);
     }
 
-    private static Tool.InputSchema.Properties collectionProperties(boolean withId) {
+    private static Tool.InputSchema.Properties collectionProperties(boolean withId, List<String> sectors) {
         Tool.InputSchema.Properties.Builder builder = Tool.InputSchema.Properties.builder();
         if (withId) {
             builder.putAdditionalProperty("id", integerSchema("The existing collection event id."));
         }
         builder.putAdditionalProperty("collectionDate", stringSchema("Collection date, ISO 8601 (YYYY-MM-DD)."));
-        builder.putAdditionalProperty("sector", enumSchema("Which half of the city.", "north", "south", "all"));
+        builder.putAdditionalProperty("sector",
+                enumSchema("Which sector of this city; \"all\" for the whole city.", sectors.toArray(String[]::new)));
         builder.putAdditionalProperty("collectionType",
                 enumSchema("What is collected.", "organic", "recycling", "garbage", "bulky", "ecocentre", "special"));
         builder.putAdditionalProperty("binColor", enumSchema("Bin colour.", "brown", "blue", "black", "none"));
@@ -274,5 +305,17 @@ public class AgentToolCatalog {
 
     private static JsonValue enumSchema(String description, String... values) {
         return JsonValue.from(Map.of("type", "string", "description", description, "enum", List.of(values)));
+    }
+
+    /**
+     * A plan is made for one city, so its writes may touch only that city's
+     * rows. The ids come from list_collections, which is per city, but an id
+     * is just a number in the model's output and nothing else stopped a plan
+     * from naming another city's row.
+     */
+    private void requireInCity(Long id, long municipalityId) {
+        if (collections.get(id).municipalityId() != municipalityId) {
+            throw new IllegalArgumentException("Collection event " + id + " belongs to another city");
+        }
     }
 }

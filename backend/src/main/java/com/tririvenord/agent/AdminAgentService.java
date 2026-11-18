@@ -56,8 +56,9 @@ public class AdminAgentService {
 
     private static final String SYSTEM = """
             You are an operations assistant for the waste-collection back office
-            of Blainville, Quebec. You help a municipal administrator change the
-            collection schedule and publish public notices.
+            of a municipality on Quebec's North Shore; the request names which
+            one and lists its sectors. You help a municipal administrator change
+            that city's collection schedule and publish public notices.
 
             How this works:
             - Read tools run immediately. Use them. Never guess an id, a date or
@@ -119,7 +120,8 @@ public class AdminAgentService {
         List<MessageParam> conversation = new ArrayList<>();
         conversation.add(MessageParam.builder()
                 .role(MessageParam.Role.USER)
-                .content("Today is " + LocalDate.now(clock) + ".\n\nAdministrator's instruction:\n" + instruction)
+                .content("Today is " + LocalDate.now(clock) + ".\n" + catalog.describeCity(municipalityId)
+                        + "\n\nAdministrator's instruction:\n" + instruction)
                 .build());
 
         List<PlannedStep> steps = new ArrayList<>();
@@ -131,7 +133,7 @@ public class AdminAgentService {
                     .maxTokens(16000L)
                     .outputConfig(OutputConfig.builder().effort(OutputConfig.Effort.HIGH).build())
                     .system(SYSTEM)
-                    .tools(catalog.tools())
+                    .tools(catalog.tools(municipalityId))
                     .messages(conversation)
                     .build());
 

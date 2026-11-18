@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useI18n } from "../useI18n";
 import { api, ApiError } from "../api/client";
 import { executeAgentPlan, planWithAgent, type AgentExecution, type AgentPlan } from "../api/agent";
+import { useMunicipalityStore } from "../stores/municipality";
 
 type Notice = {
   id: number;
@@ -56,6 +57,13 @@ type SortingItem = {
 };
 
 const { t, language } = useI18n();
+
+// Sectors are the selected city's, not Blainville's. This page offered
+// north/south/all in every city, and the server saved whatever came back: a
+// collection in a sector the city does not have, which none of its residents
+// can see. The server now refuses those too.
+const municipalities = useMunicipalityStore();
+const sectors = computed(() => municipalities.current?.sectors ?? []);
 
 const agentInstruction = ref("");
 const agentPlan = ref<AgentPlan | null>(null);
@@ -259,12 +267,10 @@ async function deleteHoliday(id: number) {
   await loadEvents();
 }
 
-function sectorLabel(sector: string) {
-  return {
-    all: t("admin.sectorAll"),
-    north: t("admin.sectorNorth"),
-    south: t("admin.sectorSouth")
-  }[sector] ?? sector;
+function sectorLabel(code: string) {
+  const sector = sectors.value.find((s) => s.code === code);
+  if (!sector) return code;
+  return language.value === "en" ? sector.nameEn : language.value === "zh" ? sector.nameZh : sector.nameFr;
 }
 
 function holidayName(holiday: Holiday) {
@@ -596,6 +602,28 @@ onMounted(() => {
   loadEvents();
   loadSortingItems();
 });
+
+// Every list on this page is one city's, and every save goes to whichever
+// city is selected at the moment it is sent. Without this, switching city
+// left the previous city's tables on screen while new saves already went to
+// the new one - and a half-filled form kept the old city's sector.
+watch(
+  () => municipalities.current?.slug,
+  (slug, previous) => {
+    if (!slug || slug === previous || previous === undefined) return;
+    cancelHolidayEdit();
+    cancelEventEdit();
+    cancelSortingEdit();
+    // A plan is executed against the city it was made for; leaving it on
+    // screen under another city's name invites approving it by mistake.
+    agentPlan.value = null;
+    agentExecution.value = null;
+    eventPage.value = 0;
+    loadHolidays();
+    loadEvents();
+    loadSortingItems();
+  }
+);
 </script>
 
 <template>
@@ -702,9 +730,9 @@ onMounted(() => {
           <label>
             {{ t("admin.sector") }}
             <select v-model="eventDraft.sector">
-              <option value="north">north</option>
-              <option value="south">south</option>
-              <option value="all">all</option>
+              <option v-for="sector in sectors" :key="sector.code" :value="sector.code">
+                {{ sectorLabel(sector.code) }}
+              </option>
             </select>
           </label>
           <label>
@@ -766,7 +794,7 @@ onMounted(() => {
           <tbody>
             <tr v-for="event in events" :key="event.id">
               <td>{{ event.collectionDate }}</td>
-              <td>{{ event.sector }}</td>
+              <td>{{ sectorLabel(event.sector) }}</td>
               <td>{{ event.collectionType }}</td>
               <td>{{ event.binColor }}</td>
               <td class="admin-row-actions">
@@ -1069,9 +1097,9 @@ onMounted(() => {
           <label>
             {{ t("admin.sector") }}
             <select v-model="holidayDraft.sector">
-              <option value="all">{{ t("admin.sectorAll") }}</option>
-              <option value="north">{{ t("admin.sectorNorth") }}</option>
-              <option value="south">{{ t("admin.sectorSouth") }}</option>
+              <option v-for="sector in sectors" :key="sector.code" :value="sector.code">
+                {{ sectorLabel(sector.code) }}
+              </option>
             </select>
           </label>
           <label>
