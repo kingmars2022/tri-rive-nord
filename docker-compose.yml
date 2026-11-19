@@ -1,20 +1,19 @@
 services:
-  mysql:
-    image: mysql:8.4
-    container_name: bienvenue-blainville-mysql
+  postgres:
+    image: postgres:16
+    container_name: bienvenue-blainville-postgres
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: ${DB_NAME:-bienvenue_blainville}
-      MYSQL_USER: ${DB_USERNAME:-blainville_app}
-      MYSQL_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
+      POSTGRES_DB: ${DB_NAME:-bienvenue_blainville}
+      POSTGRES_USER: ${DB_USERNAME:-blainville_app}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
       TZ: America/Toronto
     ports:
-      - "${MYSQL_PORT:-3307}:3306"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} --silent"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -75,21 +74,21 @@ services:
     container_name: bienvenue-blainville-backend
     restart: unless-stopped
     depends_on:
-      mysql:
+      postgres:
         condition: service_healthy
       # started, not healthy: the app boots and serves fine without Redis,
       # so a slow cache must not hold up the API.
       redis:
         condition: service_started
-      # Same reasoning: the outbox records events into MySQL whether or not a
-      # broker is up, and the audit trail defaults to MySQL. Neither is allowed
+      # Same reasoning: the outbox records events into PostgreSQL whether or
+      # not a broker is up, and the audit trail defaults to PostgreSQL. Neither is allowed
       # to delay the API.
       kafka:
         condition: service_started
       mongo:
         condition: service_started
     environment:
-      DB_URL: jdbc:mysql://mysql:3306/${DB_NAME:-bienvenue_blainville}?useUnicode=true&characterEncoding=utf8&serverTimezone=America/Toronto&allowPublicKeyRetrieval=true&useSSL=false
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-bienvenue_blainville}
       DB_USERNAME: ${DB_USERNAME:-blainville_app}
       DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
       APP_JWT_SECRET: ${APP_JWT_SECRET:?Set APP_JWT_SECRET in .env}
@@ -108,11 +107,11 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       MONGODB_URI: mongodb://mongo:27017/bienvenue_blainville
       EVENTS_ENABLED: ${EVENTS_ENABLED:-true}
-      AUDIT_STORE: ${AUDIT_STORE:-mysql}
+      AUDIT_STORE: ${AUDIT_STORE:-sql}
       TZ: America/Toronto
     ports:
       - "${BACKEND_PORT:-8080}:8080"
 
 volumes:
-  mysql_data:
+  postgres_data:
   mongo_data:

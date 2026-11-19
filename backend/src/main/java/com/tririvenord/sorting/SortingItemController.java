@@ -15,7 +15,7 @@ import java.util.List;
  *
  * <p>This endpoint is why the frontend no longer ships its own copy of the
  * guide. Before it existed, the cards residents read came from a TypeScript
- * file while the assistant and the admin console read MySQL — so an
+ * file while the assistant and the admin console read the database — so an
  * administrator could correct an entry and the page nobody else looks at would
  * change, while the page everybody looks at would not.
  */

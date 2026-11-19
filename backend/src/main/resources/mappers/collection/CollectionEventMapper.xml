@@ -73,7 +73,7 @@
         where id = #{id}
     </select>
 
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="map">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id" parameterType="map">
         insert into collection_event (municipality_id, collection_date, sector, collection_type, bin_color, note_fr, note_en, note_zh, source_url)
         values (#{municipalityId}, #{collectionDate}, #{sector}, #{collectionType}, #{binColor}, #{noteFr}, #{noteEn}, #{noteZh}, #{sourceUrl})
     </insert>
@@ -86,7 +86,7 @@
              #{event.noteFr}, #{event.noteEn}, #{event.noteZh}, #{event.sourceUrl}, true)
         </foreach>
         <!-- Repeatable by design: see the unique key, widened per city in V21. -->
-        on duplicate key update collection_event.id = collection_event.id
+        on conflict on constraint uq_collection_event do nothing
     </insert>
 
     <update id="update">

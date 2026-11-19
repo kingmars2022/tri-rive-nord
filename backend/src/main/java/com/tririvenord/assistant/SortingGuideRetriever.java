@@ -22,9 +22,10 @@ public class SortingGuideRetriever {
     /**
      * Keep only entries scoring at least this fraction of the best match.
      *
-     * <p>Relative, not absolute, on purpose: MySQL's natural-language relevance
-     * score is not normalized — it depends on term frequency across the whole
-     * table, so the same query scores differently as the guide grows. An
+     * <p>Relative, not absolute, on purpose: the relevance score (see
+     * SortingSearchIndex) is not normalized — it depends on term frequency
+     * across the city's guide, so the same query scores differently as the
+     * guide grows. An
      * absolute floor tuned against today's 15 entries would silently rot. A
      * ratio against the top hit is scale-free.
      *
@@ -34,17 +35,16 @@ public class SortingGuideRetriever {
      */
     static final double RELATIVE_CUTOFF = 0.4;
 
-    private final SortingSearchMapper mapper;
+    private final SortingSearch search;
 
-    public SortingGuideRetriever(SortingSearchMapper mapper) {
-        this.mapper = mapper;
+    public SortingGuideRetriever(SortingSearch search) {
+        this.search = search;
     }
 
     /**
-     * Chinese is searched through the ngram-parsed columns, French and English
-     * through the word-parsed ones.
+     * Chinese is searched by character pairs, French and English by words.
      *
-     * <p>This is not a style preference. The ngram parser is what makes
+     * <p>This is not a style preference. Character pairs are what make
      * Chinese searchable at all, and is simultaneously what makes a French or
      * English refusal impossible: incidental bigram overlap gave a question
      * the guide cannot answer a higher score than some real matches. See V7
@@ -86,7 +86,7 @@ public class SortingGuideRetriever {
         }
 
         List<RetrievedItem> candidates =
-                mapper.search(municipalityId, language, normalized, MAX_RESULTS,
+                search.search(municipalityId, language, normalized, MAX_RESULTS,
                         usesNgramParser(language));
         if (candidates.isEmpty()) {
             return List.of();

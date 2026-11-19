@@ -3,7 +3,7 @@ name: Validate application
 # Three things have to hold before a change lands:
 #   1. the Vue frontend type-checks, builds, and passes its own tests,
 #   2. the unit tests pass without any infrastructure,
-#   3. the integration tests pass against a REAL MySQL and a REAL Redis - the
+#   3. the integration tests pass against a REAL PostgreSQL and a REAL Redis - the
 #      whole point of that suite is to catch what Mockito-based unit tests
 #      structurally cannot (see AuthServiceTest vs
 #      AuthenticationFlowIntegrationTest).
@@ -69,21 +69,20 @@ jobs:
         run: mvn -B --no-transfer-progress test
 
   integration-tests:
-    name: Backend integration tests (real MySQL + Redis)
+    name: Backend integration tests (real PostgreSQL + Redis)
     runs-on: ubuntu-latest
 
     services:
-      mysql:
-        image: mysql:8.4
+      postgres:
+        image: postgres:16
         env:
-          MYSQL_ROOT_PASSWORD: RootLocalPass123!
-          MYSQL_DATABASE: bienvenue_blainville_test
-          MYSQL_USER: blainville_app
-          MYSQL_PASSWORD: DevLocalPass123!
+          POSTGRES_DB: bienvenue_blainville_test
+          POSTGRES_USER: blainville_app
+          POSTGRES_PASSWORD: DevLocalPass123!
         ports:
-          - 3306:3306
+          - 5432:5432
         options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pRootLocalPass123!"
+          --health-cmd="pg_isready -U blainville_app -d bienvenue_blainville_test"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=10
@@ -111,13 +110,13 @@ jobs:
           cache: maven
 
       # The credentials below match the @DynamicPropertySource block in
-      # AuthenticationFlowIntegrationTest, which is what the Spring context
-      # actually reads. Flyway migrates V1-V6 on context startup.
-      - name: Run integration tests against MySQL and Redis
+      # IntegrationEnvironment, which is what the Spring context actually
+      # reads. Flyway migrates every version on context startup.
+      - name: Run integration tests against PostgreSQL and Redis
         working-directory: backend
         env:
           DB_HOST: 127.0.0.1
-          DB_PORT: 3306
+          DB_PORT: 5432
           DB_NAME: bienvenue_blainville_test
           DB_USERNAME: blainville_app
           DB_PASSWORD: DevLocalPass123!

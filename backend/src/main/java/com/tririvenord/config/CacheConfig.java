@@ -36,7 +36,7 @@ import java.util.List;
  *
  * <ol>
  *   <li><b>The cache is optional.</b> It is a read-through cache in front of
- *       MySQL, never a source of truth, so a Redis outage must degrade the
+ *       the database, never a source of truth, so a Redis outage must degrade the
  *       site to "slower" and not to "down". That is what {@link #errorHandler()}
  *       buys: every Redis failure is logged and swallowed, and the request
  *       falls through to the database. Run without Redis entirely by setting
@@ -110,7 +110,7 @@ public class CacheConfig implements CachingConfigurer {
      *
      * <p>{@code REJECT_COMMANDS} makes those commands fail immediately
      * instead of waiting, so a dead Redis costs microseconds and the request
-     * falls straight through to MySQL. {@code autoReconnect} still brings the
+     * falls straight through to the database. {@code autoReconnect} still brings the
      * cache back by itself once Redis returns.
      */
     @Bean

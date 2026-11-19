@@ -25,14 +25,14 @@
 -- docs/loading-a-city.md; run it after loading any city.
 -- --------------------------------------------------------------------------
 
-set @blainville = (select id from municipality where slug = 'blainville');
-set @item = (select id from sorting_item
-             where municipality_id = @blainville and item_key = 'food-soiled-paper-and-cardboard');
+select set_config('app.blainville', ((select id from municipality where slug = 'blainville'))::text, false);
+select set_config('app.item', ((select id from sorting_item
+             where municipality_id = current_setting('app.blainville')::bigint and item_key = 'food-soiled-paper-and-cardboard'))::text, false);
 
 insert into sorting_item_keyword (item_id, language_code, keyword) values
-(@item, 'en', 'soiled'),
-(@item, 'en', 'soiled cardboard'),
-(@item, 'fr', 'souille'),
-(@item, 'fr', 'carton souille'),
-(@item, 'zh', '弄脏的纸'),
-(@item, 'zh', '脏纸板');
+(current_setting('app.item')::bigint, 'en', 'soiled'),
+(current_setting('app.item')::bigint, 'en', 'soiled cardboard'),
+(current_setting('app.item')::bigint, 'fr', 'souille'),
+(current_setting('app.item')::bigint, 'fr', 'carton souille'),
+(current_setting('app.item')::bigint, 'zh', '弄脏的纸'),
+(current_setting('app.item')::bigint, 'zh', '脏纸板');

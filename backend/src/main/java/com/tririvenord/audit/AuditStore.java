@@ -7,7 +7,7 @@ import java.util.List;
  *
  * <p>An interface with two implementations, because "why MongoDB?" deserves a
  * better answer than "because the résumé says so". The honest position is that
- * for <em>this</em> workload MySQL's native JSON column does the job: the
+ * for <em>this</em> workload a JSON column in the application's database does the job: the
  * volume is tiny, the reads are by entity, and the snapshots — while
  * differently shaped per entity type — are only ever read back whole.
  *

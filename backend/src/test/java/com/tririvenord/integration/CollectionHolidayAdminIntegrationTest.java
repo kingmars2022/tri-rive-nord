@@ -80,8 +80,8 @@ class CollectionHolidayAdminIntegrationTest {
         jdbc.update("delete from collection_holiday where source_url = 'test://admin-holiday'");
         jdbc.update("delete from collection_event where source_url = 'test://admin-holiday'");
         jdbc.update("delete from collection_event where auto_generated = true and collection_date >= current_date");
-        jdbc.update("update collection_schedule_rule set generated_through = date_sub(current_date, interval 1 day) "
-                + "where generated_through > date_sub(current_date, interval 1 day)");
+        jdbc.update("update collection_schedule_rule set generated_through = current_date - 1 "
+                + "where generated_through > current_date - 1");
         topUp.topUp();
     }
 
@@ -103,7 +103,7 @@ class CollectionHolidayAdminIntegrationTest {
         List<LocalDate> dates = jdbc.queryForList(
                 "select collection_date from collection_event "
                         + "where municipality_id = (select id from municipality where slug = ?) "
-                        + "and collection_type = 'organic' and collection_date > date_add(current_date, interval 21 day) "
+                        + "and collection_type = 'organic' and collection_date > current_date + 21 "
                         + "order by collection_date asc limit 1",
                 LocalDate.class, CITY);
         assertThat(dates).as("the calendar should already be materialized this far out").isNotEmpty();

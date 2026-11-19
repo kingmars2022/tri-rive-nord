@@ -14,7 +14,7 @@ public class AuditConfig {
     private static final Logger log = LoggerFactory.getLogger(AuditConfig.class);
 
     /**
-     * MySQL by default, because it is the store this application already
+     * The application's own database by default, because it is the store it already
      * operates and, at this volume, the one that costs least to run. Set
      * {@code AUDIT_STORE=mongodb} to use the document store instead.
      *
@@ -24,20 +24,20 @@ public class AuditConfig {
      */
     @Bean
     public AuditStore auditStore(
-            @org.springframework.beans.factory.annotation.Value("${app.audit.store:mysql}") String store,
+            @org.springframework.beans.factory.annotation.Value("${app.audit.store:sql}") String store,
             JdbcTemplate jdbc,
             ObjectProvider<MongoTemplate> mongo,
             ObjectMapper objectMapper
     ) {
         if (!"mongodb".equalsIgnoreCase(store)) {
-            log.info("Audit trail: MySQL JSON column");
-            return new MySqlAuditStore(jdbc, objectMapper);
+            log.info("Audit trail: JSON column in the application database");
+            return new SqlAuditStore(jdbc, objectMapper);
         }
 
         MongoTemplate template = mongo.getIfAvailable();
         if (template == null) {
-            log.warn("app.audit.store=mongodb but no MongoTemplate is available; using MySQL instead");
-            return new MySqlAuditStore(jdbc, objectMapper);
+            log.warn("app.audit.store=mongodb but no MongoTemplate is available; using the application database instead");
+            return new SqlAuditStore(jdbc, objectMapper);
         }
 
         log.info("Audit trail: MongoDB");

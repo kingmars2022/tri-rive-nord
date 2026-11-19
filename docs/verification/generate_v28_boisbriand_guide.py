@@ -30,6 +30,8 @@ item, the card says so.
     python3 docs/verification/generate_v28_boisbriand_guide.py
 """
 import io
+
+import pg_sql
 import os
 
 PAGE = 'https://www.ville.boisbriand.qc.ca/services/citoyens/collectes-des-matieres-residuelles'
@@ -538,5 +540,5 @@ set @bb = (select id from municipality where slug = 'boisbriand');
 if __name__ == '__main__':
     root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     target = os.path.join(root, 'backend/src/main/resources/db/migration/V28__boisbriand_sorting_guide.sql')
-    io.open(target, 'w', encoding='utf-8', newline='\n').write(render())
+    io.open(target, 'w', encoding='utf-8', newline='\n').write(pg_sql.convert(render()))
     print(f'wrote {target}: {len(ITEMS)} items')

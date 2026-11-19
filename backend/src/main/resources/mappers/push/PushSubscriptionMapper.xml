@@ -7,11 +7,11 @@
     <insert id="upsert">
         insert into push_subscription (user_id, endpoint, p256dh, auth, language_code)
         values (#{userId}, #{endpoint}, #{p256dh}, #{auth}, #{languageCode})
-        on duplicate key update
-            user_id = values(user_id),
-            p256dh = values(p256dh),
-            auth = values(auth),
-            language_code = values(language_code)
+        on conflict on constraint uq_push_subscription_endpoint do update set
+            user_id = excluded.user_id,
+            p256dh = excluded.p256dh,
+            auth = excluded.auth,
+            language_code = excluded.language_code
     </insert>
 
     <delete id="deleteByEndpoint">

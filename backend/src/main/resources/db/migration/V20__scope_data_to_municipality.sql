@@ -18,7 +18,7 @@
 -- a city that disagrees with the others is a query rather than a discovery.
 -- --------------------------------------------------------------------------
 
-set @blainville = (select id from municipality where slug = 'blainville');
+select set_config('app.blainville', ((select id from municipality where slug = 'blainville'))::text, false);
 
 alter table collection_schedule_rule add column municipality_id bigint;
 alter table collection_event        add column municipality_id bigint;
@@ -26,17 +26,17 @@ alter table collection_holiday      add column municipality_id bigint;
 alter table user_preference         add column municipality_id bigint;
 alter table sorting_item            add column municipality_id bigint;
 
-update collection_schedule_rule set municipality_id = @blainville;
-update collection_event           set municipality_id = @blainville;
-update collection_holiday         set municipality_id = @blainville;
-update user_preference            set municipality_id = @blainville;
-update sorting_item               set municipality_id = @blainville;
+update collection_schedule_rule set municipality_id = current_setting('app.blainville')::bigint;
+update collection_event           set municipality_id = current_setting('app.blainville')::bigint;
+update collection_holiday         set municipality_id = current_setting('app.blainville')::bigint;
+update user_preference            set municipality_id = current_setting('app.blainville')::bigint;
+update sorting_item               set municipality_id = current_setting('app.blainville')::bigint;
 
-alter table collection_schedule_rule modify column municipality_id bigint not null;
-alter table collection_event        modify column municipality_id bigint not null;
-alter table collection_holiday      modify column municipality_id bigint not null;
-alter table user_preference         modify column municipality_id bigint not null;
-alter table sorting_item            modify column municipality_id bigint not null;
+alter table collection_schedule_rule alter column municipality_id set not null;
+alter table collection_event        alter column municipality_id set not null;
+alter table collection_holiday      alter column municipality_id set not null;
+alter table user_preference         alter column municipality_id set not null;
+alter table sorting_item            alter column municipality_id set not null;
 
 alter table collection_schedule_rule
     add constraint fk_rule_municipality     foreign key (municipality_id) references municipality(id);
@@ -51,9 +51,9 @@ alter table sorting_item
 
 -- The old uniqueness rule said one holiday per date per sector, which would
 -- now collide the moment a second city has a holiday on the same date.
-alter table collection_holiday drop index uq_collection_holiday_date_sector;
+alter table collection_holiday drop constraint uq_collection_holiday_date_sector;
 alter table collection_holiday
-    add unique key uq_collection_holiday (municipality_id, holiday_date, sector);
+    add constraint uq_collection_holiday unique (municipality_id, holiday_date, sector);
 
 -- Reads are always "this city, this date" and "this city, this language",
 -- so the municipality belongs at the front of those indexes.
@@ -66,14 +66,14 @@ create index idx_sorting_item_muni on sorting_item (municipality_id);
 alter table sorting_item add column item_key varchar(80);
 
 update sorting_item i
-join sorting_item_translation t
-  on t.item_id = i.id and t.language_code = 'en'
-set i.item_key = trim(both '-' from
-        left(lower(regexp_replace(t.name, '[^a-zA-Z0-9]+', '-')), 80));
+set item_key = trim(both '-' from
+        left(lower(regexp_replace(t.name, '[^a-zA-Z0-9]+', '-', 'g')), 80))
+from sorting_item_translation t
+where t.item_id = i.id and t.language_code = 'en';
 
 -- Anything without an English name falls back to its id rather than null, so
 -- the column can be NOT NULL and the unique key can be trusted.
-update sorting_item set item_key = concat('item-', id) where item_key is null or item_key = '';
+update sorting_item set item_key = 'item-' || id where item_key is null or item_key = '';
 
-alter table sorting_item modify column item_key varchar(80) not null;
-alter table sorting_item add unique key uq_sorting_item_muni_key (municipality_id, item_key);
+alter table sorting_item alter column item_key set not null;
+alter table sorting_item add constraint uq_sorting_item_muni_key unique (municipality_id, item_key);

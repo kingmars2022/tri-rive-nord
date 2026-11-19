@@ -26,7 +26,7 @@ class SortingGuideRetrieverTest {
     private static final long MUNI = 1L;
 
     @Mock
-    private SortingSearchMapper mapper;
+    private SortingSearch mapper;
 
     private SortingGuideRetriever retriever;
 

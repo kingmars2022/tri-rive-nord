@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 """Emits V17 from the items printed on the city's own 2026 calendar, page 2."""
 import io
+import os
+
+import pg_sql
 
 SRC = {
  'organic':   'https://blainville.ca/services/environnement-et-voirie/matieres-organiques',
@@ -250,10 +253,11 @@ update collection_schedule_rule set
 -- already materialized still carry the old text. Clearing the forward window
 -- lets the top-up rewrite them; nothing before today is touched.
 delete from collection_event where auto_generated = true and collection_date >= current_date;
-update collection_schedule_rule set generated_through = date_sub(current_date, interval 1 day)
-where generated_through > date_sub(current_date, interval 1 day);
+update collection_schedule_rule set generated_through = current_date - 1
+where generated_through > current_date - 1;
 """)
 
-io.open('/home/user/blainville-waste-sorting/backend/src/main/resources/db/migration/V17__official_sorting_guide_items.sql',
-        'w', encoding='utf-8').write("\n".join(out))
+io.open(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                     'backend/src/main/resources/db/migration/V17__official_sorting_guide_items.sql'),
+        'w', encoding='utf-8').write(pg_sql.convert("\n".join(out)))
 print("items:", len(ITEMS))

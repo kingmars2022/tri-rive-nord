@@ -45,7 +45,7 @@ class CrossMunicipalityIsolationTest {
     private static final long ROSEMERE = 4L;
 
     @Mock
-    private SortingSearchMapper mapper;
+    private SortingSearch mapper;
     @Mock
     private StringRedisTemplate redis;
     @Mock

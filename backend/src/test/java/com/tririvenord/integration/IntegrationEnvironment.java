@@ -13,7 +13,7 @@ import java.util.Optional;
  * and a red CI run for no visible reason.
  *
  * <p>Defaults target the Docker Compose stack from the README
- * ({@code docker compose up -d mysql redis}); CI overrides them with
+ * ({@code docker compose up -d postgres redis}); CI overrides them with
  * environment variables pointing at its service containers.
  */
 public final class IntegrationEnvironment {
@@ -25,18 +25,16 @@ public final class IntegrationEnvironment {
 
     public static void register(DynamicPropertyRegistry registry) {
         String host = env("DB_HOST", "localhost");
-        String port = env("DB_PORT", env("MYSQL_PORT", "3307"));
+        String port = env("DB_PORT", env("POSTGRES_PORT", "5432"));
         String database = env("DB_NAME", "bienvenue_blainville");
 
-        registry.add("DB_URL", () -> "jdbc:mysql://" + host + ":" + port + "/" + database
-                + "?useUnicode=true&characterEncoding=utf8&serverTimezone=America/Toronto"
-                + "&allowPublicKeyRetrieval=true&useSSL=false");
+        registry.add("DB_URL", () -> "jdbc:postgresql://" + host + ":" + port + "/" + database);
         registry.add("DB_USERNAME", () -> env("DB_USERNAME", "blainville_app"));
         registry.add("DB_PASSWORD", () -> env("DB_PASSWORD", "replace_with_a_local_dev_password"));
         // Small pools. Spring caches one application context per test class
         // configuration, and every context holds its own pool open for the
         // whole run: at Hikari's default of 10, seventeen integration classes
-        // ask for 170 connections from a MySQL that allows 151, and whichever
+        // ask for 170 connections from a PostgreSQL that allows 100, and whichever
         // class starts last fails with "Too many connections" - an error about
         // the suite's size that reads like one about the test it lands on. The
         // most any test here runs concurrently is two threads.

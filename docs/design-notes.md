@@ -114,7 +114,7 @@ Each sorting entry can include:
 
 ### Sorting Assistant (Ask a Question)
 
-Above the search grid, residents can ask in their own words instead of guessing the word the guide uses. The question goes to `POST /api/assistant/ask`, which searches the sorting guide in MySQL, and the answer is composed **only** from what that search returned.
+Above the search grid, residents can ask in their own words instead of guessing the word the guide uses. The question goes to `POST /api/assistant/ask`, which searches the sorting guide in the database, and the answer is composed **only** from what that search returned.
 
 The entries behind each answer are shown, not tucked away: an answer a resident cannot trace back to the municipal guide is worth less than one they can check, and showing sources makes a bad retrieval obvious rather than invisible.
 
@@ -336,7 +336,7 @@ trilingual note and source URL that the generated calendar rows arrive with.
 
 ### Database
 
-- MySQL
+- PostgreSQL (MySQL until November 2026; see "Why PostgreSQL")
 
 ### Caching
 
@@ -356,7 +356,7 @@ trilingual note and source URL that the generated calendar rows arrive with.
 
 ### Assistant
 
-- Retrieval-augmented Q&A over MySQL full-text search (two parsers: word for French/English, ngram for Chinese)
+- Retrieval-augmented Q&A over the sorting guide, ranked in the application (TF-IDF over words for French/English, character pairs for Chinese)
 - Anthropic Java SDK, optional - a no-API-key composer is the default
 
 ### Admin agent
@@ -395,14 +395,14 @@ Vue 3 Single-Page Application
   v
 Spring Boot REST API
   |
-  |-- MyBatis mapper layer -----> MySQL          schedules, sorting guide,
+  |-- MyBatis mapper layer -----> PostgreSQL         schedules, sorting guide,
   |                                              users, notices, outbox
   |
   |-- Spring Cache (Lettuce) ---> Redis          hot reads, assistant quota,
   |                                              agent plans, answer cache
   |
   |-- outbox relay -------------> Kafka: blainville.notice.events
-  |     (drains outbox_event)         |-> inbox consumer -> MySQL
+  |     (drains outbox_event)         |-> inbox consumer -> PostgreSQL
   |                                   `-> audit consumer -> MongoDB
   |
   |-- query publisher ----------> Kafka: blainville.resident.queries
@@ -414,9 +414,9 @@ Spring Boot REST API
                                            through API Gateway
 ```
 
-Everything past MySQL is optional at runtime and degrades rather than fails: a
+Everything past PostgreSQL is optional at runtime and degrades rather than fails: a
 dead Redis falls through to the database, `EVENTS_ENABLED=false` leaves events
-on the outbox table instead of losing them, and the audit trail has a MySQL
+on the outbox table instead of losing them, and the audit trail has a SQL
 implementation behind the same interface as the MongoDB one.
 
 The local Docker architecture is:
@@ -424,7 +424,7 @@ The local Docker architecture is:
 ```text
 Docker Compose
   |
-  |-- mysql    MySQL database container
+  |-- postgres PostgreSQL database container
   |
   |-- backend  Spring Boot API container
 
@@ -433,7 +433,7 @@ Local machine
   |-- frontend Vue/Vite development server
 ```
 
-In the current development workflow, Docker Compose runs MySQL and the backend. The frontend remains local and is served through Vite for faster UI iteration.
+In the current development workflow, Docker Compose runs PostgreSQL and the backend. The frontend remains local and is served through Vite for faster UI iteration.
 
 ## Architecture Decisions
 
@@ -453,9 +453,17 @@ Spring Boot provides a stable Java backend foundation for REST APIs, validation,
 
 MyBatis keeps SQL explicit. This is useful for a project where collection schedules, keyword search, translations, and admin filters may require clear and controllable queries. It also matches the intended Java backend learning and development direction.
 
-### Why MySQL
+### Why PostgreSQL
 
-MySQL is sufficient for the project's relational data model and is easy to use with Spring Boot and MyBatis. The core data is naturally relational: users, preferences, collection events, sorting records, translations, keywords, and notices.
+The project started on MySQL, which was sufficient for its relational data model and easy to use with Spring Boot and MyBatis. In November 2026 Aiven retired the free MySQL plan the production database ran on (powered off and deleted on 21 December 2026), and the remaining free managed MySQL offers were either tiny, unverified, or required a credit card. Aiven's free PostgreSQL plan needs none of that, so the database moved.
+
+What the move changed, beyond spelling:
+
+- The Flyway migrations were rewritten in place in PostgreSQL's dialect, because production started on a fresh database. Session variables (`set @id = last_insert_id()`) became `set_config()`/`current_setting()`; the generators in `docs/verification/` emit the same through `pg_sql.py`, and still reproduce their migrations byte for byte.
+- MySQL's full-text search did the sorting guide's ranking. PostgreSQL ranks differently and has no bigram parser for Chinese, so the ranking InnoDB documents (TF times IDF squared, words of three letters or more, character pairs for Chinese) is reproduced in `SortingSearchIndex`. Word statistics are now taken from the searched city only, which ends the cross-city reordering that V24 and V29 worked around.
+- The column collation used to ignore accents and case for free. Emails were already lowercased by the application; the street lookup compares through `fold_text()` (V30).
+
+The core data is still naturally relational: users, preferences, collection events, sorting records, translations, keywords, and notices. The core data is naturally relational: users, preferences, collection events, sorting records, translations, keywords, and notices.
 
 ### Why Flyway
 
@@ -467,7 +475,7 @@ The two reads on the critical path of every page load — the upcoming collectio
 
 Redis rather than an in-process cache (Caffeine) because the interesting property is that the cache is *shared*: two backend instances behind a load balancer see the same cached schedule and the same eviction, so an admin edit is visible everywhere immediately rather than on each instance's own TTL. That matters more here than raw lookup speed.
 
-The read cache is deliberately optional: it sits in front of MySQL and is never a source of truth, so losing it must degrade the site to "slower", not to "down". `CACHE_TYPE=none` disables it entirely.
+The read cache is deliberately optional: it sits in front of the database and is never a source of truth, so losing it must degrade the site to "slower", not to "down". `CACHE_TYPE=none` disables it entirely.
 
 The assistant's per-IP quota lives in the same Redis and does **not** follow that switch - an earlier version of this document claimed `CACHE_TYPE=none` ran the whole stack without Redis, which was simply untrue. What the quota does when Redis is unreachable now depends on what it is protecting: with Claude configured, an uncountable quota means uncapped spending, so the request is refused; with the default template composer nothing is bought, so it is served. Two policies, same Redis, chosen by what is at stake.
 
@@ -477,7 +485,7 @@ See [`verification/redis-cache-results.md`](verification/redis-cache-results.md)
 
 The sorting guide is the kind of thing residents ask in their own words ("la boîte à pizza grasse", "废电池") and the kind of thing an app answers badly with exact-match search. A language model is the obvious fit for the wording - and the worst possible fit for the facts, because the failure mode is a fluent wrong answer about which bin something goes in, and the resident has no way to tell.
 
-So the model is never asked what the rule is. Retrieval finds the guide entries from MySQL; the composer is handed those entries and asked to phrase them. If retrieval finds nothing, `AssistantService` refuses without calling a model at all - the rule lives above the composer, so it cannot be prompted away or lost when the composer is swapped.
+So the model is never asked what the rule is. Retrieval finds the guide entries from the database; the composer is handed those entries and asked to phrase them. If retrieval finds nothing, `AssistantService` refuses without calling a model at all - the rule lives above the composer, so it cannot be prompted away or lost when the composer is swapped.
 
 It is worth being precise about what that guarantees, because the obvious reading is stronger than the truth. It enforces a non-empty-context requirement, not correctness. The relevance cutoff is relative, so the best positive match always survives it - retrieval can hand over an entry that does not actually answer the question. And the Claude composer returns free text; the prompt asks it to stay within the entries, but nothing mechanically enforces that. The template composer avoids generated claims entirely, and can still quote the wrong entry.
 
@@ -519,7 +527,7 @@ Is it necessary? No - the admin forms already work, and the agent calls the same
 
 It is the only route that can spend money per request, and it is unauthenticated. Without a cap, one loop costs real money and nothing in the application stops it.
 
-Worth noting what the limiter does when Redis is gone: it returns 503, while the cache in the same Redis carries on serving from MySQL. Opposite policies on purpose - the cache protects latency, so losing it should cost speed and never availability; the limiter protects a budget, so losing it must not quietly remove the only spending cap.
+Worth noting what the limiter does when Redis is gone: it returns 503, while the cache in the same Redis carries on serving from the database. Opposite policies on purpose - the cache protects latency, so losing it should cost speed and never availability; the limiter protects a budget, so losing it must not quietly remove the only spending cap.
 
 ### Why the collection calendar is rules, not rows
 
@@ -560,11 +568,11 @@ id.
 keeps recording either way, because a deployment without Kafka should keep its
 events on the table rather than drop them.
 
-### Why MongoDB in a project that already has MySQL
+### Why MongoDB in a project that already has a relational database
 
 Adding a second database to a working relational schema needs a better reason
 than the name on a CV, so the audit trail was implemented twice - `AuditStore`
-has a MongoDB implementation and a MySQL JSON one, and the same contract test
+has a MongoDB implementation and a SQL JSON-column one, and the same contract test
 runs against both. Either can be selected with `AUDIT_STORE`.
 
 What MongoDB earns is the other half: the resident query analytics. The
@@ -590,7 +598,7 @@ prefix. Only that prefix is ever served.
 
 ### Why Docker Compose
 
-Docker Compose reduces setup friction for the backend environment. Instead of requiring every developer to configure MySQL manually, Compose starts a known MySQL version and the Spring Boot backend together.
+Docker Compose reduces setup friction for the backend environment. Instead of requiring every developer to configure PostgreSQL manually, Compose starts a known PostgreSQL version and the Spring Boot backend together.
 
 The frontend is not containerized yet because local Vite development provides faster hot reload and simpler UI work. A production frontend container can be added later.
 
@@ -657,7 +665,7 @@ resident_notification
   Stores the per-resident inbox rows fanned out by the notice consumer.
 
 audit_record
-  Stores the audit trail when AUDIT_STORE=mysql; the same contract is served
+  Stores the audit trail when AUDIT_STORE=mongodb is not set; the same contract is served
   by MongoDB when it is set to mongodb.
 ```
 
@@ -709,7 +717,7 @@ The admin UI exposes full create/edit/delete for all three: the collection sched
 
 The project uses a hybrid development strategy:
 
-- Docker Compose runs MySQL, Redis, Kafka, MongoDB, and the Spring Boot backend.
+- Docker Compose runs PostgreSQL, Redis, Kafka, MongoDB, and the Spring Boot backend.
 - The Vue frontend runs locally with Vite.
 
 This keeps the backend environment reproducible without slowing down frontend development.
@@ -717,9 +725,9 @@ This keeps the backend environment reproducible without slowing down frontend de
 Docker services:
 
 ```text
-mysql
-  MySQL 8.4 database container.
-  Exposes container port 3306 on host port 3307 by default.
+postgres
+  PostgreSQL 16 database container.
+  Exposes container port 5432 on host port 5432 by default.
   Stores data in a named Docker volume.
 
 redis
@@ -740,12 +748,12 @@ mongo
 backend
   Spring Boot application container.
   Builds from backend/Dockerfile.
-  Connects to the MySQL, Redis, Kafka and MongoDB services through the
+  Connects to the PostgreSQL, Redis, Kafka and MongoDB services through the
   Docker network.
   Exposes port 8080.
 ```
 
-The backend waits for MySQL to become *healthy* before starting, but only for Redis to have *started* — the application serves every request with or without a cache, so a slow Redis must not hold up the API. Flyway runs automatically when the backend starts.
+The backend waits for PostgreSQL to become *healthy* before starting, but only for Redis to have *started* — the application serves every request with or without a cache, so a slow Redis must not hold up the API. Flyway runs automatically when the backend starts.
 
 ## Running Locally
 
@@ -761,7 +769,7 @@ Optional for manual backend execution:
 
 - Java 21
 - Maven
-- Local MySQL installation
+- Local PostgreSQL installation
 - Local Redis installation (optional — set `CACHE_TYPE=none` to skip it entirely)
 
 ### Option A: Docker Backend Environment
@@ -778,13 +786,12 @@ Edit `.env` and replace placeholder values:
 
 ```text
 DB_PASSWORD=replace_with_a_local_dev_password
-MYSQL_ROOT_PASSWORD=replace_with_a_local_root_password
 APP_JWT_SECRET=replace_with_a_long_random_development_secret
 APP_ADMIN_EMAIL=admin@blainville.local
 APP_ADMIN_PASSWORD=replace_with_a_local_dev_admin_password
 ```
 
-Start MySQL and the backend:
+Start PostgreSQL and the backend:
 
 ```bash
 docker compose up --build
@@ -812,22 +819,13 @@ http://localhost:5173
 
 ### Option B: Manual Local Backend
 
-Use this if you want to run MySQL and Spring Boot directly on the host machine.
+Use this if you want to run PostgreSQL and Spring Boot directly on the host machine.
 
-Create the database in MySQL Workbench:
-
-```sql
-CREATE DATABASE bienvenue_blainville
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-```
-
-Create a dedicated local database user:
+Create a dedicated local database user and the database, as the `postgres` superuser (`psql -U postgres`):
 
 ```sql
-CREATE USER 'blainville_app'@'localhost' IDENTIFIED BY 'your_local_password';
-GRANT ALL PRIVILEGES ON bienvenue_blainville.* TO 'blainville_app'@'localhost';
-FLUSH PRIVILEGES;
+CREATE USER blainville_app WITH PASSWORD 'your_local_password';
+CREATE DATABASE bienvenue_blainville OWNER blainville_app ENCODING 'UTF8';
 ```
 
 The backend expects a Redis on `localhost:6379` by default. Start one with `redis-server`, point `REDIS_HOST`/`REDIS_PORT` elsewhere, or set `CACHE_TYPE=none` to run without a cache — the application serves every request either way.
@@ -835,11 +833,7 @@ The backend expects a Redis on `localhost:6379` by default. Start one with `redi
 Optional, only if you want to run the integration test suite (`mvn test -Pintegration-test`): create a second database for it, so tests never touch your working data. `RedisCacheIntegrationTest` additionally needs a running Redis.
 
 ```sql
-CREATE DATABASE bienvenue_blainville_test
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-GRANT ALL PRIVILEGES ON bienvenue_blainville_test.* TO 'blainville_app'@'localhost';
-FLUSH PRIVILEGES;
+CREATE DATABASE bienvenue_blainville_test OWNER blainville_app ENCODING 'UTF8';
 ```
 
 Start the backend:
@@ -881,7 +875,7 @@ REDIS_PORT       # default: 6379
 CACHE_TYPE       # default: redis; `none` disables caching, not assistant quotas
 EVENTS_ENABLED   # default: true; false keeps recording to the outbox, stops the relay
 KAFKA_BOOTSTRAP_SERVERS # default: localhost:9092
-AUDIT_STORE      # default: mysql; `mongodb` selects the document implementation
+AUDIT_STORE      # default: sql; `mongodb` selects the document implementation
 MONGODB_URI      # default: mongodb://localhost:27017/bienvenue_blainville
 PHOTO_BUCKET     # default: blainville-resident-photos
 AWS_REGION       # default: ca-central-1
@@ -925,7 +919,7 @@ Stop Docker containers:
 docker compose down
 ```
 
-Stop containers and remove the MySQL volume:
+Stop containers and remove the PostgreSQL volume:
 
 ```bash
 docker compose down -v
@@ -945,7 +939,7 @@ cd backend
 mvn test
 ```
 
-Run the full test suite including integration tests (requires a running MySQL matching `DB_URL`/`DB_USERNAME`/`DB_PASSWORD`, a `bienvenue_blainville_test` database granted to that user — see "Option B: Manual Local Backend" above for creating the user — and a running Redis on `localhost:6379`):
+Run the full test suite including integration tests (requires a running PostgreSQL matching `DB_URL`/`DB_USERNAME`/`DB_PASSWORD`, a `bienvenue_blainville_test` database granted to that user — see "Option B: Manual Local Backend" above for creating the user — and a running Redis on `localhost:6379`):
 
 ```bash
 cd backend
@@ -986,34 +980,34 @@ Completed:
 - Full-stack project structure with a Vue 3 frontend and a Spring Boot backend.
 - Email/password registration and login with JWT authentication (`jjwt`), validated on every request by a custom `JwtAuthenticationFilter`.
 - Real `ADMIN` / `USER` authorization: `/api/admin/**` is enforced by Spring Security (`hasRole("ADMIN")`), and a single `ADMIN` account is seeded from environment variables on startup.
-- User preference persistence in MySQL (`GET/PUT /api/preferences`), synced with the frontend Pinia store for signed-in users.
+- User preference persistence in PostgreSQL (`GET/PUT /api/preferences`), synced with the frontend Pinia store for signed-in users.
 - Admin CRUD for collection schedules, sorting items (with required French/English/Chinese translations, locations, and keywords), and special notices, wired end to end from the admin UI through MyBatis to `collection_event`, `sorting_item`/`sorting_item_translation`/`sorting_item_keyword`, and `special_notice`.
 - `HomeView` calls `GET /api/collections/upcoming` for the signed-in resident's sector and shows the real next collection (today/tomorrow framing, put-out/bring-back guidance) plus a short list of upcoming collections, instead of static sample data.
-- MyBatis mapper foundation and a normalized 13-table MySQL schema, where `collection_event.auto_generated` records which rows the calendar produced so a rebuild can leave an administrator's own entries alone.
+- MyBatis mapper foundation and a normalized PostgreSQL schema, where `collection_event.auto_generated` records which rows the calendar produced so a rebuild can leave an administrator's own entries alone.
 - Flyway migrations for schema and seed data (`V1`-`V18`).
 - A collection calendar that extends itself, from the city's own patterns. The five recurring rules in `collection_schedule_rule` - garbage and recycling alternating on Tuesdays in the south and Wednesdays in the north, organics every Thursday city-wide - are read off the official 2026 calendar in `V15`, and are materialized out to a rolling 180-day horizon on startup and daily, so the calendar cannot quietly run out the way the hand-written `V6` rows were going to on 2026-10-30. Generation never crosses a rule's high-water mark, so an administrator's cancellation is not undone overnight, and `HolidayShift` moves an occurrence off a day the city is closed rather than cancelling it.
 - `V15` is also where a quiet wrong answer was found. Until it, the database had no household-waste rule at all and anchored recycling to the garbage fortnight, so a resident in the south was shown the blue bin on 10 and 24 November - black-bin days on the city's calendar - and shown nothing on the 3rd and 17th, when recycling actually goes out. Every other property of the calendar was already tested and already true; they were true of a calendar naming the wrong bin.
-- The sorting guide served from MySQL to residents, the assistant, the photo lookup and the admin console alike (`GET /api/sorting-items`). It previously existed twice - a TypeScript file for the resident cards and the database for everything else - so an admin edit changed one and not the other. Migrations V10/V11 carried the two fields only the static copy had (`examples`, seasonal `availability`) and merged a duplicate entry.
+- The sorting guide served from the database to residents, the assistant, the photo lookup and the admin console alike (`GET /api/sorting-items`). It previously existed twice - a TypeScript file for the resident cards and the database for everything else - so an admin edit changed one and not the other. Migrations V10/V11 carried the two fields only the static copy had (`examples`, seasonal `availability`) and merged a duplicate entry.
 - Seasonal and special collection reminder data.
 - Location and address support for special sorting records.
 - French, English, and Chinese i18n foundation, including the auth and admin flows.
 - An admin agent (`POST /api/admin/agent/plan`, `POST /api/admin/agent/plans/{id}/execute`): Claude tool use over the existing collection and notice services, where read tools execute during planning and write tools are recorded as a plan for a human to approve. Plans live in Redis for 15 minutes, are single-use, and are bound to the administrator they were shown to. Returns 503 with an explanation when no API key is configured.
-- A grounded trilingual sorting assistant (`POST /api/assistant/ask`): MySQL full-text retrieval over `sorting_item_translation`/`sorting_item_keyword` with two parsers (word for French/English, ngram for Chinese), an application-side stopword filter, an explicit refusal when nothing relevant is retrieved, per-IP rate limiting in Redis, and a pluggable composer that is either a no-cost template or Claude. Scored 19/19 precision@1 and 6/6 refusal accuracy over a 25-question set.
-- Redis cache-aside layer over the two hot public reads (`@Cacheable` on the upcoming schedule and the active notices, keyed by day so nothing goes stale at midnight), with `@CacheEvict` on every admin write, a `CacheErrorHandler` that degrades to MySQL instead of failing the request, and fail-fast Lettuce options so a dead Redis costs milliseconds rather than seconds. Fully optional at runtime via `CACHE_TYPE=none`.
+- A grounded trilingual sorting assistant (`POST /api/assistant/ask`): TF-IDF retrieval (`SortingSearchIndex`) over `sorting_item_translation`/`sorting_item_keyword` with two parsers (word for French/English, ngram for Chinese), an application-side stopword filter, an explicit refusal when nothing relevant is retrieved, per-IP rate limiting in Redis, and a pluggable composer that is either a no-cost template or Claude. Scored 19/19 precision@1 and 6/6 refusal accuracy over a 25-question set.
+- Redis cache-aside layer over the two hot public reads (`@Cacheable` on the upcoming schedule and the active notices, keyed by day so nothing goes stale at midnight), with `@CacheEvict` on every admin write, a `CacheErrorHandler` that degrades to the database instead of failing the request, and fail-fast Lettuce options so a dead Redis costs milliseconds rather than seconds. Fully optional at runtime via `CACHE_TYPE=none`.
 - Resident photo questions (`POST /api/photos/upload-url`, `POST /api/photos/{id}/identify`): the browser uploads straight to S3 on a presigned URL with the size and content type signed in, a Lambda strips EXIF and resizes on object creation, and only the processed copy is ever served. Claude vision names the object; the sorting guide, not the model, decides the bin.
 - A transactional outbox and Kafka pipeline for notices: the event is written in the same transaction as the notice, a relay drains it to the broker, and two consumer groups read one topic - the resident inbox fan-out and the audit trail. Delivery is at-least-once and both consumers are idempotent. `EVENTS_ENABLED=false` stops the relay without stopping the recording.
-- An audit trail implemented twice behind one interface (`AuditStore`), over MongoDB and over a MySQL JSON column, with a single contract test run against both and `AUDIT_STORE` selecting which runs.
+- An audit trail implemented twice behind one interface (`AuditStore`), over MongoDB and over a PostgreSQL JSON column, with a single contract test run against both and `AUDIT_STORE` selecting which runs.
 - Resident query analytics in MongoDB: every question is logged anonymously through Kafka, and `GET /api/admin/insights/gaps` reports the terms residents ask that the guide cannot answer - a gap report to drive what gets added next. Retention is a TTL index, not a delete job.
 - An answer cache for the assistant, so the same question is not paid for twice. Cache hits are still recorded in the analytics, or the gap report would under-count the very questions that are asked most.
-- Docker Compose setup for MySQL, Redis, and backend.
+- Docker Compose setup for PostgreSQL, Redis, and backend.
 - Backend Dockerfile.
 - Environment-variable-based configuration (database, JWT secret, seeded admin credentials).
-- 317 tests: 122 that need nothing but the JVM, 149 that run against real infrastructure, and 46 in the browser runtime. `mvn test` runs the first 122; `mvn test -Pintegration-test` runs 271, which is those 122 plus the 149, not 271 more.
+- 325 tests: 130 that need nothing but the JVM, 149 that run against real infrastructure, and 46 in the browser runtime. `mvn test` runs the first 130; `mvn test -Pintegration-test` runs 279, which is those 130 plus the 149, not 279 more.
 - Successful backend Maven build.
 - Successful frontend Vite production build (including `vue-tsc` type-checking).
 - `docker compose --env-file .env.example config` validates the Compose file.
-- GitHub Actions CI on every push: frontend type-check and build, backend unit tests, and the integration suite against MySQL 8.4 and Redis 7 service containers.
-- An opt-in integration test suite (`mvn test -Pintegration-test`) boots the full Spring context — real `SecurityConfig`, real MyBatis mappers, a real MySQL database, a real Redis — and drives it through MockMvc: register/login, RBAC (403 for a resident on `/api/admin/**`, 401 for no/invalid token), notice date-range validation, full admin CRUD for notices and sorting items, and the cache's hit/key/JSON-round-trip/eviction behaviour.
+- GitHub Actions CI on every push: frontend type-check and build, backend unit tests, and the integration suite against PostgreSQL 16 and Redis 7 service containers.
+- An opt-in integration test suite (`mvn test -Pintegration-test`) boots the full Spring context — real `SecurityConfig`, real MyBatis mappers, a real PostgreSQL database, a real Redis — and drives it through MockMvc: register/login, RBAC (403 for a resident on `/api/admin/**`, 401 for no/invalid token), notice date-range validation, full admin CRUD for notices and sorting items, and the cache's hit/key/JSON-round-trip/eviction behaviour.
 
 Planned or in progress:
 
@@ -1127,7 +1121,7 @@ Current limitations:
   The encryption is RFC 8291 over RFC 8188's aes128gcm, written against the JDK rather than a library - and the reason that is defensible is that it is checked against somebody else's implementation rather than against itself. `WebPushCryptoTest` encrypts a fixed input and compares it byte for byte with output captured from `http_ece`, the JavaScript implementation the `web-push` library uses; `VapidAuthenticationTest` verifies a token that library signed, and a Java-signed token was verified by it in return. Two defects came out of that: the JDK's `KeyFactory` accepts a public key that is not a point on P-256, which is an invalid-curve attack an API caller can choose, so the point is now validated explicitly; and jjwt serialises a single `aud` as a one-element array where every reference implementation emits a string.
 
   **What has never happened is a notification appearing on a real device.** That needs a browser and a live push service, neither of which exists where this was built. Everything up to the HTTP POST is tested, and the bytes that POST would carry are known to match what a browser's own decryption expects - but the last hop is unverified and is recorded as such rather than implied.
-- The deployment is a free-tier one, with the trade-offs that implies: the container sleeps after 15 minutes of inactivity, so the first request after a quiet spell pays a cold start, and Redis, Kafka, MongoDB and the photo pipeline are all switched off there (`CACHE_TYPE=none`, `EVENTS_ENABLED=false`, `AUDIT_STORE=mysql`, `ASSISTANT_PROVIDER=template`). What is deployed exercises the MySQL path, the sorting guide, the schedule, the notices, the admin console and the retrieval assistant's template provider - not the event pipeline, which remains verified locally against real brokers.
+- The deployment is a free-tier one, with the trade-offs that implies: the container sleeps after 15 minutes of inactivity, so the first request after a quiet spell pays a cold start, and Redis, Kafka, MongoDB and the photo pipeline are all switched off there (`CACHE_TYPE=none`, `EVENTS_ENABLED=false`, `AUDIT_STORE=mysql` (read as the SQL store), `ASSISTANT_PROVIDER=template`). What is deployed exercises the MySQL path, the sorting guide, the schedule, the notices, the admin console and the retrieval assistant's template provider - not the event pipeline, which remains verified locally against real brokers.
 - All municipal rules should be verified against official Blainville sources before public use.
 
 ## Roadmap
@@ -1156,10 +1150,10 @@ Long-term:
 - Full-stack municipal service application with a clear resident-facing use case.
 - Frontend/backend separation with Vue 3 and Spring Boot.
 - Explicit MyBatis data access layer for transparent SQL control.
-- Normalized MySQL schema for schedules, sorting records, translations, keywords, notices, and user preferences.
+- Normalized PostgreSQL schema for schedules, sorting records, translations, keywords, notices, and user preferences.
 - Flyway-managed database migrations for reproducible schema setup.
 - French-first multilingual interface with English and Chinese support.
-- Docker Compose environment for reproducible MySQL, Redis, Kafka, MongoDB and backend startup.
+- Docker Compose environment for reproducible PostgreSQL, Redis, Kafka, MongoDB and backend startup.
 - Admin-oriented data model designed for long-term maintenance of municipal rules.
 - A cache that degrades instead of failing, and fails fast instead of hanging when Redis is down.
 - Retrieval-augmented answers that refuse rather than invent when the guide has nothing relevant.

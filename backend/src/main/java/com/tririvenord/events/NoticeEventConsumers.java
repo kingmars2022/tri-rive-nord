@@ -17,11 +17,11 @@ import java.time.Instant;
  *
  * <p>Both listeners honour {@code app.events.enabled}. Kafka is optional
  * infrastructure here in the same way MongoDB is: the outbox still records
- * every change into MySQL whether or not a broker exists, so turning the
+ * every change into the database whether or not a broker exists, so turning the
  * consumers off loses the fan-out, not the events - they stay on the table,
  * waiting.
  *
- * <p>Being honest about that: with exactly these two consumers, a MySQL outbox
+ * <p>Being honest about that: with exactly these two consumers, a database outbox
  * and a worker thread would do the same job with one fewer system to operate,
  * and the reviewer of this project said so. What the broker buys is that a
  * third consumer — a push-notification service, an open-data export, a

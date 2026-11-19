@@ -122,4 +122,4 @@ and commits co-written by Claude are marked in the history.
 ---
 
 **For engineers:** architecture, design decisions, test details and how to run it locally are in
-[TECHNICAL.md](TECHNICAL.md). Built with Java 21, Spring Boot, Vue 3 and MySQL.
+[TECHNICAL.md](TECHNICAL.md). Built with Java 21, Spring Boot, Vue 3 and PostgreSQL.

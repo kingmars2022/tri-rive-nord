@@ -8,7 +8,7 @@ spring:
   application:
     name: tri-rive-nord
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/bienvenue_blainville?useUnicode=true&characterEncoding=utf8&serverTimezone=America/Toronto}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/bienvenue_blainville}
     username: ${DB_USERNAME:blainville_app}
     password: ${DB_PASSWORD:}
   flyway:
@@ -34,7 +34,7 @@ spring:
     mongodb:
       # serverSelectionTimeoutMS: the driver waits 30 seconds by default before
       # admitting nothing is listening. MongoDB is optional here - the audit
-      # trail falls back to MySQL and the query log is analytics - so a missing
+      # trail falls back to the SQL database and the query log is analytics - so a missing
       # one must fail fast rather than hold anything for half a minute.
       uri: ${MONGODB_URI:mongodb://localhost:27017/bienvenue_blainville?serverSelectionTimeoutMS=2000&connectTimeoutMS=2000}
       auto-index-creation: false
@@ -115,10 +115,10 @@ app:
       # unauthenticated. Counted per IP in Redis; see AssistantRateLimiter.
       requests-per-hour: ${ASSISTANT_RATE_LIMIT:30}
   audit:
-    # `mysql` (default) stores the trail in a JSON column of the database this
+    # `sql` (default) stores the trail in a JSON column of the database this
     # app already runs; `mongodb` uses the document store. Same interface,
     # same tests - see AuditStore for when each one earns its place.
-    store: ${AUDIT_STORE:mysql}
+    store: ${AUDIT_STORE:sql}
   events:
     # The outbox always records, with or without a broker - it is a plain
     # insert in the business transaction. This switch controls only the relay

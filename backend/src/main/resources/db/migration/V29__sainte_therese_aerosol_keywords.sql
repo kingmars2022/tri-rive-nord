@@ -12,9 +12,9 @@
 -- The entry gets the words of its own name, in the language that lost it.
 -- --------------------------------------------------------------------------
 
-set @st = (select id from municipality where slug = 'sainte-therese');
-set @item = (select id from sorting_item where municipality_id = @st and item_key = 'aerosol-cans');
+select set_config('app.st', ((select id from municipality where slug = 'sainte-therese'))::text, false);
+select set_config('app.item', ((select id from sorting_item where municipality_id = current_setting('app.st')::bigint and item_key = 'aerosol-cans'))::text, false);
 
 insert into sorting_item_keyword (item_id, language_code, keyword) values
-(@item, 'en', 'aerosol cans'),
-(@item, 'en', 'aerosols');
+(current_setting('app.item')::bigint, 'en', 'aerosol cans'),
+(current_setting('app.item')::bigint, 'en', 'aerosols');

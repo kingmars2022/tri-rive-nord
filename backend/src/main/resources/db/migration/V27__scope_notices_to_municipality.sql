@@ -13,11 +13,11 @@
 -- Blainville, the same reasoning V20 used for everything else.
 -- --------------------------------------------------------------------------
 
-set @blainville = (select id from municipality where slug = 'blainville');
+select set_config('app.blainville', ((select id from municipality where slug = 'blainville'))::text, false);
 
 alter table special_notice add column municipality_id bigint;
-update special_notice set municipality_id = @blainville;
-alter table special_notice modify column municipality_id bigint not null;
+update special_notice set municipality_id = current_setting('app.blainville')::bigint;
+alter table special_notice alter column municipality_id set not null;
 alter table special_notice
     add constraint fk_notice_municipality foreign key (municipality_id) references municipality(id);
 
