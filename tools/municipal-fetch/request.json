@@ -1,4 +1,5 @@
 {
+  "note": "Third try for Rosemere, 2026-11-19: both earlier runs timed out on every URL.",
   "max_pages": 60,
   "max_depth": 3,
   "cities": [
