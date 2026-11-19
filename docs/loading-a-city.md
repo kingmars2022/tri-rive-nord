@@ -161,6 +161,10 @@ included, so it is not a TLS problem - the server does not answer these
 networks at all. From the session the tunnel opens and is closed after about
 ten seconds. Same conclusion: download by hand.
 
+A third run on 2026-11-19 (`data/municipal-sources/rosemere/2026-11-19/`)
+timed out on the same four URLs. Three days running is a policy, not an
+outage; further runs are not worth making.
+
 It is a downloader, not a parser. It follows only links on the city's own host
 that look like they are about collection, honours robots.txt, and waits two
 seconds between requests. What it saves is the input to step 2 above, not a
