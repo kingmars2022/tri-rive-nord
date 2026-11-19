@@ -20,7 +20,7 @@
         where id = #{id}
     </select>
 
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="map">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" keyColumn="id" parameterType="map">
         insert into sorting_item (municipality_id, item_key, destination_type, bin_color, source_url)
         values (#{municipalityId}, #{itemKey}, #{destinationType}, #{binColor}, #{sourceUrl})
     </insert>

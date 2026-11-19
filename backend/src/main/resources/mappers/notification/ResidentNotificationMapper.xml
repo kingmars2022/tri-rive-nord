@@ -4,7 +4,7 @@
 <mapper namespace="com.tririvenord.notification.ResidentNotificationMapper">
 
     <!--
-        IGNORE, paired with the unique key on (user_id, event_id): a redelivered
+        DO NOTHING on the unique key (user_id, event_id): a redelivered
         event inserts nothing rather than failing the consumer or showing
         residents the same notice twice. Kafka is at-least-once, so this is the
         expected path and not an error path.
@@ -12,11 +12,12 @@
     <!-- Only the notice's own city (V27): before, a Blainville notice reached
          every city's residents. -->
     <insert id="fanOutToResidentsWithReminders">
-        insert ignore into resident_notification (user_id, notice_id, event_id)
+        insert into resident_notification (user_id, notice_id, event_id)
         select p.user_id, #{noticeId}, #{eventId}
         from user_preference p
         where p.reminder_enabled = true
           and p.municipality_id = (select n.municipality_id from special_notice n where n.id = #{noticeId})
+        on conflict on constraint uq_resident_notification do nothing
     </insert>
 
     <select id="findForUser" resultType="com.tririvenord.notification.ResidentNotification">

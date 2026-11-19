@@ -88,13 +88,15 @@ class NoticeEventPipelineIntegrationTest {
      */
     @BeforeEach
     void aResidentWithRemindersOn() {
-        jdbc.update("insert ignore into app_user (email, password_hash, role) values (?, 'not-a-login', 'USER')",
+        jdbc.update("insert into app_user (email, password_hash, role) values (?, 'not-a-login', 'USER') "
+                + "on conflict (email) do nothing",
                 RESIDENT_EMAIL);
         jdbc.update("""
-                insert ignore into user_preference (user_id, sector, language_code, reminder_enabled, municipality_id)
+                insert into user_preference (user_id, sector, language_code, reminder_enabled, municipality_id)
                 select u.id, 'north', 'fr', true, m.id
                 from app_user u, municipality m
                 where u.email = ? and m.slug = 'blainville'
+                on conflict (user_id) do nothing
                 """, RESIDENT_EMAIL);
     }
 

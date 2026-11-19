@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 /**
- * The same audit trail in MySQL, using its native JSON column.
+ * The same audit trail in the application's own database, in a JSON column.
  *
  * <p>Kept alongside {@link MongoAuditStore} as the honest control. Side by
  * side, the two are about the same length and the same shape — which is the
@@ -15,15 +15,15 @@ import java.util.List;
  * requirement, and the trail can live in the database the application already
  * runs without adding a system to operate.
  *
- * <p>Idempotency here is {@code INSERT ... ON DUPLICATE KEY UPDATE id = id} on
- * the event id: a no-op write that costs one round trip and cannot race, which
- * a SELECT-then-INSERT can.
+ * <p>Idempotency here is {@code INSERT ... ON CONFLICT DO NOTHING} on the
+ * event id: a no-op write that costs one round trip and cannot race, which a
+ * SELECT-then-INSERT can.
  */
-public class MySqlAuditStore implements AuditStore {
+public class SqlAuditStore implements AuditStore {
     private final JdbcTemplate jdbc;
     private final ObjectMapper objectMapper;
 
-    public MySqlAuditStore(JdbcTemplate jdbc, ObjectMapper objectMapper) {
+    public SqlAuditStore(JdbcTemplate jdbc, ObjectMapper objectMapper) {
         this.jdbc = jdbc;
         this.objectMapper = objectMapper;
     }
@@ -33,8 +33,8 @@ public class MySqlAuditStore implements AuditStore {
         jdbc.update("""
                         insert into audit_record
                             (event_id, entity_type, entity_id, action, actor, occurred_at, before_state, after_state)
-                        values (?, ?, ?, ?, ?, ?, ?, ?)
-                        on duplicate key update event_id = event_id
+                        values (?, ?, ?, ?, ?, ?, cast(? as json), cast(? as json))
+                        on conflict on constraint uq_audit_event_id do nothing
                         """,
                 entry.eventId(), entry.entityType(), entry.entityId(), entry.action(), entry.actor(),
                 Timestamp.from(entry.occurredAt()), json(entry.before()), json(entry.after()));
@@ -69,7 +69,7 @@ public class MySqlAuditStore implements AuditStore {
 
     @Override
     public String backendName() {
-        return "mysql-json";
+        return "sql-json";
     }
 
     private String json(Object value) {

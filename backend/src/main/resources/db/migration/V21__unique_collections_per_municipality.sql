@@ -13,7 +13,7 @@
 -- defect class this calendar has produced before.
 -- --------------------------------------------------------------------------
 
-alter table collection_event drop index uq_collection_event_date_sector_type;
+alter table collection_event drop constraint uq_collection_event_date_sector_type;
 
 alter table collection_event
-    add unique key uq_collection_event (municipality_id, collection_date, sector, collection_type);
+    add constraint uq_collection_event unique (municipality_id, collection_date, sector, collection_type);

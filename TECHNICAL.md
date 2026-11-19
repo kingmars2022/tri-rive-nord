@@ -36,11 +36,11 @@ flowchart LR
     VI -->|"search term"| AI
     A -->|"same transaction"| OB[("outbox_event")]
     OB -.->|"relay, at-least-once"| K["Kafka<br/>2 consumer groups"]
-    K --> AU[("Audit trail<br/>MySQL JSON or MongoDB")]
+    K --> AU[("Audit trail<br/>PostgreSQL JSON or MongoDB")]
     K --> IN[("Resident inbox")]
     AI -->|"fire and forget"| K2["Kafka<br/>query stream"]
     K2 --> MG[("MongoDB<br/>gap report")]
-    A -->|"MyBatis mappers"| D[("MySQL<br/>12 tables")]
+    A -->|"MyBatis mappers"| D[("PostgreSQL<br/>12 tables")]
     RU["collection_schedule_rule"] -.->|"materialized daily"| D
     FW["Flyway V1-V13"] -.->|"migrates on startup"| D
     A -->|"ADMIN only"| ADM["Admin endpoints<br/>/api/admin/**"]
@@ -50,12 +50,12 @@ flowchart LR
 |---|---|
 | Frontend | Vue 3, TypeScript, Pinia, Vite |
 | API | Spring Boot, Java 21 |
-| Persistence | MyBatis, MySQL (12 tables), Flyway (13 migrations) |
+| Persistence | MyBatis, PostgreSQL (moved from MySQL in November 2026), Flyway |
 | Events | Transactional outbox → Kafka, two consumer groups |
 | Photos | S3 presigned upload, Lambda (EXIF strip + resize), API Gateway, vision lookup |
-| Audit trail | MongoDB or MySQL JSON, same interface and same tests |
+| Audit trail | MongoDB or a PostgreSQL JSON column, same interface and same tests |
 | Caching | Redis (Spring Cache, cache-aside, optional at runtime) |
-| Assistant | Retrieval-augmented Q&A over MySQL full-text; Claude optional |
+| Assistant | Retrieval-augmented Q&A over the guide, TF-IDF ranked in the app; Claude optional |
 | Admin agent | Claude tool-use with a human approval step; plans held in Redis |
 | Schedule | Recurring rules materialized to a rolling 180-day horizon |
 | Auth | Spring Security, JWT (HMAC), BCrypt, configurable CORS origins |
@@ -80,17 +80,17 @@ losing it.** `@Cacheable` fronts the collection schedule and the active
 notices; admin writes evict immediately rather than waiting out the TTL. The
 cache keys include today's date, because both queries mean "as of today" and
 would otherwise serve yesterday's collection after midnight. A `CacheErrorHandler`
-turns every Redis failure into a log line and a fall-through to MySQL, and
+turns every Redis failure into a log line and a fall-through to the database, and
 Lettuce is configured to reject commands while disconnected — without that,
 a dead Redis still returned correct data but took 4 seconds per request.
-Measured: 603 MySQL `SELECT`s become 1, and killing `redis-server` mid-run
+Measured (on MySQL, before the move): 603 `SELECT`s become 1, and killing `redis-server` mid-run
 costs 0.01s instead of 4.0s.
 [`config/CacheConfig.java`](backend/src/main/java/com/bienvenueblainville/config/CacheConfig.java),
 [measurements](docs/verification/redis-cache-results.md)
 
 **The sorting assistant answers only from the guide, and calls no model when
 it finds nothing.** Residents ask in their own words in any of the three
-languages; the answer is built from entries retrieved out of the MySQL guide,
+languages; the answer is built from entries retrieved out of the stored guide,
 and the refusal path never reaches a model at all. Getting retrieval to work
 needed two full-text parsers — ngram is the only one that can tokenize
 Chinese, and the only one loose enough to make a French refusal impossible —
@@ -171,15 +171,15 @@ dual write.** Calling Kafka inside `createNotice` means the database commit and
 the broker publish can each fail while the other succeeds — residents get told
 about a notice that was rolled back, or never told about one that exists, and
 retrying cannot fix a failure that lives in the gap between two systems. So the
-event row is inserted in the *same MySQL transaction* as the notice, and a
+event row is inserted in the *same database transaction* as the notice, and a
 relay moves committed rows to Kafka afterwards. That makes delivery
 at-least-once, so both consumers are idempotent on the event id — a single
 upsert, not a read-then-write that two replays could race.
 [`events/`](backend/src/main/java/com/bienvenueblainville/events),
 [what was verified](docs/verification/events-and-audit-results.md)
 
-**The audit trail is implemented twice, and MySQL wins.** `AuditStore` has a
-MongoDB implementation and a MySQL-JSON one, and the same contract test runs
+**The audit trail is implemented twice, and the SQL store wins.** `AuditStore` has a
+MongoDB implementation and a SQL JSON-column one, and the same contract test runs
 against both — that result is the argument. At this scale neither struggles
 where the other doesn't, so the trail defaults to the database this app
 already runs, and `AUDIT_STORE=mongodb` switches it. What would actually earn
@@ -204,7 +204,7 @@ from the API after renaming a card in a real browser.
 [what was verified](docs/verification/admin-edit-results.md)
 
 **Integration tests boot the real thing.** `AuthenticationFlowIntegrationTest`
-starts the full Spring context against a real MySQL and drives it through
+starts the full Spring context against a real PostgreSQL and drives it through
 MockMvc, exercising the actual filter chain. That is deliberate: the unit tests
 mock the collaborators, so they cannot catch a misconfigured filter order, a
 context that fails to start, or a 401/403 mix-up. All three of those were real
@@ -213,7 +213,7 @@ bugs here, and manual end-to-end verification is what found them.
 ## It actually runs
 
 Automated tests only assert what someone thought to assert. This project has
-also been driven end to end as a live application — local MySQL, the real
+also been driven end to end as a live application — local MySQL (before the move), the real
 Spring Boot backend (`mvn spring-boot:run`), the real Vite frontend
 (`npm run dev`) — exercised through `curl` and through a browser.
 
@@ -237,7 +237,7 @@ refusals before a question about the mayor's phone number came back answered
 [`docs/verification/assistant-results.md`](docs/verification/assistant-results.md).
 
 The same approach is how the Redis cache was validated: not "it compiles",
-but 603 MySQL queries dropping to 1, and `redis-cli SHUTDOWN` under a live
+but 603 database queries dropping to 1 (measured on MySQL), and `redis-cli SHUTDOWN` under a live
 server to see what actually happens — which is what turned up a 4-second
 degraded response time that no test was asserting on.
 [`docs/verification/redis-cache-results.md`](docs/verification/redis-cache-results.md).
@@ -296,9 +296,9 @@ TLS, and where the frontend finds the API.
 | `CollectionServiceTest` | 3 | sector schedule and bin colour resolution |
 | `CollectionCalendarTopUpTest` | 6 | rolling generation, the high-water mark, gaps, biweekly phase |
 | `SpecialNoticeServiceTest` | 3 | notice visibility |
-| `AuthenticationFlowIntegrationTest` | 8 | full context, real MySQL, real filter chain |
+| `AuthenticationFlowIntegrationTest` | 8 | full context, real PostgreSQL, real filter chain |
 | `RedisCacheIntegrationTest` | 5 | real Redis: cache hits, key scoping, JSON round-trip, eviction |
-| `AssistantIntegrationTest` | 11 | real MySQL full-text: grounded answers in FR/EN/ZH, refusals, real-Redis quota |
+| `AssistantIntegrationTest` | 11 | real database and ranking: grounded answers in FR/EN/ZH, refusals, real-Redis quota |
 | `AdminAgentIntegrationTest` | 10 | real writes, single-use plans, plan ownership, validation, RBAC |
 | `NoticeEventPipelineIntegrationTest` | 5 | outbox commits with the write, relay, two consumer groups, replay safety |
 | `PhotoPipelineIntegrationTest` | 10 | real S3: presign, upload, Lambda, prefix isolation, path validation, and the async gap between upload and answer |
@@ -311,7 +311,7 @@ TLS, and where the frontend finds the API.
 | `SortingItemTransactionIntegrationTest` | 2 | a half-written sorting entry rolls back; a whole one commits |
 | `ResidentQueryInsightsIntegrationTest` | 5 | question → Kafka → MongoDB → gap report, and no resident identified |
 | `QueryEventPublisherTest` | 4 | the events gate, and both failure modes kept apart |
-| `AuditStoreIntegrationTest` | 6 | one audit contract, run against MongoDB and MySQL JSON |
+| `AuditStoreIntegrationTest` | 6 | one audit contract, run against MongoDB and PostgreSQL JSON |
 | `AdminAgentServiceTest` | 4 | writes recorded not executed, reads executed, turn ceiling |
 | `StepSummariserTest` | 4 | the confirmation line, including missing arguments |
 | `QueryNormalizerTest` | 6 | stopword stripping, accent folding, per-language rules |
@@ -343,11 +343,11 @@ The current Mockito dependency does not support the locally installed Java 25.
 
 Integration tests are opt-in locally because they need a database and a Redis
 (CI always runs them). With the default `.env.example` values copied into
-`.env`, they run against the MySQL and Redis services exposed by Docker
+`.env`, they run against the PostgreSQL and Redis services exposed by Docker
 Compose:
 
 ```bash
-docker compose up -d mysql redis
+docker compose up -d postgres redis
 cd backend && mvn test -Pintegration-test
 ```
 
@@ -356,7 +356,7 @@ cd backend && mvn test -Pintegration-test
 ```bash
 cp .env.example .env          # set DB_URL, DB_USERNAME, DB_PASSWORD,
                               # APP_JWT_SECRET, APP_ADMIN_EMAIL, APP_ADMIN_PASSWORD
-docker compose up -d --build  # MySQL + Redis + Kafka + MongoDB + backend; Flyway V1-V13
+docker compose up -d --build  # PostgreSQL + Redis + Kafka + MongoDB + backend; Flyway migrates all
 cd frontend && npm ci && npm run dev
 ```
 
@@ -377,7 +377,7 @@ controls at the provider before exposing a paid composer publicly.
 
 The sorting guide has one source. It used to have two — the resident cards
 rendered a TypeScript file bundled with the frontend while the assistant, the
-photo lookup and the admin console read MySQL, so an administrator could
+photo lookup and the admin console read the database, so an administrator could
 correct an entry and the page everybody actually reads would not change.
 Migrations V10 and V11 moved the two fields the database was missing
 (`examples` and seasonal `availability`), merged a duplicate entry that had

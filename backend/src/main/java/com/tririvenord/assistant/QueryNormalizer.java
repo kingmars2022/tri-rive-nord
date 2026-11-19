@@ -28,8 +28,12 @@ import java.util.stream.Stream;
  * machine where they hadn't. A list in the application travels with the code,
  * is unit-testable, and is visible to the next person reading it.
  *
- * <p>Chinese is left alone: it is searched through the ngram parser, which
- * does not tokenize on whitespace, so there are no word boundaries here to
+ * <p>The search now runs in the application (SortingSearchIndex) and keeps
+ * InnoDB's English-only list for parity, so this class still carries the
+ * French half.
+ *
+ * <p>Chinese is left alone: it is searched by character pairs, which do not
+ * depend on whitespace, so there are no word boundaries here to
  * strip on. Its false positives, if any, would need a different remedy.
  *
  * <p>The lists below are deliberately conservative — only words that cannot
@@ -41,7 +45,7 @@ final class QueryNormalizer {
     private static final Pattern NOT_WORD = Pattern.compile("[^\\p{L}\\p{N}]+");
     private static final Pattern DIACRITIC = Pattern.compile("\\p{M}+");
 
-    // Short articles and prepositions are below MySQL's minimum token size, so
+    // Short articles and prepositions are below the search's minimum word length, so
     // they could never match anyway - they are listed so that "is anything
     // meaningful left?" is a question this class can actually answer.
     private static final Set<String> FRENCH_SHORT = Set.of(
@@ -106,7 +110,7 @@ final class QueryNormalizer {
     /**
      * Lowercase and strip accents, so "Où" matches the stopword "ou". The
      * folded form is only ever used for the lookup; the original token is what
-     * goes to MySQL, whose collation does its own accent handling.
+     * goes to the search, which folds accents itself (SortingSearchIndex).
      */
     private static String fold(String token) {
         String decomposed = Normalizer.normalize(token.toLowerCase(Locale.ROOT), Normalizer.Form.NFD);

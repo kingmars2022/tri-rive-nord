@@ -32,8 +32,8 @@
 
     <!--
         Hyphens and spaces are treated alike, because residents type
-        "grande allee" for Grande-Allée; accents and case are already ignored
-        by the column's collation. Streets whose name starts with what was
+        "grande allee" for Grande-Allée, and accents and case are ignored
+        (fold_text, V30). Streets whose name starts with what was
         typed come first, so "bo" offers Bolduc before Ambroise-Lafortune.
         #{query} arrives with % and _ escaped by the service: a resident's
         "100%" is text to find, not a pattern.
@@ -42,8 +42,8 @@
         select name, sector_code as sectorCode
         from municipality_street
         where municipality_id = #{municipalityId}
-          and replace(name, '-', ' ') like concat('%', replace(#{query}, '-', ' '), '%')
-        order by replace(name, '-', ' ') like concat(replace(#{query}, '-', ' '), '%') desc, name
+          and replace(fold_text(name), '-', ' ') like '%' || replace(fold_text(#{query}), '-', ' ') || '%'
+        order by replace(fold_text(name), '-', ' ') like replace(fold_text(#{query}), '-', ' ') || '%' desc, name
         limit #{limit}
     </select>
 

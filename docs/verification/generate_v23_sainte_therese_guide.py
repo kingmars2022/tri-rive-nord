@@ -21,6 +21,8 @@ Run from the repository root:
     python3 docs/verification/generate_v23_sainte_therese_guide.py
 """
 import io
+
+import pg_sql
 import os
 
 REG = ('https://www.sainte-therese.ca/storage/app/media/services/citoyens/'
@@ -905,5 +907,5 @@ if __name__ == '__main__':
         assert day.weekday() == 0 and day.day <= 7, d
     root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     target = os.path.join(root, 'backend/src/main/resources/db/migration/V23__sainte_therese_sorting_guide.sql')
-    io.open(target, 'w', encoding='utf-8', newline='\n').write(render())
+    io.open(target, 'w', encoding='utf-8', newline='\n').write(pg_sql.convert(render()))
     print(f'wrote {target}: {len(ITEMS)} items')

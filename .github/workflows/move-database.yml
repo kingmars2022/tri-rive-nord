@@ -1,0 +1,39 @@
+name: Move data from MySQL to PostgreSQL
+
+# One-off, run by hand from the Actions tab: copies every row of the old
+# Aiven MySQL database into the new Aiven PostgreSQL one. See
+# docs/deployment.md, "Moving to PostgreSQL", for the order of steps.
+#
+# Both connection strings come from repository secrets (MYSQL_URI,
+# POSTGRES_URI), so no password is typed anywhere else. The script prints
+# table names and row counts only, never a row: this log may be public.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "copy" to replace everything in the PostgreSQL database with the MySQL data'
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  copy:
+    if: github.event.inputs.confirm == 'copy'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install database drivers
+        run: pip install --quiet "pymysql[rsa]==1.1.1" "psycopg[binary]==3.2.3"
+
+      - name: Copy MySQL into PostgreSQL
+        env:
+          MYSQL_URI: ${{ secrets.MYSQL_URI }}
+          POSTGRES_URI: ${{ secrets.POSTGRES_URI }}
+        run: python3 tools/db-move/mysql_to_postgres.py

@@ -50,13 +50,12 @@ that the city stays unloaded. The application already renders that honestly.
    step the calendar defect was about. Assert specific dates and bins taken
    from the published calendar, and prove the test fails without the
    migration before believing it.
-5. **Run everything.** `mvn test -Pintegration-test` needs a real MySQL and
-   Redis; see `docs/deployment.md`. All green before and after: 216 before
+5. **Run everything.** `mvn test -Pintegration-test` needs a real PostgreSQL
+   and Redis; see `docs/deployment.md`. All green before and after: 216 before
    Sainte-Therese, 243 after its calendar and guide, 254 after Boisbriand and its street table,
    259 after the admin console learned each city's sectors, 265 after notices became per city,
-   271 after Boisbriand's guide. Then run
-   `docs/verification/guide_rank_sweep.py` for every city already loaded, before
-   and after, and compare (see below).
+   271 after Boisbriand's guide, 279 after the move to PostgreSQL. Each city's
+   guide test searches every entry by its own name; give the new city one.
 
 ## Loaded so far
 
@@ -176,14 +175,14 @@ substitute for it.
   a link off the city's domain.
 - **Generate the guide; do not type it.** `docs/verification/generate_v23_sainte_therese_guide.py`
   writes V23 and checks the keyword length rule as it goes.
-- **Loading one city's guide can move another city's answers.** MySQL scores
-  full-text matches with word statistics from the whole index, and the
-  city filter is applied after scoring. V23 cut Blainville's lead for
+- **Loading one city's guide used to move another city's answers.** On
+  MySQL, full-text scores used word statistics from the whole index, and the
+  city filter was applied after scoring. V23 cut Blainville's lead for
   "Where does soiled cardboard go?" from 10.7 vs 8.3 to 6.10 vs 6.09, and one
-  test run in two then gave the wrong card; V24 gave that entry the keywords
-  of its own name. `docs/verification/guide_rank_sweep.py` searches every
-  entry by its own name and reports lost top spots and halved leads: run it
-  for each loaded city before and after loading a new one.
+  test run in two then gave the wrong card; V24 and V29 gave entries the
+  keywords of their own names. Since the move to PostgreSQL the ranking runs
+  in `SortingSearchIndex` with statistics from the searched city only, so
+  this can no longer happen; the keywords stay because they do no harm.
 - **The search has three blind spots that look like data problems:**
   - it does not stem, so `oeuf` never matches `oeufs`; add plurals;
   - keyword scores are summed per entry, so a word repeated across one
@@ -204,7 +203,8 @@ substitute for it.
   so and loads the dates.
 - **Each test class adds a database pool.** Spring keeps one context per
   integration test class, and each held ten connections; at seventeen classes
-  that is more than MySQL's default 151. `IntegrationEnvironment` now caps
+  that is more than the database allows (151 on MySQL then, 100 on
+  PostgreSQL now). `IntegrationEnvironment` caps
   test pools at four.
 
 ## Boisbriand: loaded against the rule, on purpose

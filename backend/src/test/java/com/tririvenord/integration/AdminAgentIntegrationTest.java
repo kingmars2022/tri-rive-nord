@@ -223,7 +223,7 @@ class AdminAgentIntegrationTest {
 
         assertThat(rows.isArray()).isTrue();
         assertThat(rows.size()).isEqualTo(jdbc.queryForObject(
-                "select count(*) from collection_event where municipality_id = ? and collection_date >= current_date()",
+                "select count(*) from collection_event where municipality_id = ? and collection_date >= current_date",
                 Integer.class, MUNI));
     }
 
@@ -235,7 +235,7 @@ class AdminAgentIntegrationTest {
         // what is behind. Bounding it forward costs nothing the model needed:
         // a collection that already happened cannot usefully be moved.
         int past = jdbc.queryForObject(
-                "select count(*) from collection_event where municipality_id = ? and collection_date < current_date()",
+                "select count(*) from collection_event where municipality_id = ? and collection_date < current_date",
                 Integer.class, MUNI);
         assertThat(past)
                 .as("the seeded calendar has to contain past rows or this proves nothing")

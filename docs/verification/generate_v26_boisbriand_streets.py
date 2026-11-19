@@ -23,6 +23,8 @@ Needs poppler's pdftotext. Run from the repository root:
 """
 import html
 import io
+
+import pg_sql
 import os
 import re
 import subprocess
@@ -107,8 +109,8 @@ def render(entries):
 -- range in its name - "Grande-Allee (nos 505 a 1700)" - exactly as printed,
 -- because the range is what tells a resident which row is theirs.
 --
--- Names keep their accents. Residents type them both ways, and the table's
--- collation (utf8mb4_0900_ai_ci) already compares without accents or case.
+-- Names keep their accents. Residents type them both ways, and the street
+-- search compares without accents or case (see MunicipalityMapper.findStreets).
 
 create table municipality_street (
     id bigint primary key auto_increment,
@@ -116,7 +118,7 @@ create table municipality_street (
     name varchar(200) not null,
     sector_code varchar(40) not null,
     source_url varchar(1000),
-    unique key uq_municipality_street (municipality_id, name),
+    constraint uq_municipality_street unique (municipality_id, name),
     -- A street can only point at a sector its city has. Without this, a typo
     -- in a sector code would hand a resident a sector with no collections,
     -- which the home page would show as an empty week.
@@ -134,5 +136,5 @@ insert into municipality_street (municipality_id, name, sector_code, source_url)
 
 if __name__ == '__main__':
     entries = parse()
-    io.open(TARGET, 'w', encoding='utf-8', newline='\n').write(render(entries))
+    io.open(TARGET, 'w', encoding='utf-8', newline='\n').write(pg_sql.convert(render(entries)))
     print(f'wrote {TARGET}: {len(entries)} streets')

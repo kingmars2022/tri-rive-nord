@@ -18,7 +18,7 @@ import java.util.Map;
  * Resident questions, and what the guide did with them.
  *
  * <p><b>This is the workload that actually wants a document store</b>, as
- * opposed to the audit trail, where MySQL's JSON column does the job just as
+ * opposed to the audit trail, where a JSON column in the database does the job just as
  * well and is therefore the default. Four differences matter:
  *
  * <ul>

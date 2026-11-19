@@ -1,5 +1,5 @@
 alter table sorting_item_translation
-    add column location varchar(500) null after instruction;
+    add column location varchar(500) null;
 
 update sorting_item_translation
 set location = case language_code

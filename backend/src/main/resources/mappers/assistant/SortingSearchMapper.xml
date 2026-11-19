@@ -4,76 +4,39 @@
 <mapper namespace="com.tririvenord.assistant.SortingSearchMapper">
 
     <!--
-        Relevance is the sum of two full-text scores: how well the resident's
-        words match the entry's name and instruction, and how well they match
-        the keywords an administrator curated for it.
+        The city filter is on sorting_item rather than on the translation,
+        because the rule belongs to the city and its wording belongs to the
+        language. Without it the assistant would rank every city's rules
+        together and answer a Rosemere resident with Blainville's bin.
 
-        Keywords are additive rather than a fallback because they are what make
-        colloquial input work, and measurably so: for "Où va une boîte à pizza
-        sale ?" the name/instruction score alone ranks a document-shredding
-        entry first (2.73) over the correct soiled-cardboard entry (1.83) - one
-        stray common word is enough. Adding the keyword score puts the right
-        entry on top at 4.74. LEFT JOIN, so an entry with no keywords in this
-        language is still findable by name.
-
-        The `ngram` flag selects which index to MATCH against; see V7 and
-        SortingGuideRetriever for why one parser cannot serve all three
-        languages.
-
-        The municipality filter is on sorting_item rather than on the
-        translation, because the rule belongs to the city and its wording
-        belongs to the language. Without it the assistant would rank every
-        city's rules together and answer a Rosemere resident with
-        Blainville's bin - the same class of defect as the collection
-        calendar that printed the wrong bin while every test passed.
-
-        #{query} is a bind parameter throughout. Concatenating a resident's raw
-        text into MATCH ... AGAINST would be the same class of bug as SQL
-        injection, and in boolean mode their stray punctuation (+ - * " ~)
-        would additionally make the query error out - hence natural language
-        mode, which takes the whole string as terms.
+        Score 0 here; SortingSearch fills it in. A city's guide in one
+        language is a few dozen rows, so reading it whole per question is
+        cheaper than it sounds and keeps the ranking in testable Java.
     -->
-    <select id="search" resultType="com.tririvenord.assistant.RetrievedItem">
+    <select id="findEntries" resultType="com.tririvenord.assistant.RetrievedItem">
         select
-            t.item_id                                as itemId,
-            t.language_code                          as languageCode,
-            t.name                                   as name,
-            t.instruction                            as instruction,
-            t.location                               as location,
-            i.destination_type                       as destinationType,
-            i.bin_color                              as binColor,
-            i.source_url                             as sourceUrl,
-            <choose>
-                <when test="ngram">
-                    match(t.search_ngram) against (#{query} in natural language mode)
-                </when>
-                <otherwise>
-                    match(t.name, t.instruction) against (#{query} in natural language mode)
-                </otherwise>
-            </choose>
-                + coalesce(k.keyword_score, 0)       as score
+            t.item_id          as itemId,
+            t.language_code    as languageCode,
+            t.name             as name,
+            t.instruction      as instruction,
+            t.location         as location,
+            i.destination_type as destinationType,
+            i.bin_color        as binColor,
+            i.source_url       as sourceUrl,
+            cast(0 as double precision) as score
         from sorting_item_translation t
         join sorting_item i on i.id = t.item_id
-        left join (
-            select
-                item_id,
-                <choose>
-                    <when test="ngram">
-                        sum(match(keyword_ngram) against (#{query} in natural language mode))
-                    </when>
-                    <otherwise>
-                        sum(match(keyword) against (#{query} in natural language mode))
-                    </otherwise>
-                </choose>
-                                                     as keyword_score
-            from sorting_item_keyword
-            where language_code = #{languageCode}
-            group by item_id
-        ) k on k.item_id = t.item_id
         where t.language_code = #{languageCode}
           and i.municipality_id = #{municipalityId}
-        having score > 0
-        order by score desc
-        limit #{limit}
+        order by t.item_id
+    </select>
+
+    <select id="findKeywords" resultType="com.tririvenord.assistant.SortingSearchIndex$Keyword">
+        select k.item_id as itemId, k.keyword as keyword
+        from sorting_item_keyword k
+        join sorting_item i on i.id = k.item_id
+        where k.language_code = #{languageCode}
+          and i.municipality_id = #{municipalityId}
+        order by k.item_id, k.id
     </select>
 </mapper>

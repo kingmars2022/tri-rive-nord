@@ -67,13 +67,13 @@
 
 -- Null means the pattern has no known end, which is what every existing rule
 -- is. Inclusive: a rule valid until a date may still fall on that date.
-alter table collection_schedule_rule add column valid_until date null after interval_weeks;
+alter table collection_schedule_rule add column valid_until date null;
 
 -- V14 bounded shift_days to 1..7 so the shift loop could not run for ever on
 -- a zero. The bound against zero stays; the sign no longer matters, because
 -- HolidayShift caps the number of steps regardless of direction. MySQL named
 -- V14's unnamed constraint collection_holiday_chk_1.
-alter table collection_holiday drop check collection_holiday_chk_1;
+alter table collection_holiday drop constraint collection_holiday_chk_1;
 alter table collection_holiday add constraint chk_collection_holiday_shift
     check (shift_days between -7 and 7 and shift_days <> 0);
 
@@ -81,19 +81,19 @@ alter table collection_holiday add constraint chk_collection_holiday_shift
 -- 2. The city, its zones, and where they came from.
 -- --------------------------------------------------------------------------
 
-set @st = (select id from municipality where slug = 'sainte-therese');
-set @page = 'https://www.sainte-therese.ca/services/services-aux-citoyens/collectes-et-ecocentre';
-set @pdf  = 'https://www.sainte-therese.ca/storage/app/media/services/citoyens/collectes-et-ecocentre/';
+select set_config('app.st', ((select id from municipality where slug = 'sainte-therese'))::text, false);
+select set_config('app.page', 'https://www.sainte-therese.ca/services/services-aux-citoyens/collectes-et-ecocentre', false);
+select set_config('app.pdf', 'https://www.sainte-therese.ca/storage/app/media/services/citoyens/collectes-et-ecocentre/', false);
 
-update municipality set source_url = @page where id = @st;
+update municipality set source_url = current_setting('app.page') where id = current_setting('app.st')::bigint;
 
 insert into municipality_sector
 (municipality_id, code, position, name_fr, name_en, name_zh, source_url) values
-(@st, 'all', 0, 'Tout le territoire', 'Whole city', '全市', @page),
-(@st, 'a',   1, 'Zone A', 'Zone A', 'A 区', concat(@pdf, 'VST_Calendrier-collectes-2026_ZoneA.pdf')),
-(@st, 'b',   2, 'Zone B', 'Zone B', 'B 区', concat(@pdf, 'VST_Calendrier-collectes-2026_ZoneB.pdf')),
-(@st, 'c',   3, 'Zone C', 'Zone C', 'C 区', concat(@pdf, 'VST_Calendrier-collectes-2026_ZoneC.pdf')),
-(@st, 'd',   4, 'Zone D', 'Zone D', 'D 区', concat(@pdf, 'VST_Calendrier-collectes-2026_ZoneD.pdf'));
+(current_setting('app.st')::bigint, 'all', 0, 'Tout le territoire', 'Whole city', '全市', current_setting('app.page')),
+(current_setting('app.st')::bigint, 'a',   1, 'Zone A', 'Zone A', 'A 区', concat(current_setting('app.pdf'), 'VST_Calendrier-collectes-2026_ZoneA.pdf')),
+(current_setting('app.st')::bigint, 'b',   2, 'Zone B', 'Zone B', 'B 区', concat(current_setting('app.pdf'), 'VST_Calendrier-collectes-2026_ZoneB.pdf')),
+(current_setting('app.st')::bigint, 'c',   3, 'Zone C', 'Zone C', 'C 区', concat(current_setting('app.pdf'), 'VST_Calendrier-collectes-2026_ZoneC.pdf')),
+(current_setting('app.st')::bigint, 'd',   4, 'Zone D', 'Zone D', 'D 区', concat(current_setting('app.pdf'), 'VST_Calendrier-collectes-2026_ZoneD.pdf'));
 
 -- --------------------------------------------------------------------------
 -- 3. Garbage and recycling: alternating fortnights, one weekday per zone.
@@ -115,49 +115,49 @@ insert into collection_schedule_rule
 (municipality_id, sector, collection_type, bin_color, anchor_date, interval_weeks, valid_until,
  generated_through, note_fr, note_en, note_zh, source_url)
 values
-(@st, 'a', 'garbage', 'black', '2026-11-24', 2, null, '2026-11-16',
+(current_setting('app.st')::bigint, 'a', 'garbage', 'black', '2026-11-24', 2, null, '2026-11-16',
  'Ordures menageres, le mardi, une semaine sur deux, en alternance avec le bac bleu.',
  'Household waste, every other Tuesday, alternating with the blue bin.',
  '生活垃圾，隔周周二收集，与蓝桶交替。',
- concat(@pdf, 'VST_Calendrier-collectes-2026_ZoneA.pdf')),
-(@st, 'a', 'recycling', 'blue', '2026-11-17', 2, null, '2026-11-16',
+ concat(current_setting('app.pdf'), 'VST_Calendrier-collectes-2026_ZoneA.pdf')),
+(current_setting('app.st')::bigint, 'a', 'recycling', 'blue', '2026-11-17', 2, null, '2026-11-16',
  'Matieres recyclables, le mardi, une semaine sur deux, en alternance avec le bac noir.',
  'Recycling, every other Tuesday, alternating with the black bin.',
  '可回收物，隔周周二收集，与黑桶交替。',
- concat(@pdf, 'VST_Calendrier-collectes-2026_ZoneA.pdf')),
+ concat(current_setting('app.pdf'), 'VST_Calendrier-collectes-2026_ZoneA.pdf')),
 
-(@st, 'b', 'garbage', 'black', '2026-11-25', 2, null, '2026-11-16',
+(current_setting('app.st')::bigint, 'b', 'garbage', 'black', '2026-11-25', 2, null, '2026-11-16',
  'Ordures menageres, le mercredi, une semaine sur deux, en alternance avec le bac bleu.',
  'Household waste, every other Wednesday, alternating with the blue bin.',
  '生活垃圾，隔周周三收集，与蓝桶交替。',
- concat(@pdf, 'VST_Calendrier-collectes-2026_ZoneB.pdf')),
-(@st, 'b', 'recycling', 'blue', '2026-11-18', 2, null, '2026-11-16',
+ concat(current_setting('app.pdf'), 'VST_Calendrier-collectes-2026_ZoneB.pdf')),
+(current_setting('app.st')::bigint, 'b', 'recycling', 'blue', '2026-11-18', 2, null, '2026-11-16',
  'Matieres recyclables, le mercredi, une semaine sur deux, en alternance avec le bac noir.',
  'Recycling, every other Wednesday, alternating with the black bin.',
  '可回收物，隔周周三收集，与黑桶交替。',
- concat(@pdf, 'VST_Calendrier-collectes-2026_ZoneB.pdf')),
+ concat(current_setting('app.pdf'), 'VST_Calendrier-collectes-2026_ZoneB.pdf')),
 
-(@st, 'c', 'garbage', 'black', '2026-11-26', 2, null, '2026-11-16',
+(current_setting('app.st')::bigint, 'c', 'garbage', 'black', '2026-11-26', 2, null, '2026-11-16',
  'Ordures menageres, le jeudi, une semaine sur deux, en alternance avec le bac bleu.',
  'Household waste, every other Thursday, alternating with the blue bin.',
  '生活垃圾，隔周周四收集，与蓝桶交替。',
- concat(@pdf, 'VST_Calendrier-collectes-2026_ZoneC.pdf')),
-(@st, 'c', 'recycling', 'blue', '2026-11-19', 2, null, '2026-11-16',
+ concat(current_setting('app.pdf'), 'VST_Calendrier-collectes-2026_ZoneC.pdf')),
+(current_setting('app.st')::bigint, 'c', 'recycling', 'blue', '2026-11-19', 2, null, '2026-11-16',
  'Matieres recyclables, le jeudi, une semaine sur deux, en alternance avec le bac noir.',
  'Recycling, every other Thursday, alternating with the black bin.',
  '可回收物，隔周周四收集，与黑桶交替。',
- concat(@pdf, 'VST_Calendrier-collectes-2026_ZoneC.pdf')),
+ concat(current_setting('app.pdf'), 'VST_Calendrier-collectes-2026_ZoneC.pdf')),
 
-(@st, 'd', 'garbage', 'black', '2026-11-27', 2, null, '2026-11-16',
+(current_setting('app.st')::bigint, 'd', 'garbage', 'black', '2026-11-27', 2, null, '2026-11-16',
  'Ordures menageres, le vendredi, une semaine sur deux, en alternance avec le bac bleu.',
  'Household waste, every other Friday, alternating with the blue bin.',
  '生活垃圾，隔周周五收集，与蓝桶交替。',
- concat(@pdf, 'VST_Calendrier-collectes-2026_ZoneD.pdf')),
-(@st, 'd', 'recycling', 'blue', '2026-11-20', 2, null, '2026-11-16',
+ concat(current_setting('app.pdf'), 'VST_Calendrier-collectes-2026_ZoneD.pdf')),
+(current_setting('app.st')::bigint, 'd', 'recycling', 'blue', '2026-11-20', 2, null, '2026-11-16',
  'Matieres recyclables, le vendredi, une semaine sur deux, en alternance avec le bac noir.',
  'Recycling, every other Friday, alternating with the black bin.',
  '可回收物，隔周周五收集，与黑桶交替。',
- concat(@pdf, 'VST_Calendrier-collectes-2026_ZoneD.pdf'));
+ concat(current_setting('app.pdf'), 'VST_Calendrier-collectes-2026_ZoneD.pdf'));
 
 -- --------------------------------------------------------------------------
 -- 4. Organics: every zone, Mondays, weekly or fortnightly by season.
@@ -172,31 +172,31 @@ insert into collection_schedule_rule
 (municipality_id, sector, collection_type, bin_color, anchor_date, interval_weeks, valid_until,
  generated_through, note_fr, note_en, note_zh, source_url)
 values
-(@st, 'all', 'organic', 'brown', '2026-11-02', 1, '2026-11-30', '2026-11-16',
+(current_setting('app.st')::bigint, 'all', 'organic', 'brown', '2026-11-02', 1, '2026-11-30', '2026-11-16',
  'Matieres organiques, tous les lundis d''avril a novembre, pour toutes les zones.',
  'Organics, every Monday from April to November, in every zone.',
  '有机垃圾，4 月至 11 月每周一收集，所有区相同。',
- @page),
-(@st, 'all', 'organic', 'brown', '2026-12-14', 2, '2027-03-31', '2026-11-16',
+ current_setting('app.page')),
+(current_setting('app.st')::bigint, 'all', 'organic', 'brown', '2026-12-14', 2, '2027-03-31', '2026-11-16',
  'Matieres organiques, un lundi sur deux de decembre a mars, pour toutes les zones.',
  'Organics, every other Monday from December to March, in every zone.',
  '有机垃圾，12 月至 3 月隔周周一收集，所有区相同。',
- @page),
-(@st, 'all', 'organic', 'brown', '2027-04-05', 1, '2027-11-29', '2026-11-16',
+ current_setting('app.page')),
+(current_setting('app.st')::bigint, 'all', 'organic', 'brown', '2027-04-05', 1, '2027-11-29', '2026-11-16',
  'Matieres organiques, tous les lundis d''avril a novembre, pour toutes les zones.',
  'Organics, every Monday from April to November, in every zone.',
  '有机垃圾，4 月至 11 月每周一收集，所有区相同。',
- @page);
+ current_setting('app.page'));
 
 -- --------------------------------------------------------------------------
 -- 5. The two Friday holidays zone D's grid moves a day earlier.
 -- --------------------------------------------------------------------------
 insert into collection_holiday
 (municipality_id, holiday_date, name_fr, name_en, name_zh, shift_days, sector, source_url) values
-(@st, '2026-12-25', 'Noel', 'Christmas Day', '圣诞节', -1, 'all',
- concat(@pdf, 'VST_Calendrier-collectes-2026_ZoneD.pdf')),
-(@st, '2027-01-01', 'Jour de l''An', 'New Year''s Day', '元旦', -1, 'all',
- concat(@pdf, 'VST_Calendrier-collectes-2026_ZoneD.pdf'));
+(current_setting('app.st')::bigint, '2026-12-25', 'Noel', 'Christmas Day', '圣诞节', -1, 'all',
+ concat(current_setting('app.pdf'), 'VST_Calendrier-collectes-2026_ZoneD.pdf')),
+(current_setting('app.st')::bigint, '2027-01-01', 'Jour de l''An', 'New Year''s Day', '元旦', -1, 'all',
+ concat(current_setting('app.pdf'), 'VST_Calendrier-collectes-2026_ZoneD.pdf'));
 
 -- --------------------------------------------------------------------------
 -- 6. The one bulky-item pickup left on the 2026 calendar.
@@ -210,13 +210,13 @@ insert into collection_holiday
 insert into collection_event
 (municipality_id, collection_date, sector, collection_type, bin_color, note_fr, note_en, note_zh, source_url)
 values
-(@st, '2026-12-07', 'all', 'bulky', 'none',
+(current_setting('app.st')::bigint, '2026-12-07', 'all', 'bulky', 'none',
  'Collecte des encombrants, pour toutes les zones.',
  'Bulky item collection, in every zone.',
  '大件垃圾收集，所有区相同。',
- concat(@pdf, 'VST_Calendrier-collectes-2026_4Zones.pdf'));
+ concat(current_setting('app.pdf'), 'VST_Calendrier-collectes-2026_4Zones.pdf'));
 
 -- --------------------------------------------------------------------------
 -- 7. Last, and only for what was loaded.
 -- --------------------------------------------------------------------------
-update municipality set calendar_verified = true where id = @st;
+update municipality set calendar_verified = true where id = current_setting('app.st')::bigint;

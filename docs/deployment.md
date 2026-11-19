@@ -32,11 +32,11 @@ things went wrong first, both now written into the steps below:
   four cities, guides of 35 / 62 / 39 entries, each city's calendar, and the
   Boisbriand street lookup.
 
-**Aiven retires its free MySQL tier on 21 December 2026** (the console says
-so). Before then the database needs the paid Developer plan or another MySQL
-host. Schema and reference data come back from the migrations on an empty
-database; accounts, admin edits and notices exist only in the current one and
-need a dump first.
+**Aiven retired its free MySQL tier** (no new services from 6 November
+2026; existing ones powered off and deleted on 21 December 2026). The
+application moved to **PostgreSQL** rather than to a paid plan; see "Moving to
+PostgreSQL" below for the one-time steps, including copying accounts, admin
+edits and notices out of the old database.
 
 The optional services are the part that has *not* been deployed — Redis,
 Kafka, MongoDB and the S3 photo pipeline are switched off there, and they
@@ -48,19 +48,19 @@ free plan disappeared while this document was being written.
 
 ## First: you need far less than the architecture diagram suggests
 
-The application is built so that everything past MySQL is optional at
+The application is built so that everything past the database is optional at
 runtime. For a working public demo:
 
 | Service | Needed? | What happens without it |
 |---|---|---|
-| **MySQL** | **Required** | Nothing starts. Flyway runs on boot. |
-| **Redis** | Strongly recommended | Caching falls through to MySQL; the admin agent's plan hand-off stops working. |
-| Kafka | No | `EVENTS_ENABLED=false`. The outbox still records into MySQL, so no event is lost — the relay just does not run. |
-| MongoDB | No | `AUDIT_STORE=mysql` (the default) keeps the audit trail in MySQL. The gap report is the only thing that goes dark. |
+| **PostgreSQL** | **Required** | Nothing starts. Flyway runs on boot. |
+| **Redis** | Strongly recommended | Caching falls through to the database; the admin agent's plan hand-off stops working. |
+| Kafka | No | `EVENTS_ENABLED=false`. The outbox still records into PostgreSQL, so no event is lost — the relay just does not run. |
+| MongoDB | No | `AUDIT_STORE=sql` (the default; `mysql` is read the same way) keeps the audit trail in PostgreSQL. The gap report is the only thing that goes dark. |
 | S3 + Lambda | No | The photo feature returns errors. Everything else is unaffected. |
 | Anthropic key | No | `ASSISTANT_PROVIDER=template` (the default) answers from the guide with no model and no cost. |
 
-So the minimum is **a MySQL and somewhere to run one container.** Two
+So the minimum is **a PostgreSQL and somewhere to run one container.** Two
 accounts, not four.
 
 Redis is in the "strongly recommended" row rather than the required one, and
@@ -82,11 +82,11 @@ real AWS account with a card on file — so leave it off and say so on the page.
 
 ## The services, and what they cost
 
-Checked September 2026. Verify before relying on any of it.
+Checked September 2026; the database row November 2026. Verify before relying on any of it.
 
 | Piece | Service | Free terms | Card? |
 |---|---|---|---|
-| MySQL | [Aiven for MySQL](https://aiven.io/free-mysql-database) | 1 GB RAM, 1 GB storage, one free service per type, no time limit | **No** |
+| PostgreSQL | [Aiven for PostgreSQL](https://aiven.io/free-postgresql-database) | 1 CPU, 1 GB RAM, 1 GB storage, single node, no backups, no time limit | **No** |
 | Redis | [Upstash](https://upstash.com/pricing/redis) | 256 MB, 500k commands/month, 10 GB bandwidth | **No** |
 | Redis (optional) | [Upstash](https://upstash.com/pricing/redis) | 256 MB, 500k commands/month | **No** |
 | The whole app | [Render](https://render.com/) | Free web service, 512 MB, Docker; **sleeps after 15 minutes idle**, 30–60 s to wake | **No** |
@@ -106,10 +106,11 @@ consequence. One is slow; the other is down.
 - **Render sleeps a free service after 15 minutes.** Waking it takes 30–60
   seconds before the JVM has even started. The link still works — it is just
   slow the first time.
-- **Aiven powers off a free MySQL that sits idle**, with a warning email
+- **Aiven powers off a free service that sits idle**, with a warning email
   first, and a powered-off service is not merely asleep. Its DNS record stops
   resolving. This has happened to this deployment, and it is worth recording
-  what it looks like, because nothing in the symptom points at the database:
+  what it looks like (on the MySQL it ran on then), because nothing in the
+  symptom points at the database:
 
   ```
   java.net.UnknownHostException:
@@ -144,37 +145,68 @@ Keeping a free service permanently awake with a scheduled pinger is possible
 and is what a lot of people do. It is also exactly what the idle policy exists
 to prevent, so it is not recommended here.
 
-## MySQL, not Postgres
+## PostgreSQL, since November 2026
 
-Not interchangeable here, so do not take the Postgres free tier that every
-list recommends. The schema uses MySQL-specific features:
+This section used to say "MySQL, not Postgres", because the schema leaned on
+MySQL: full-text indexes with an ngram parser for Chinese, `on duplicate key
+update`, migrations in MySQL's dialect. When Aiven retired the free MySQL
+plan, those were rewritten rather than paid for: the migrations are in
+PostgreSQL's dialect, the upserts are `on conflict`, and the sorting guide's
+ranking runs in the application (`SortingSearchIndex`) with the same formula
+MySQL used. `docs/design-notes.md`, "Why PostgreSQL", has the detail.
 
-- `FULLTEXT` indexes with **two parsers** — the default word parser for
-  French and English, and `ngram` for Chinese. Postgres has no ngram
-  full-text parser.
-- `on duplicate key update`, which the calendar top-up relies on to be
-  repeatable.
-- Flyway migrations written in MySQL dialect, including a `STORED GENERATED`
-  column.
+## Moving to PostgreSQL
+
+Once, in this order. The MySQL database is only read, so until the last step
+the old site keeps working and every step can be retried.
+
+1. **Create the database.** Aiven console → the same project → **Create
+   service → PostgreSQL**, plan **Free**. Wait until it shows *Running*. On
+   its overview page, keep the **Service URI** (it starts with
+   `postgres://`) and, separately, the host, port, user (`avnadmin`),
+   password and database name (`defaultdb`).
+2. **Store both connection strings as repository secrets.** GitHub →
+   Settings → Secrets and variables → Actions → **New repository secret**:
+   `POSTGRES_URI` = the new service's Service URI, and `MYSQL_URI` = the old
+   MySQL service's Service URI (the `mysql://` one on its overview page).
+   Paste them there and nowhere else.
+3. **Point Render at PostgreSQL and deploy.** Change `DB_URL`, `DB_USERNAME`
+   and `DB_PASSWORD` (step "3. The application" below), then **Manual Deploy
+   → Deploy latest commit**. Flyway builds the schema and loads every city's
+   calendar and guide on first boot. The site works from here on, but
+   residents' accounts and notices are not there yet.
+4. **Copy the data.** GitHub → Actions → **Move data from MySQL to
+   PostgreSQL** → Run workflow, type `copy`. It empties the PostgreSQL tables
+   and copies every row of MySQL across, ids included, in one transaction,
+   and commits only if every table's row count matches. Its log shows table
+   names and counts, never rows. Accounts, preferences, notices, push
+   subscriptions and anything administrators edited come across. Run it
+   soon after step 3: anything written to PostgreSQL in between (a new
+   account, say) is replaced. If it fails to connect to MySQL, check that
+   the MySQL service is not powered off.
+5. **Check, then clean up.** Sign in with an existing account; check the
+   checks in "5. Check it". Then delete the two secrets. Leave the MySQL
+   service until Aiven removes it on 21 December, as a fallback.
 
 ## Steps
 
-### 1. MySQL
+### 1. PostgreSQL
 
-Create the free MySQL service. Take its host, port, database name, user and
-password.
+Create the free PostgreSQL service. Take its host, port, database name, user
+and password.
 
-The app builds its own JDBC URL from `DB_URL`, so use the whole string:
+The app reads its JDBC URL from `DB_URL`, so use the whole string:
 
 ```
-DB_URL=jdbc:mysql://HOST:PORT/DATABASE?useUnicode=true&characterEncoding=utf8&serverTimezone=America/Toronto&sslMode=REQUIRED
+DB_URL=jdbc:postgresql://HOST:PORT/defaultdb?sslmode=require
 ```
 
-Managed MySQL normally requires TLS — `sslMode=REQUIRED` is the MySQL
-Connector/J parameter for that.
+Aiven requires TLS; `sslmode=require` is the PostgreSQL JDBC driver's
+parameter for that. The user and password go in `DB_USERNAME` and
+`DB_PASSWORD`, not in the URL.
 
 Nothing else to do: **Flyway creates every table and seeds the data on first
-boot** (18 migrations, verified to apply cleanly to an empty database).
+boot** (30 migrations, verified to apply cleanly to an empty database).
 
 ### 2. Redis — skip it
 
@@ -217,7 +249,7 @@ the port at 7860 instead, so set `PORT=7860` as a Space variable.
 because a 512 MB box is small and the JVM's default sizing assumes it is not.
 
 **Health check.** There is no actuator here. Use `GET /api/municipalities` — it
-is public, needs no parameters, returns 200, and touches MySQL, so it is a real
+is public, needs no parameters, returns 200, and touches the database, so it is a real
 readiness check rather than a liveness fiction. **Not** `/api/sorting-items`,
 which this section used to recommend: since the four-city change it requires
 `?municipality=`, so a check without it gets a 400 from a perfectly healthy
@@ -237,7 +269,7 @@ thing you do when something looks wrong.
 Environment variables:
 
 ```
-DB_URL=jdbc:mysql://HOST:PORT/DATABASE?useUnicode=true&characterEncoding=utf8&serverTimezone=America/Toronto&sslMode=REQUIRED
+DB_URL=jdbc:postgresql://HOST:PORT/defaultdb?sslmode=require
 DB_USERNAME=...
 DB_PASSWORD=...
 APP_JWT_SECRET=<a long random string, not the default>
@@ -245,7 +277,7 @@ APP_ADMIN_EMAIL=<your admin email>
 APP_ADMIN_PASSWORD=<a real password, not the default>
 CACHE_TYPE=none                    # no Redis
 EVENTS_ENABLED=false               # no Kafka
-AUDIT_STORE=mysql                  # no MongoDB
+AUDIT_STORE=sql                    # no MongoDB (an existing `mysql` works too)
 ASSISTANT_PROVIDER=template        # no API key, no cost
 ```
 
@@ -289,7 +321,7 @@ Be straight about what is running. Something like:
 
 > Live demo on free-tier infrastructure. The photo feature is disabled
 > because it needs a paid AWS account; events and the document store are
-> switched off, and the application degrades to MySQL for both by design.
+> switched off, and the application degrades to PostgreSQL for both by design.
 
 That reads better than a demo where a third of the buttons return errors with
 no explanation.

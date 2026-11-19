@@ -32,6 +32,8 @@ calendar and points to boisbriand.ca.
 """
 import datetime as dt
 import io
+
+import pg_sql
 import os
 
 PAGE = 'https://www.ville.boisbriand.qc.ca/services/citoyens/collectes-des-matieres-residuelles'
@@ -167,5 +169,5 @@ update municipality set calendar_verified = true where id = @bb;
 if __name__ == '__main__':
     root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     target = os.path.join(root, 'backend/src/main/resources/db/migration/V25__boisbriand_collection_calendar_from_2025.sql')
-    io.open(target, 'w', encoding='utf-8', newline='\n').write(render())
+    io.open(target, 'w', encoding='utf-8', newline='\n').write(pg_sql.convert(render()))
     print('wrote', target, len(rules()), 'rules')

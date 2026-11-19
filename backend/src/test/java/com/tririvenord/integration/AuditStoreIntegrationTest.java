@@ -3,7 +3,7 @@ package com.tririvenord.integration;
 import com.tririvenord.audit.AuditRecord;
 import com.tririvenord.audit.AuditStore;
 import com.tririvenord.audit.MongoAuditStore;
-import com.tririvenord.audit.MySqlAuditStore;
+import com.tririvenord.audit.SqlAuditStore;
 import com.tririvenord.support.InMemoryMongo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * rather than by assertion. If the document store were carrying its weight at
  * this scale, one of these two implementations would struggle to satisfy a
  * test the other passes. Neither does — which is the finding, and it is why
- * MySQL is the default.
+ * the SQL store is the default.
  */
 @Tag("integration")
 @SpringBootTest
@@ -56,7 +56,7 @@ class AuditStoreIntegrationTest {
     private ObjectMapper objectMapper;
 
     private static Stream<String> backends() {
-        return Stream.of("mysql-json", "mongodb");
+        return Stream.of("sql-json", "mongodb");
     }
 
     @AfterEach
@@ -68,7 +68,7 @@ class AuditStoreIntegrationTest {
     private AuditStore store(String backend) {
         return "mongodb".equals(backend)
                 ? new MongoAuditStore(mongo)
-                : new MySqlAuditStore(jdbc, objectMapper);
+                : new SqlAuditStore(jdbc, objectMapper);
     }
 
     @ParameterizedTest(name = "{0}")
