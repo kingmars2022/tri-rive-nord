@@ -33,10 +33,26 @@ things went wrong first, both now written into the steps below:
   Boisbriand street lookup.
 
 **Aiven retired its free MySQL tier** (no new services from 6 November
-2026; existing ones powered off and deleted on 21 December 2026). The
-application moved to **PostgreSQL** rather than to a paid plan; see "Moving to
-PostgreSQL" below for the one-time steps, including copying accounts, admin
-edits and notices out of the old database.
+2026; existing ones powered off and deleted on 21 December 2026), so on
+19 November 2026 the deployment moved to **Aiven's free PostgreSQL** rather
+than to a paid plan, at `d8faf6f`, following "Moving to PostgreSQL" below:
+
+- Aiven gave PostgreSQL **18.7**; CI and local tests run 16. Flyway applied
+  `V1`–`V30` to the empty database on first boot without complaint, and the
+  calendar top-up generated 542 occurrences straight after.
+- Render's only change was `DB_URL`, `DB_USERNAME` and `DB_PASSWORD`; saving
+  them redeployed the latest commit on its own ("Environment updated").
+- The copy workflow ran in 20 seconds and committed with every table's count
+  matching: 4 cities, 17 sectors, 252 streets, 136 guide entries, 598
+  collections, 5 closed days, and one account (the administrator; no
+  residents had registered and no notices had been sent). The two
+  connection-string secrets were deleted afterwards.
+- Checked live afterwards: four cities, guides of 35 / 62 / 39 entries,
+  Sainte-Therese zone A's next organics Monday, the Boisbriand street lookup
+  found "Grande-Allée" from "grande allee", the assistant sent a soiled pizza
+  box to the brown bin, and the administrator signed in.
+- The old MySQL service was left for Aiven to remove on 21 December. Nothing
+  reads it any more.
 
 The optional services are the part that has *not* been deployed — Redis,
 Kafka, MongoDB and the S3 photo pipeline are switched off there, and they
@@ -157,7 +173,9 @@ MySQL used. `docs/design-notes.md`, "Why PostgreSQL", has the detail.
 
 ## Moving to PostgreSQL
 
-Once, in this order. The MySQL database is only read, so until the last step
+Done on 19 November 2026 (see the top of this document); kept as the record
+of how, and for anyone running their own copy of the old MySQL setup. Once,
+in this order. The MySQL database is only read, so until the last step
 the old site keeps working and every step can be retried.
 
 1. **Create the database.** Aiven console → the same project → **Create
