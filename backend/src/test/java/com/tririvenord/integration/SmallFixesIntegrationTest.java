@@ -92,16 +92,32 @@ class SmallFixesIntegrationTest {
         }
     }
 
+    private static final String LIST_MARKER = "test://admin-list-order";
+
+    @org.junit.jupiter.api.AfterEach
+    void removeListEvents() {
+        jdbc.update("delete from collection_event where source_url = ?", LIST_MARKER);
+    }
+
     @Test
     void theAdminCollectionListStartsWithWhatIsComing() throws Exception {
+        // Its own events, a past one and two to come: what else is in the
+        // calendar depends on which tests ran before (on CI, sometimes no
+        // collection to come at all).
+        LocalDate today = LocalDate.now();
+        for (LocalDate day : List.of(today.minusDays(2), today.plusDays(1), today.plusDays(3))) {
+            jdbc.update("""
+                    insert into collection_event (municipality_id, collection_date, sector, collection_type, bin_color, source_url)
+                    select id, ?, 'list-order-test', 'garbage', 'black', ? from municipality where slug = 'blainville'
+                    """, day, LIST_MARKER);
+        }
         JsonNode login = json(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(Map.of(
                         "email", IntegrationEnvironment.ADMIN_EMAIL, "password", IntegrationEnvironment.ADMIN_PASSWORD))));
         String token = login.get("token").asText();
-        LocalDate today = LocalDate.now();
 
         JsonNode page = json(get("/api/admin/collections").param("municipality", "blainville")
-                .param("page", "0").param("size", "25").header("Authorization", "Bearer " + token));
+                .param("page", "0").param("size", "100").header("Authorization", "Bearer " + token));
         List<LocalDate> dates = new ArrayList<>();
         page.get("items").forEach(e -> dates.add(LocalDate.parse(e.get("collectionDate").asText())));
 
@@ -109,8 +125,12 @@ class SmallFixesIntegrationTest {
                 select min(collection_date) from collection_event e join municipality m on m.id = e.municipality_id
                 where m.slug = 'blainville' and collection_date >= ?
                 """, LocalDate.class, today);
-        assertThat(dates).isNotEmpty();
         assertThat(dates.get(0)).isEqualTo(nearest);
-        assertThat(dates).isSorted().allSatisfy(d -> assertThat(d).isAfterOrEqualTo(today));
+        // Everything to come, in date order, before anything past.
+        int firstPast = (int) dates.stream().takeWhile(d -> !d.isBefore(today)).count();
+        assertThat(dates.subList(0, firstPast)).isSorted();
+        assertThat(dates.subList(firstPast, dates.size())).allSatisfy(d -> assertThat(d).isBefore(today));
+        assertThat(dates.subList(firstPast, dates.size()))
+                .isSortedAccordingTo(java.util.Comparator.reverseOrder());
     }
 }
