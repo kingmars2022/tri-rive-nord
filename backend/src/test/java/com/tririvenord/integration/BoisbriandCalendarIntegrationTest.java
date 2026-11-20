@@ -29,22 +29,19 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Boisbriand's calendar, as V25 loads it - which is NOT a check against the
- * city's 2026 calendar, because that document was not available.
+ * Boisbriand's calendar, against the city's own "Calendrier des collectes
+ * 2026" (data/municipal-sources/boisbriand/2026-11-20/).
  *
- * <p>Read V25's header before trusting any of this. At the owner's direction
- * the schedule was carried forward from "Calendrier des collectes 2025":
- * recycling every other week in both sectors, garbage with it in sector A and
- * in the other weeks in sector B, organics weekly to November and in the
- * non-recycling weeks from December, collections due on 25 December and
- * 1 January moved a day earlier. The expected lists below are that pattern
- * written out by hand for November and December 2026, so what this test can
- * catch is a migration that does not do what the 2025 calendar describes. It
- * cannot catch the city having changed the pattern for 2026.
+ * <p>V25 loaded the schedule by carrying the 2025 calendar's pattern forward,
+ * before the 2026 one was in hand; V31 checked it against the 2026 calendar
+ * when it arrived and changed only what residents are told. The expected
+ * dates below, from 17 November to 1 January, are read off pages 3 and 4 of
+ * the 2026 PDF for the two zones they cover: sector A on Tuesday and sector B
+ * on Friday, which is the day both holidays fall on.
  *
- * <p>Two things here are checked against something printed: the phase
- * arithmetic against the 2025 calendar's own recycling weeks, and the
- * excess-waste week against the 2026 collections page.
+ * <p>After 1 January 2027 nothing is printed yet. V31 carries the same
+ * rhythm on and says so in every note; that part is checked for being what
+ * V31 says it is, not against a document.
  *
  * <p>Run with: {@code mvn test -Pintegration-test}
  */
@@ -128,7 +125,7 @@ class BoisbriandCalendarIntegrationTest {
     }
 
     @Test
-    void sectorA_tuesday_followsThe2025Pattern() {
+    void sectorA_tuesday_isWhatThe2026CalendarPrints() {
         topUpOn("2026-11-17");
 
         assertThat(calendarOf("a-mardi", "2026-11-17", "2026-12-31")).containsExactly(
@@ -150,7 +147,7 @@ class BoisbriandCalendarIntegrationTest {
 
     /** The sector the holidays land on, with garbage on the other weeks. */
     @Test
-    void sectorB_friday_followsThe2025Pattern_withBothHolidaysMovedADayEarlier() {
+    void sectorB_friday_isWhatThe2026CalendarPrints_withBothHolidaysMovedADayEarlier() {
         topUpOn("2026-11-17");
 
         assertThat(calendarOf("b-vendredi", "2026-11-17", "2027-01-02")).containsExactly(
@@ -171,28 +168,55 @@ class BoisbriandCalendarIntegrationTest {
     }
 
     /**
-     * The one projection everything rests on: the 2025 calendar prints
-     * recycling in both sectors in the weeks of 8 and 22 December 2025, and
-     * V25's recycling anchors sit a whole number of fortnights after them.
+     * January 2027 is not printed yet: the same rhythm carries on, sector A's
+     * Tuesday recycling and garbage a fortnight after 22 December and winter
+     * organics a fortnight after 29 December, and the notes say where the
+     * dates came from on each side of the year.
      */
     @Test
-    void theRecyclingWeeksAreInPhaseWithThe2025Calendar() {
-        LocalDate printed2025 = LocalDate.parse("2025-12-22");
+    void january2027CarriesTheRhythmOn_andTheNotesSaySo() {
+        topUpOn("2026-11-17");
+
+        assertThat(calendarOf("a-mardi", "2027-01-01", "2027-01-31")).containsExactly(
+                "2027-01-05 garbage",
+                "2027-01-05 recycling",
+                "2027-01-12 organic",
+                "2027-01-19 garbage",
+                "2027-01-19 recycling",
+                "2027-01-26 organic");
+
+        assertThat(events.findUpcoming(city, Sector.of("a-mardi"),
+                LocalDate.parse("2026-12-22"), LocalDate.parse("2026-12-22")))
+                .allSatisfy(event -> assertThat(event.noteFr()).endsWith("D'apres le calendrier 2026 de la Ville."));
+        assertThat(events.findUpcoming(city, Sector.of("a-mardi"),
+                LocalDate.parse("2027-01-05"), LocalDate.parse("2027-01-05")))
+                .isNotEmpty()
+                .allSatisfy(event -> assertThat(event.noteFr()).contains("en attendant celui de 2027"));
+    }
+
+    /**
+     * The 2026 calendar prints recycling in both sectors in the week of
+     * 21 December 2026. Every recycling rule, the 2026 ones and their 2027
+     * continuations, sits a whole number of fortnights from it.
+     */
+    @Test
+    void theRecyclingWeeksAreInPhaseWithThe2026Calendar() {
+        LocalDate printed2026 = LocalDate.parse("2026-12-21");
 
         List<LocalDate> anchors = jdbc.queryForList(
                 "select anchor_date from collection_schedule_rule "
                         + "where municipality_id = ? and collection_type = 'recycling'",
                 LocalDate.class, city);
 
-        assertThat(anchors).hasSize(8).allSatisfy(anchor -> {
+        assertThat(anchors).hasSize(16).allSatisfy(anchor -> {
             LocalDate mondayOfItsWeek = anchor.minusDays(anchor.getDayOfWeek().getValue() - 1);
-            assertThat(java.time.temporal.ChronoUnit.DAYS.between(printed2025, mondayOfItsWeek) % 14)
+            assertThat(java.time.temporal.ChronoUnit.DAYS.between(printed2026, mondayOfItsWeek) % 14)
                     .as("recycling anchored on %s", anchor)
                     .isZero();
         });
     }
 
-    /** From the 2026 page: "Du 15 au 18 decembre 2026", on each sector's day. */
+    /** Printed in both sectors' December, 15-18, on each sector's day. */
     @Test
     void theExcessWasteWeekIsThe2026PagesOwn() {
         assertThat(jdbc.queryForList(
@@ -209,10 +233,23 @@ class BoisbriandCalendarIntegrationTest {
         Municipality boisbriand = municipalities.requireBySlug("boisbriand");
         assertThat(boisbriand.calendarVerified()).isTrue();
 
+        // Up to the 1 January 2027 occurrence, the 2026 calendar's own words;
+        // after it, the carried-on rhythm, said as such. Nothing says 2025.
         assertThat(jdbc.queryForList(
-                "select note_fr from collection_schedule_rule where municipality_id = ?", String.class, city))
-                .hasSize(40)
-                .allSatisfy(note -> assertThat(note).contains("calendrier 2025"));
+                "select note_fr from collection_schedule_rule "
+                        + "where municipality_id = ? and valid_until <= date '2027-01-01'", String.class, city))
+                .hasSize(32)
+                .allSatisfy(note -> assertThat(note).endsWith("D'apres le calendrier 2026 de la Ville."));
+        assertThat(jdbc.queryForList(
+                "select note_fr from collection_schedule_rule "
+                        + "where municipality_id = ? and anchor_date > date '2027-01-01'", String.class, city))
+                .hasSize(32)
+                .allSatisfy(note -> assertThat(note).contains("en attendant celui de 2027"));
+        assertThat(jdbc.queryForList(
+                "select concat(note_fr, note_en, note_zh) from collection_schedule_rule where municipality_id = ?",
+                String.class, city))
+                .hasSize(64)
+                .noneSatisfy(notes -> assertThat(notes).contains("2025"));
 
         assertThat(municipalities.sectorsOf(boisbriand)).hasSize(9);
         assertThat(municipalities.defaultSectorOf(boisbriand).isAll()).isFalse();

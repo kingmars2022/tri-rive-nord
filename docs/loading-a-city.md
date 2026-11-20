@@ -38,9 +38,10 @@ that the city stays unloaded. The application already renders that honestly.
      boulevard; another city may use three zones, or none)
    - statutory holidays, and how many days a collection moves when one lands
      on its day
-3. **Write the migration.** `V30` onward (`V22` and `V23` are Sainte-Therese, `V24` a Blainville
+3. **Write the migration.** `V32` onward (`V22` and `V23` are Sainte-Therese, `V24` a Blainville
    search fix that loading it made necessary, `V25`, `V26` and `V28` Boisbriand, `V27` per-city
-   notices, `V29` a Sainte-Therese search fix that loading Boisbriand made necessary). Insert the sectors into
+   notices, `V29` a Sainte-Therese search fix that loading Boisbriand made necessary, `V30` the
+   accent-folding function the PostgreSQL move needed, `V31` Boisbriand checked against 2026). Insert the sectors into
    `municipality_sector`, the rules into `collection_schedule_rule`, the
    holidays into `collection_holiday`, and the guide into `sorting_item` and
    its three child tables. Set `calendar_verified` and `guide_verified` on the
@@ -54,7 +55,8 @@ that the city stays unloaded. The application already renders that honestly.
    and Redis; see `docs/deployment.md`. All green before and after: 216 before
    Sainte-Therese, 243 after its calendar and guide, 254 after Boisbriand and its street table,
    259 after the admin console learned each city's sectors, 265 after notices became per city,
-   271 after Boisbriand's guide, 279 after the move to PostgreSQL. Each city's
+   271 after Boisbriand's guide, 279 after the move to PostgreSQL, 280 after
+   Boisbriand's 2026 check. Each city's
    guide test searches every entry by its own name; give the new city one.
 
 ## Loaded so far
@@ -63,7 +65,7 @@ that the city stays unloaded. The application already renders that honestly.
 |---|---|---|---|
 | Blainville | yes | yes | V15, V17 |
 | Sainte-Therese | yes, 2026 grids | yes, regulation 1373 | V22, V23 |
-| Boisbriand | **projected from the 2025 calendar** -- not checked against 2026, see below | yes: 2026 page + 2025 calendar pp. 3-5 | V25, V26, V28 |
+| Boisbriand | yes for 2026: projected from 2025 (V25), then checked date by date against the 2026 calendar (V31); 2027 carried on at the same rhythm until the city publishes it | yes: 2026 page + 2025 calendar pp. 3-5 | V25, V26, V28, V31 |
 | Rosemere | no -- site does not answer automated requests | no | |
 
 ## What Sainte-Therese added to the list of things to get wrong
@@ -233,8 +235,26 @@ owner chose on 2026-11-17 to load from 2025 rather than wait. So:
   which refuses to write unless every weekday cell on the page is paired with
   exactly one street. Like V25, it is 2025's; replace it with V25.
 
-**First thing to do when the 2026 (or 2027) calendar is in hand:** read it
-against V25 and replace the rules. That is the step this city skipped.
+**The 2026 calendar arrived on 2026-11-20** (uploaded by the owner, archived
+under `data/municipal-sources/boisbriand/2026-11-20/`) and was read against
+V25 and V26:
+
+- Every date V25 produces from 17 November to 31 December 2026 is the one
+  printed, in both sectors and on every weekday, holidays and the
+  excess-waste week included. The 2026 pattern is the 2025 one with the same
+  phase, for the whole year. The projection held; nothing moved.
+- Page 2's street table, parsed by position the same way as V26, gives the
+  same 252 rows, each with the same sector and weekday.
+- So V31 changes no date. It splits each rule at the last occurrence the
+  2026 calendar prints (1 January 2027, moved to 31 December) so that the
+  notes can say the truth on each side: "from the city's 2026 calendar"
+  before, "carried on at the 2026 rhythm until the 2027 calendar is out"
+  after. Applied to a database already holding six months of generated
+  collections, it left every date in place and rewrote every note.
+
+**When the 2027 calendar is in hand:** read it against the 2027
+continuation rules V31 created (`anchor_date` after 1 January 2027) and
+replace them if anything differs.
 
 ## The admin side reads sectors from the city too
 
