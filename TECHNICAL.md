@@ -285,51 +285,95 @@ TLS, and where the frontend finds the API.
 
 ## Tests
 
-180 tests: 75 backend unit, 81 backend integration, 24 frontend.
+366 tests: 137 backend unit, 174 backend integration, 55 frontend.
+
+Counted on 2026-11-20. The unit and frontend counts are from a run, all passing; the
+integration count is from the source, with `AuditStoreIntegrationTest`'s three tests
+counted once per store they run against.
+
+Backend unit tests, no Docker needed:
 
 | Suite | Tests | What it covers |
 |---|---|---|
 | `AuthServiceTest` | 3 | registration, login, password hashing |
 | `JwtServiceTest` | 3 | token issue, parse, rejection |
-| `SortingItemServiceTest` | 5 |
-| `SortingItemListingTest` | 3 | the guide listing costs four queries, not four per entry | multilingual search and keyword matching |
+| `SortingItemServiceTest` | 5 | multilingual search and keyword matching |
+| `SortingItemListingTest` | 3 | the guide listing costs four queries, not four per entry |
+| `SortingSearchIndexTest` | 13 | the TF-IDF ranking that replaced MySQL full-text search: accents, plurals, phrases, Chinese character pairs |
+| `SortingGuideRetrieverTest` | 4 | relevance cutoff, parser selection, empty-query short circuit |
+| `QueryNormalizerTest` | 6 | stopword stripping, accent folding, per-language rules |
 | `CollectionServiceTest` | 3 | sector schedule and bin colour resolution |
+| `CollectionScheduleRuleTest` | 4 | which dates a pattern produces: start, end, and rules already over |
 | `CollectionCalendarTopUpTest` | 6 | rolling generation, the high-water mark, gaps, biweekly phase |
+| `HolidayShiftTest` | 15 | holiday shifts: chained holidays, year boundary, sector holidays, loops that must terminate |
+| `CrossMunicipalityIsolationTest` | 3 | one city's answer and cache never reach another city's resident |
 | `SpecialNoticeServiceTest` | 3 | notice visibility |
-| `AuthenticationFlowIntegrationTest` | 8 | full context, real PostgreSQL, real filter chain |
-| `RedisCacheIntegrationTest` | 5 | real Redis: cache hits, key scoping, JSON round-trip, eviction |
-| `AssistantIntegrationTest` | 11 | real database and ranking: grounded answers in FR/EN/ZH, refusals, real-Redis quota |
-| `AdminAgentIntegrationTest` | 10 | real writes, single-use plans, plan ownership, validation, RBAC |
-| `NoticeEventPipelineIntegrationTest` | 5 | outbox commits with the write, relay, two consumer groups, replay safety |
-| `PhotoPipelineIntegrationTest` | 10 | real S3: presign, upload, Lambda, prefix isolation, path validation, and the async gap between upload and answer |
-| `PhotoProcessorTest` | 6 | EXIF GPS stripped, including when no resize is needed; WebP decodes |
-| `PhotoSortingServiceTest` | 7 | the model names, the guide decides; refusal when the guide has no entry |
-| `SortingGuideIntegrationTest` | 6 | one source of truth: examples, ordering, seasonal wording, the merged duplicate |
-| `CollectionCalendarIntegrationTest` | 4 | the calendar a year out, repeat runs, and a cancellation that stays cancelled |
-| `CorsIntegrationTest` | 4 | the origin list is enforced, trimmed, and exposes the one header the browser reads |
-| `CollectionPagingIntegrationTest` | 5 | pages partition the schedule, the total is the total, the size is capped |
-| `SortingItemTransactionIntegrationTest` | 2 | a half-written sorting entry rolls back; a whole one commits |
-| `ResidentQueryInsightsIntegrationTest` | 5 | question → Kafka → MongoDB → gap report, and no resident identified |
-| `QueryEventPublisherTest` | 4 | the events gate, and both failure modes kept apart |
-| `AuditStoreIntegrationTest` | 6 | one audit contract, run against MongoDB and PostgreSQL JSON |
+| `AssistantServiceTest` | 4 | the refusal rule: no context means no model call |
+| `TemplateAnswerComposerTest` | 4 | trilingual answer wording |
+| `ClaudeAnswerComposerTest` | 2 | template provider attribution after API failure |
+| `AssistantRateLimiterTest` | 5 | quota boundary, missing counter, and the failure policy in each mode |
 | `AdminAgentServiceTest` | 4 | writes recorded not executed, reads executed, turn ceiling |
 | `StepSummariserTest` | 4 | the confirmation line, including missing arguments |
-| `QueryNormalizerTest` | 6 | stopword stripping, accent folding, per-language rules |
-| `SortingGuideRetrieverTest` | 4 | relevance cutoff, parser selection, empty-query short circuit |
-| `AssistantServiceTest` | 4 | the refusal rule: no context means no model call |
-| `TemplateAnswerComposerTest` | 3 | trilingual answer wording |
-| `AssistantRateLimiterTest` | 5 | quota boundary, missing counter, and the failure policy in each mode |
-| `ClaudeAnswerComposerTest` | 1 | template provider attribution after API failure |
+| `QueryEventPublisherTest` | 4 | the events gate, and both failure modes kept apart |
+| `PhotoProcessorTest` | 6 | EXIF GPS stripped, including when no resize is needed; WebP decodes |
+| `PhotoSortingServiceTest` | 7 | the model names, the guide decides; refusal when the guide has no entry |
+| `PushSenderTest` | 7 | "device gone" versus "try later" for each answer a push service gives |
+| `PushNotifierTest` | 7 | fan-out per device language; no push failure reaches the notice consumer |
+| `VapidAuthenticationTest` | 6 | ES256 VAPID tokens, checked against one the `web-push` library signed |
+| `WebPushCryptoTest` | 5 | payload encryption, byte for byte against the `http_ece` reference |
 | `LocalS3Test` | 1 | the test S3 server starts without dragging in the app's database |
 
-Frontend, with Vitest in happy-dom — no browser, no backend, runs in about a second:
+Backend integration tests, against a real PostgreSQL and Redis, with Kafka, MongoDB and S3
+running in-process:
+
+| Suite | Tests | What it covers |
+|---|---|---|
+| `AuthenticationFlowIntegrationTest` | 8 | full context, real PostgreSQL, real filter chain |
+| `CorsIntegrationTest` | 4 | the origin list is enforced, trimmed, and exposes the one header the browser reads |
+| `RedisCacheIntegrationTest` | 5 | real Redis: cache hits, key scoping, JSON round-trip, eviction |
+| `AssistantIntegrationTest` | 14 | real database and ranking: grounded answers in FR/EN/ZH, refusals, real-Redis quota |
+| `ResidentQuestionsIntegrationTest` | 1 | questions typed the way residents type them, asked of every town's guide |
+| `AdminAgentIntegrationTest` | 14 | real writes, single-use plans, plan ownership, validation, RBAC |
+| `AdminSortingConsoleIntegrationTest` | 2 | guide cards saved with the admin console's exact payload |
+| `SortingGuideIntegrationTest` | 6 | one source of truth: examples, ordering, seasonal wording, the merged duplicate |
+| `SortingItemTransactionIntegrationTest` | 2 | a half-written sorting entry rolls back; a whole one commits |
+| `CollectionCalendarIntegrationTest` | 8 | the calendar a year out, repeat runs, and a cancellation that stays cancelled |
+| `CollectionPagingIntegrationTest` | 5 | pages partition the schedule, the total is the total, the size is capped |
+| `CollectionHolidayAdminIntegrationTest` | 9 | a saved holiday moves collections already generated; validation and admin-only access |
+| `SainteThereseCalendarIntegrationTest` | 8 | Sainte-Thérèse's dates against its printed calendar, zone by zone |
+| `SainteThereseGuideIntegrationTest` | 12 | Sainte-Thérèse's answers against its bylaw (Règlement 1373 N.S.) |
+| `BoisbriandCalendarIntegrationTest` | 6 | Boisbriand's dates against its 2026 calendar, and notes that say where each came from |
+| `BoisbriandGuideIntegrationTest` | 6 | Boisbriand's answers against its printed guide, in every language |
+| `BoisbriandStreetDirectoryIntegrationTest` | 6 | "which sector is my street in?", against the city's street table |
+| `RosemereCalendarIntegrationTest` | 5 | Rosemère's dates against its 2026 municipal calendar |
+| `RosemereGuideIntegrationTest` | 7 | Rosemère's answers against page 30 of its calendar; unplaced items refused |
+| `TownRulesIntegrationTest` | 2 | each town's own curbside hours and spelling, and none where a town prints none |
+| `NoticeScopingIntegrationTest` | 5 | a notice reaches its own city's list, cache, inbox and devices, and no other |
+| `NoticeEventPipelineIntegrationTest` | 5 | outbox commits with the write, relay, two consumer groups, replay safety |
+| `NoticeInboxWithoutBrokerIntegrationTest` | 1 | inbox delivery in the production configuration, with no Kafka |
+| `PushSubscriptionIntegrationTest` | 7 | device registration: sign-in required, HTTPS and valid keys only, own devices only |
+| `PhotoPipelineIntegrationTest` | 10 | real S3: presign, upload, Lambda, prefix isolation, path validation, and the async gap between upload and answer |
+| `PhotoSwitchIntegrationTest` | 2 | photo identification off by default, refused plainly rather than failing in AWS |
+| `ResidentQueryInsightsIntegrationTest` | 5 | question → Kafka → MongoDB → gap report, and no resident identified |
+| `AuditStoreIntegrationTest` | 6 | one audit contract, run against MongoDB and PostgreSQL JSON |
+| `SmallFixesIntegrationTest` | 3 | French accents in the guides, an unpadded pizza-box answer, the admin list starting today |
+
+Frontend, with Vitest in happy-dom — no browser, no backend, runs in about three seconds:
 
 | Suite | Tests | What it covers |
 |---|---|---|
 | `client.spec.ts` | 6 | bearer token, 401 logs out, Retry-After parsing, 204 |
 | `photo.spec.ts` | 5 | retries while preparing, never retries a missing API key, gives up |
-| `AdminView.spec.ts` | 9 | POST vs PUT, every field an edit did not touch surviving it, and the schedule pager |
+| `push.spec.ts` | 6 | key decoding, no PushManager, subscribe and unsubscribe, a refusal registers nothing |
 | `preferences.spec.ts` | 4 | defaults, persistence, and unreadable storage not taking the app down |
+| `municipality.spec.ts` | 4 | a sector the chosen city really has, the wildcard only as a last resort, a vanished city |
+| `HomeBinHours.spec.ts` | 4 | each town's own curbside hours, and none for a town that prints none |
+| `SettingsStreetLookup.spec.ts` | 4 | street lookup only where sectors go by street; newest answer wins; empty results explained |
+| `SortingPhotoAndAnswer.spec.ts` | 3 | the photo button only where photos can be identified; each source its own link |
+| `SortingBinColour.spec.ts` | 2 | a grey garbage bin is called grey, a black one black |
+| `AdminView.spec.ts` | 9 | POST vs PUT, every field an edit did not touch surviving it, and the schedule pager |
+| `AdminSectors.spec.ts` | 3 | the selected city's sectors, named rather than coded, reloaded on a city switch |
+| `AdminHolidays.spec.ts` | 5 | closed days listed, sent in every language, the schedule reloaded after a save or delete |
 
 Unit tests need nothing but the JVM:
 
