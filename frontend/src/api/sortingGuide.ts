@@ -2,7 +2,7 @@ import { api } from "./client";
 import type { Language } from "../i18n/messages";
 
 export type DestinationType = "organic" | "recycling" | "garbage" | "ecocentre" | "bulky" | "special";
-export type BinColor = "brown" | "blue" | "black" | "none";
+export type BinColor = "brown" | "blue" | "black" | "grey" | "none";
 
 export interface SortingTranslation {
   name: string;

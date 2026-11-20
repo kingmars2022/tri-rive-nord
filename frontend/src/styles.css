@@ -11,7 +11,7 @@
 
   Three rules hold the rest together.
 
-  1. The bins carry the colour. Brown, blue and black are not a palette
+  1. The bins carry the colour. Brown, blue, black and grey are not a palette
      somebody picked; they are what the city puts on the containers, and a
      resident recognises them before reading a word. Everything else is paper,
      ink and one civic green, so the only saturated thing on a page is the
@@ -42,6 +42,7 @@
   --bin-brown: #6f4a28;
   --bin-blue: #1f5f93;
   --bin-black: #232624;
+  --bin-grey: #7b8086;
   --bin-none: #6e7a74;
 
   --danger: #8c2f22;
@@ -306,12 +307,14 @@ main {
 .bin-card.brown::before { background: var(--bin-brown); }
 .bin-card.blue::before  { background: var(--bin-blue); }
 .bin-card.black::before { background: var(--bin-black); }
+.bin-card.grey::before  { background: var(--bin-grey); }
 .bin-card.none::before  { background: var(--bin-none); }
 
 /* The headline band takes the same colours, on its left edge. */
 .notice.brown { border-left-color: var(--bin-brown); }
 .notice.blue  { border-left-color: var(--bin-blue); }
 .notice.black { border-left-color: var(--bin-black); }
+.notice.grey  { border-left-color: var(--bin-grey); }
 .notice.none  { border-left-color: var(--bin-none); }
 
 /*
@@ -544,6 +547,7 @@ button[disabled] {
 .sorting-card.brown::before { background: var(--bin-brown); }
 .sorting-card.blue::before  { background: var(--bin-blue); }
 .sorting-card.black::before { background: var(--bin-black); }
+.sorting-card.grey::before  { background: var(--bin-grey); }
 
 .sorting-card h3 {
   font-size: 19px;

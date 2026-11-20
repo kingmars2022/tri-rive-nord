@@ -4,6 +4,7 @@ public enum BinColor {
     brown,
     blue,
     black,
+    grey,
     none
 }
 
