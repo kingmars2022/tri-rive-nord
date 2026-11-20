@@ -245,8 +245,8 @@ function onReminderChange(event: Event) {
       <p v-if="chosenStreet" class="admin-note street-chosen">
         {{ t("settings.streetChosen") }} {{ sectorNameByCode(chosenStreet.sectorCode) }}
       </p>
-      <!-- Where the table comes from, every time it is used: it is the
-           city's 2025 edition, and a street moved for 2026 would be wrong. -->
+      <!-- Where the table comes from, every time it is used: the city's
+           printed street list, checked against its 2026 calendar (V31). -->
       <p class="admin-note">{{ t("settings.streetSource") }}</p>
     </div>
 

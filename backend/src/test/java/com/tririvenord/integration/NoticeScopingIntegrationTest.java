@@ -84,19 +84,35 @@ class NoticeScopingIntegrationTest {
         resident(STE_THERESE_RESIDENT, sainteTherese, "a");
     }
 
+    /**
+     * Notices first, then residents. Another test class's context can still
+     * be relaying outbox events while this one runs, and its consumer fans a
+     * notice created here out to these residents; the outbox rows go first so
+     * nothing new is relayed, and a resident is deleted again if a fan-out
+     * landed between its two deletes.
+     */
     @AfterEach
     void cleanUp() {
-        for (String email : List.of(BLAINVILLE_RESIDENT, STE_THERESE_RESIDENT)) {
-            jdbc.update("delete from resident_notification where user_id = (select id from app_user where email = ?)", email);
-            jdbc.update("delete from push_subscription where user_id = (select id from app_user where email = ?)", email);
-            jdbc.update("delete from user_preference where user_id = (select id from app_user where email = ?)", email);
-            jdbc.update("delete from app_user where email = ?", email);
-        }
-        jdbc.update("delete from resident_notification where notice_id in "
-                + "(select id from special_notice where source_url = ?)", MARKER);
         jdbc.update("delete from outbox_event where aggregate_id in "
                 + "(select id from special_notice where source_url = ?)", MARKER);
+        jdbc.update("delete from resident_notification where notice_id in "
+                + "(select id from special_notice where source_url = ?)", MARKER);
         jdbc.update("delete from special_notice where source_url = ?", MARKER);
+        for (String email : List.of(BLAINVILLE_RESIDENT, STE_THERESE_RESIDENT)) {
+            jdbc.update("delete from push_subscription where user_id = (select id from app_user where email = ?)", email);
+            jdbc.update("delete from user_preference where user_id = (select id from app_user where email = ?)", email);
+            for (int attempt = 1; ; attempt++) {
+                jdbc.update("delete from resident_notification where user_id = (select id from app_user where email = ?)", email);
+                try {
+                    jdbc.update("delete from app_user where email = ?", email);
+                    break;
+                } catch (org.springframework.dao.DataIntegrityViolationException raced) {
+                    if (attempt == 5) {
+                        throw raced;
+                    }
+                }
+            }
+        }
     }
 
     private long cityId(String slug) {

@@ -25,6 +25,14 @@ export type Municipality = {
    * Boisbriand, which sets the collection weekday street by street.
    */
   hasStreetDirectory: boolean;
+  /**
+   * The town's own curbside rule, as "HH:mm": out from the evening before,
+   * out by the morning of, back in by. Null where the town prints none, and
+   * then the home page says nothing rather than another town's hours.
+   */
+  binsOutFrom: string | null;
+  binsOutBy: string | null;
+  binsInBy: string | null;
 };
 
 /** A street, or one civic-number range of it, and the sector it is in. */

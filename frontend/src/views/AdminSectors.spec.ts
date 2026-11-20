@@ -37,7 +37,10 @@ const city = (slug: string, name: string, sectors: Municipality["sectors"]): Mun
   calendarVerified: true,
   guideVerified: true,
   sectors,
-  hasStreetDirectory: false
+  hasStreetDirectory: false,
+  binsOutFrom: null,
+  binsOutBy: null,
+  binsInBy: null
 });
 
 const blainville = city("blainville", "Blainville", [

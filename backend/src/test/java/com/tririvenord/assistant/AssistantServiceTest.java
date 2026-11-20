@@ -40,7 +40,7 @@ class AssistantServiceTest {
     private static final Municipality BLAINVILLE = new Municipality(
             1L, "blainville", "Blainville", "QC",
             "https://blainville.ca/services/environnement-et-voirie/collectes-et-matieres-residuelles",
-            true, true);
+            true, true, java.time.LocalTime.of(20, 0), java.time.LocalTime.of(6, 0), java.time.LocalTime.of(20, 0));
 
     private AssistantService service;
 

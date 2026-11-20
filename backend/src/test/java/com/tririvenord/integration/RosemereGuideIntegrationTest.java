@@ -36,7 +36,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 class RosemereGuideIntegrationTest {
 
-    private static final int ITEMS = 32;
+    private static final int ITEMS = 33;
 
     @DynamicPropertySource
     static void infrastructureProperties(DynamicPropertyRegistry registry) {

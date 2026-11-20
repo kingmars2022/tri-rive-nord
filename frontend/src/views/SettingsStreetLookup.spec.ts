@@ -38,7 +38,10 @@ const boisbriand: Municipality = {
     sector("a-vendredi", "Secteur A, vendredi"),
     sector("b-vendredi", "Secteur B, vendredi")
   ],
-  hasStreetDirectory: true
+  hasStreetDirectory: true,
+  binsOutFrom: null,
+  binsOutBy: null,
+  binsInBy: null
 };
 
 const blainville: Municipality = {
@@ -46,7 +49,10 @@ const blainville: Municipality = {
   slug: "blainville",
   name: "Blainville",
   sectors: [sector("all", "Tout le territoire"), sector("north", "Nord"), sector("south", "Sud")],
-  hasStreetDirectory: false
+  hasStreetDirectory: false,
+  binsOutFrom: null,
+  binsOutBy: null,
+  binsInBy: null
 };
 
 function mountFor(city: Municipality) {
@@ -131,6 +137,6 @@ describe("SettingsView street lookup", () => {
     await flushPromises();
 
     expect(wrapper.text()).toContain("Aucune rue trouvee");
-    expect(wrapper.text()).toContain("calendrier 2025");
+    expect(wrapper.text()).toContain("calendrier 2026");
   });
 });

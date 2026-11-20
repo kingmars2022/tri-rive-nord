@@ -14,7 +14,10 @@ const BLAINVILLE: Municipality = {
     { code: "all", nameFr: "Tout le territoire", nameEn: "Whole city", nameZh: "全市" },
     { code: "north", nameFr: "Nord", nameEn: "North", nameZh: "北" }
   ],
-  hasStreetDirectory: false
+  hasStreetDirectory: false,
+  binsOutFrom: null,
+  binsOutBy: null,
+  binsInBy: null
 };
 
 /** Offered, but nothing read from its own calendar yet, so no sectors either. */
@@ -25,7 +28,10 @@ const ROSEMERE: Municipality = {
   calendarVerified: false,
   guideVerified: false,
   sectors: [],
-  hasStreetDirectory: false
+  hasStreetDirectory: false,
+  binsOutFrom: null,
+  binsOutBy: null,
+  binsInBy: null
 };
 
 describe("municipality store", () => {

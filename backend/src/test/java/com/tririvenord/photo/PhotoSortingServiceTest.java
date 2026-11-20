@@ -63,7 +63,7 @@ class PhotoSortingServiceTest {
         MockitoAnnotations.openMocks(this);
         when(composer.providerName()).thenReturn("template");
         when(municipalities.requireById(MUNI)).thenReturn(new Municipality(MUNI, "rosemere", "Rosemere", "QC",
-                "https://www.ville.rosemere.qc.ca/", true, true));
+                "https://www.ville.rosemere.qc.ca/", true, true, null, null, null));
         service = new PhotoSortingService(storage, identifier, retriever, composer, queries,
                 new PhotoProperties("bucket", "ca-central-1", "", 300, 10_000_000, 0), municipalities);
     }

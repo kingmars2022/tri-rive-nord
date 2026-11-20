@@ -21,7 +21,14 @@ public record MunicipalityView(
         List<SectorView> sectors,
         // True when residents choose a sector by street (Boisbriand), so the
         // settings page knows to offer the lookup.
-        boolean hasStreetDirectory
+        boolean hasStreetDirectory,
+        // When bins may go out (from the evening before, by the morning of)
+        // and must come back, as "HH:mm" in the town's time; null where the
+        // town prints no rule, so the home page says nothing rather than
+        // another town's hours.
+        String binsOutFrom,
+        String binsOutBy,
+        String binsInBy
 ) {
     public record SectorView(String code, String nameFr, String nameEn, String nameZh) {
     }
