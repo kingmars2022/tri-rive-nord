@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tririvenord.notice.SpecialNotice;
 import com.tririvenord.notice.SpecialNoticeService;
 import com.tririvenord.notice.dto.NoticeRequest;
-import com.tririvenord.notification.ResidentNotificationMapper;
 import com.tririvenord.push.PushSubscription;
 import com.tririvenord.push.PushSubscriptionMapper;
 import org.junit.jupiter.api.AfterEach;
@@ -26,7 +25,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -65,8 +63,6 @@ class NoticeScopingIntegrationTest {
     private ObjectMapper objectMapper;
     @Autowired
     private SpecialNoticeService notices;
-    @Autowired
-    private ResidentNotificationMapper notifications;
     @Autowired
     private PushSubscriptionMapper pushSubscriptions;
     @Autowired
@@ -164,9 +160,9 @@ class NoticeScopingIntegrationTest {
 
     @Test
     void theInboxFanOutReachesOnlyTheNoticesCity() {
+        // Without a broker (as here, and in production) publishing the notice
+        // fills the inboxes itself.
         SpecialNotice notice = notices.create(sainteTherese, request("Avis pour les boites"));
-
-        notifications.fanOutToResidentsWithReminders(notice.id(), UUID.randomUUID().toString());
 
         assertThat(inboxOf(STE_THERESE_RESIDENT, notice)).isOne();
         assertThat(inboxOf(BLAINVILLE_RESIDENT, notice)).isZero();

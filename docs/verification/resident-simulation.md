@@ -45,6 +45,38 @@ Two parts:
 After the fixes all 88 questions answer as each town's guide does, and the
 browser runs record no errors.
 
+## Second pass: everything, systematically
+
+The first pass followed five people. The second went through every
+combination instead, again on the local copy:
+
+- **Data**: every sector of every town (22) for each of the next 62 days,
+  checked for duplicates, unknown bin types and days with no collection
+  where the calendar has one; and all 169 guide entries, each in three
+  languages, checked for empty names, instructions or sources.
+- **Pages**: the five routes, in each town, each language, on a desktop and
+  on a phone - 120 page loads - checked for browser errors, failed calls,
+  raw message keys, `undefined`/`NaN`, pages wider than the screen, and
+  navigation in the wrong language.
+- **Administrator forms**: every form of the console (one-off collection,
+  guide card, notice, closed day, then editing the new card) submitted for
+  each town - 20 saves.
+- **Accounts and edits through the API**: registration and login rules, the
+  same email in other case, preferences and sectors, a resident on the admin
+  API, a notice and who sees it and in whose inbox, a closed day moving a
+  collection and coming back, a guide edit reaching the guide and the
+  assistant, and bad requests.
+
+Two more problems, both real:
+
+| Found | Why | Fix |
+|---|---|---|
+| The admin console could not add or save any guide card: every attempt was refused (400) | the API required an `itemKey` the console never sends; the console's own tests mock the API | The key is made from the English name when none is given ("scented-candle", then "scented-candle-2"); an edit keeps its key (`AdminSortingConsoleIntegrationTest`) |
+| A published notice never reached any resident's inbox on the free deployment, although the settings page promises it | only the Kafka consumer filled inboxes, and production runs without a broker | Without a broker, publishing the notice fills the inboxes in the same transaction, under the event's id, so a later broker relay cannot deliver it twice (`NoticeInboxWithoutBrokerIntegrationTest`) |
+
+After these, every sweep records no problems: 0 in the data, 0 in 120 page
+loads, 20 of 20 saves, 29 of 29 API checks, 88 of 88 questions.
+
 ## Not changed
 
 - The guide entries themselves are still written without accents
