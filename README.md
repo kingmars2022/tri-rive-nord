@@ -4,10 +4,10 @@ A website that tells residents of the Rive-Nord, north of Montreal, which bin to
 tonight and where any item belongs.
 
 It is built for four municipalities: Blainville, Sainte-Thérèse, Boisbriand and
-Rosemère. **Blainville and Sainte-Thérèse are loaded, calendar and sorting guide. Boisbriand's
-calendar is projected from its 2025 edition, because the 2026 one could not be obtained, and
-says so on every collection; its sorting guide is loaded too. Rosemère has nothing yet.** A city without data appears
-in the city switcher and says so when you pick it, rather than showing an empty week as if
+Rosemère. **All four are loaded, calendar and sorting guide, each read from that city's own
+published calendar and rules.** Boisbriand's dates beyond what its 2026 calendar prints carry the
+same rhythm forward until the city publishes 2027, and say so. A city added later without data
+appears in the city switcher and says so when you pick it, rather than showing an empty week as if
 there were no collection. Each city's schedule and sorting rules have to be read from that city's
 own published calendar before they go in, because inheriting one city's rules into another
 is how you get an answer that is confident and wrong.
