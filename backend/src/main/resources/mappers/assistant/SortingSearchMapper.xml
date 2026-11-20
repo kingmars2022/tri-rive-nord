@@ -37,6 +37,15 @@
         join sorting_item i on i.id = k.item_id
         where k.language_code = #{languageCode}
           and i.municipality_id = #{municipalityId}
-        order by k.item_id, k.id
+        union all
+        <!-- The guide's own examples ("boite de pizza") name an entry as
+             surely as its keywords do, and are matched the same way: as
+             phrases. -->
+        select e.item_id as itemId, e.example as keyword
+        from sorting_item_example e
+        join sorting_item i on i.id = e.item_id
+        where e.language_code = #{languageCode}
+          and i.municipality_id = #{municipalityId}
+        order by itemId, keyword
     </select>
 </mapper>

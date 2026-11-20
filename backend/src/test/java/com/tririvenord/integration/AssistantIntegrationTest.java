@@ -85,7 +85,7 @@ class AssistantIntegrationTest {
 
         assertThat(answer.get("grounded").asBoolean()).isTrue();
         assertThat(answer.get("sources").get(0).get("name").asText())
-                .isEqualTo("Papiers et cartons souilles d aliments");
+                .isEqualTo("Papiers et cartons souillés d'aliments");
         assertThat(answer.get("answer").asText()).contains("bac brun");
     }
 
