@@ -5,6 +5,7 @@ import {
   fetchSortingGuide,
   keywordsFor,
   translationFor,
+  type BinColor,
   type DestinationType,
   type SortingItem
 } from "../api/sortingGuide";
@@ -170,9 +171,25 @@ const filteredItems = computed(() => {
   });
 });
 
-function destinationLabel(destination: DestinationType | "all") {
+const BIN_DESTINATIONS: DestinationType[] = ["organic", "recycling", "garbage"];
+
+/**
+ * A bin is named by its colour, and the colour is the city's: Rosemere's
+ * garbage bin is grey where Blainville's is black. So a bin destination is
+ * labelled from the colour its entries carry (an entry's own, or for a filter
+ * tab the first entry's of that kind), and only falls back to the generic
+ * name when there is none to read.
+ */
+function destinationLabel(destination: DestinationType | "all", binColor?: BinColor) {
   if (destination === "all") {
     return t("sorting.all");
+  }
+
+  if (BIN_DESTINATIONS.includes(destination)) {
+    const colour = binColor ?? items.value.find((item) => item.destinationType === destination)?.binColor;
+    if (colour && colour !== "none") {
+      return t(`bin.${colour}`);
+    }
   }
 
   return t(`destination.${destination}`);
@@ -321,7 +338,7 @@ function destinationLabel(destination: DestinationType | "all") {
         :class="item.binColor"
       >
         <div>
-          <span class="tag">{{ destinationLabel(item.destinationType) }}</span>
+          <span class="tag">{{ destinationLabel(item.destinationType, item.binColor) }}</span>
           <h2>{{ translationFor(item, language)?.name }}</h2>
           <p>{{ translationFor(item, language)?.instruction }}</p>
         </div>
