@@ -1,0 +1,15 @@
+{
+  "slug": "boisbriand",
+  "name": "Boisbriand",
+  "note": "Downloaded by hand by the project owner and uploaded to the session on 2026-11-20, because the city's site serves automated clients an Azure WAF JS challenge. Raw copy, not modified. V31 is checked against it.",
+  "files": [
+    {
+      "file": "manual_CalendrierCollectes_2026.pdf",
+      "url": "https://www.ville.boisbriand.qc.ca/storage/app/media/services/citoyens/collectes-des-matieres-residuelles/CalendrierCollectes_2026.pdf",
+      "content_type": "application/pdf",
+      "bytes": 6901356,
+      "sha256": "ce67bb5dd3a9b61bad466956f6a263e9174998168bb9419d6518469b0472eba6",
+      "obtained": "the 2026 edition: 4 pages, every page headed 'CALENDRIER DES COLLECTES 2026', created 2025-11-26. The URL is the one the city's collections page links to (see 2026-11-17/manifest-manual.json, still_needed); the address it was actually downloaded from was not recorded."
+    }
+  ]
+}

@@ -28,7 +28,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * ("Journees et secteurs de collectes"), not off V26, and were checked
  * against the rendered page. They include the rows the extraction had to
  * work for: civic-number ranges that wrap onto a second line, and a
- * superscript ("6e Avenue") that the PDF stores as a separate line.
+ * superscript ("6e Avenue") that the PDF stores as a separate line. Page 2
+ * of the 2026 calendar was read the same way when it arrived (V31) and gives
+ * the same 252 rows, each in the same sector on the same weekday.
  *
  * <p>Run with: {@code mvn test -Pintegration-test}
  */
