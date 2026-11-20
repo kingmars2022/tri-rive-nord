@@ -3,10 +3,10 @@
 A website that tells residents of the Rive-Nord, north of Montreal, which bin to put out
 tonight and where any item belongs.
 
-It is built for four municipalities -- Blainville, Sainte-Therese, Boisbriand and
-Rosemere. **Blainville and Sainte-Therese are loaded, calendar and sorting guide. Boisbriand's
+It is built for four municipalities: Blainville, Sainte-Thérèse, Boisbriand and
+Rosemère. **Blainville and Sainte-Thérèse are loaded, calendar and sorting guide. Boisbriand's
 calendar is projected from its 2025 edition, because the 2026 one could not be obtained, and
-says so on every collection; its sorting guide is loaded too. Rosemere has nothing yet.** A city without data appears
+says so on every collection; its sorting guide is loaded too. Rosemère has nothing yet.** A city without data appears
 in the city switcher and says so when you pick it, rather than showing an empty week as if
 there were no collection. Each city's schedule and sorting rules have to be read from that city's
 own published calendar before they go in, because inheriting one city's rules into another
@@ -22,21 +22,21 @@ about a minute to load.)
 
 When you move to one of these towns, taking out the garbage is surprisingly confusing:
 
-- **Which bin goes out tonight?** It depends on which side of boulevard de la Seigneurie
-  you live on, and on the week.
+- **Which bin goes out tonight?** It depends on your city, your sector and the week. In
+  Blainville alone, it changes with which side of boulevard de la Seigneurie you live on.
 - **Where does this item go?** The rules are local. A greasy pizza box goes in the brown
   (compost) bin here, but in the garbage in many other cities. Batteries and paint go to the
   ecocentre, not in any bin.
 - **What about big or seasonal items?** Furniture, branches and Christmas trees each have
   their own pickup dates and sign-up rules.
 
-All of this is spread across several pages of the city's website. Many newcomers end up
+All of this is spread across several pages of each city's website. Many newcomers end up
 watching which bins their neighbours put out. Putting out the wrong bin, or missing a pickup,
 means garbage sitting at home for another week or two.
 
 ## Who it's for
 
-- **Residents**, especially people who just moved to Blainville.
+- **Residents**, especially people who just moved to the Rive-Nord.
 - **City staff** who need to keep the schedule, the sorting rules and public notices up to
   date.
 
@@ -44,18 +44,18 @@ means garbage sitting at home for another week or two.
 
 ### As a resident
 
-1. **See tonight's bin at a glance.** Choose your side of the city once. The home page then
+1. **See tonight's bin at a glance.** Choose your city and your sector once. The home page then
    shows which bin goes out next, when to put it out (after 8 p.m. the night before) and when
    to bring it back.
 2. **Look up any item.** Type "pizza box", "battery" or "old sofa" and get the right bin or
-   drop-off location, with instructions. The guide holds all 35 categories the city prints,
+   drop-off location for your city, with instructions. Blainville's guide holds all 35 categories the city prints,
    including the ones where the obvious guess is wrong — "compostable" utensils go in the
    garbage, not the brown bin.
 3. **Ask in your own words.** Not sure what an item is called? Ask a question like "Where
    does a dirty pizza box go?" The answer shows which part of
-   the city's guide it came from, so you can check it.
+   your city's guide it came from, so you can check it.
 4. **Take a photo.** If you don't know what to call something, photograph it. The site works
-   out what it is, then looks it up in the city's guide.
+   out what it is, then looks it up in your city's guide.
 5. **Get notices.** Holiday delays and special pickups show up on your home page.
 6. **Be reminded on your phone.** You can turn on browser notifications for the same
    notices. It is off unless you ask for it, and the notices stay on your home page either
@@ -87,11 +87,11 @@ means garbage sitting at home for another week or two.
 
 ## Why it works this way
 
-- **The assistant never guesses.** It answers only from the city's own guide. If the guide
-  doesn't cover a question, it says so and points at the city's website. A wrong answer about
+- **The assistant never guesses.** It answers only from the selected city's own guide. If the
+  guide doesn't cover a question, it says so and points at that city's website. A wrong answer about
   garbage is worse than no answer, because the resident acts on it.
-- **For photos, the AI only names the object. The city's guide decides the bin.** Blainville's
-  rules are not the general recycling rules an AI would otherwise answer from.
+- **For photos, the AI only names the object. The city's guide decides the bin.** Each city's
+  rules are local, not the general recycling rules an AI would otherwise answer from.
 - **The AI can't change anything by itself.** Staff see exactly what will change and approve
   it first.
 - **The schedule is checked against the city's printed calendar, not against the database it
@@ -110,16 +110,17 @@ means garbage sitting at home for another week or two.
 - **Keeps working when something breaks.** If a service behind the site goes down, pages
   still load instead of freezing.
 - **Handles busy moments.** 200 residents using the site at once, every request succeeded.
-- **Thoroughly tested.** 254 automated tests, many of them against the same kind of setup
+- **Thoroughly tested.** More than 350 automated tests, many of them against the same kind of setup
   the site runs on in real life.
 
 ## About this project
 
-This is a personal portfolio project. It is not an official City of Blainville service, so
-always check collection dates on blainville.ca. It was built with AI assistance (Claude Code),
+This is a personal portfolio project. It is not an official service of Blainville,
+Sainte-Thérèse, Boisbriand or Rosemère, so always check collection dates on your city's
+website. It was built with AI assistance (Claude Code),
 and commits co-written by Claude are marked in the history.
 
 ---
 
 **For engineers:** architecture, design decisions, test details and how to run it locally are in
-[TECHNICAL.md](TECHNICAL.md). Built with Java 21, Spring Boot, Vue 3 and PostgreSQL.
+[TECHNICAL.md](TECHNICAL.md). Built with Java 21, Spring Boot, Vue 3, PostgreSQL, Redis, Kafka and MongoDB.
