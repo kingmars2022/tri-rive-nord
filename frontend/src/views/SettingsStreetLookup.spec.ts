@@ -136,7 +136,7 @@ describe("SettingsView street lookup", () => {
     vi.advanceTimersByTime(300);
     await flushPromises();
 
-    expect(wrapper.text()).toContain("Aucune rue trouvee");
+    expect(wrapper.text()).toContain("Aucune rue trouvée");
     expect(wrapper.text()).toContain("calendrier 2026");
   });
 });

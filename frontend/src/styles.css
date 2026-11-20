@@ -634,6 +634,16 @@ button[disabled] {
   padding-top: 12px;
 }
 
+.assistant-sources strong {
+  margin-right: 6px;
+}
+
+/* Several sources read as a list, not one run-on name. */
+.assistant-sources a + a::before {
+  color: var(--ink-soft);
+  content: ", ";
+}
+
 .assistant-sources li {
   color: var(--ink-soft);
   font-size: 14px;

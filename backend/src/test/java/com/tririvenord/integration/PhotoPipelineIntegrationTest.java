@@ -64,6 +64,7 @@ class PhotoPipelineIntegrationTest {
     static void infrastructureProperties(DynamicPropertyRegistry registry) {
         IntegrationEnvironment.register(registry);
         registry.add("app.photo.endpoint", LocalS3::endpoint);
+        registry.add("app.photo.enabled", () -> "true");
         registry.add("app.photo.bucket", () -> LocalS3.BUCKET);
         registry.add("app.photo.region", () -> "us-east-1");
     }

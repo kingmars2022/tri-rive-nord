@@ -140,6 +140,9 @@ app:
     # for straight afterwards has to wait for it. Bounded: past this the
     # resident is told to try again rather than held indefinitely.
     processing-timeout: ${PHOTO_PROCESSING_TIMEOUT:10}
+    # Needs AWS (S3 plus the identifying Lambda). Off by default, so a
+    # deployment without them does not offer residents a button that fails.
+    enabled: ${PHOTO_ENABLED:false}
   collection:
     calendar:
       # The recurring collections are stored as patterns, not as rows with an

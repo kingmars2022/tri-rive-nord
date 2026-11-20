@@ -299,6 +299,10 @@ AUDIT_STORE=sql                    # no MongoDB (an existing `mysql` works too)
 ASSISTANT_PROVIDER=template        # no API key, no cost
 ```
 
+Photo identification is off unless `PHOTO_ENABLED=true` (it needs S3 and the
+identifying Lambda), so this deployment shows no photo button rather than one
+whose every upload fails.
+
 `APP_JWT_SECRET` and `APP_ADMIN_PASSWORD` have development defaults in
 `application.yml`. Deploying without overriding both means shipping a public
 admin account with a published password.

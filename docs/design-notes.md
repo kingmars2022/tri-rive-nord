@@ -1002,7 +1002,7 @@ Completed:
 - Docker Compose setup for PostgreSQL, Redis, and backend.
 - Backend Dockerfile.
 - Environment-variable-based configuration (database, JWT secret, seeded admin credentials).
-- 343 tests: 132 that need nothing but the JVM, 163 that run against real infrastructure, and 48 in the browser runtime. `mvn test` runs the first 132; `mvn test -Pintegration-test` runs 295, which is those 132 plus the 163, not 295 more.
+- 358 tests: 135 that need nothing but the JVM, 168 that run against real infrastructure, and 55 in the browser runtime. `mvn test` runs the first 135; `mvn test -Pintegration-test` runs 303, which is those 135 plus the 168, not 303 more.
 - Successful backend Maven build.
 - Successful frontend Vite production build (including `vue-tsc` type-checking).
 - `docker compose --env-file .env.example config` validates the Compose file.

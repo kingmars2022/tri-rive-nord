@@ -64,13 +64,13 @@ describe("HomeView bin hours", () => {
 
   it("gives Boisbriand its own hours, tonight when the collection is tomorrow", async () => {
     const text = await homeFor(town("boisbriand", ["18:00", "07:00", "22:00"]), 1);
-    expect(text).toContain("Sortez le bac apres 18 h ce soir et avant 7 h demain matin.");
+    expect(text).toContain("Sortez le bac après 18 h ce soir et avant 7 h demain matin.");
     expect(text).not.toContain("20 h");
   });
 
   it("says the evening before, not tonight, when the collection is days away", async () => {
     const text = await homeFor(town("blainville", ["20:00", "06:00", "20:00"]), 4);
-    expect(text).toContain("Sortez le bac apres 20 h la veille");
+    expect(text).toContain("Sortez le bac après 20 h la veille");
     expect(text).not.toContain("ce soir");
   });
 

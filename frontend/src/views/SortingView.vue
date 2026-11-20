@@ -10,7 +10,7 @@ import {
   type SortingItem
 } from "../api/sortingGuide";
 import { askAssistant, type AssistantAnswer } from "../api/assistant";
-import { askAboutPhoto, type PhotoAnswer } from "../api/photo";
+import { askAboutPhoto, photosEnabled, type PhotoAnswer } from "../api/photo";
 import { ApiError } from "../api/client";
 
 const { language, t } = useI18n();
@@ -27,7 +27,10 @@ const query = ref("");
 const items = ref<SortingItem[]>([]);
 const guideError = ref("");
 
+const photoEnabled = ref(false);
+
 onMounted(async () => {
+  photosEnabled().then((enabled) => (photoEnabled.value = enabled));
   try {
     items.value = await fetchSortingGuide();
   } catch {
@@ -174,6 +177,14 @@ const filteredItems = computed(() => {
 const BIN_DESTINATIONS: DestinationType[] = ["organic", "recycling", "garbage"];
 
 /**
+ * Who worded the answer, in words a resident reads: "template" is the guide's
+ * own text, read back. It used to print the provider id itself.
+ */
+function providerLabel(provider: string) {
+  return provider.includes("claude") ? t("assistant.byClaude") : t("assistant.byGuide");
+}
+
+/**
  * A bin is named by its colour, and the colour is the city's: Rosemere's
  * garbage bin is grey where Blainville's is black. So a bin destination is
  * labelled from the colour its entries carry (an entry's own, or for a filter
@@ -217,7 +228,7 @@ function destinationLabel(destination: DestinationType | "all", binColor?: BinCo
         </button>
       </form>
 
-      <div class="photo-ask">
+      <div v-if="photoEnabled" class="photo-ask">
         <h3>{{ t("photo.title") }}</h3>
         <p class="assistant-hint">{{ t("photo.hint") }}</p>
         <label class="photo-button" :class="{ busy: photoStage }">
@@ -261,7 +272,7 @@ function destinationLabel(destination: DestinationType | "all", binColor?: BinCo
           </p>
 
           <p class="assistant-provider">
-            {{ t("assistant.poweredBy") }} {{ photoAnswer.provider }}
+            {{ providerLabel(photoAnswer.provider) }}
           </p>
         </article>
       </div>
@@ -294,7 +305,7 @@ function destinationLabel(destination: DestinationType | "all", binColor?: BinCo
         <p v-else class="assistant-sources">{{ t("assistant.notFound") }}</p>
 
         <p class="assistant-provider">
-          {{ t("assistant.poweredBy") }} {{ assistantAnswer.provider }}
+          {{ providerLabel(assistantAnswer.provider) }}
         </p>
       </article>
     </section>

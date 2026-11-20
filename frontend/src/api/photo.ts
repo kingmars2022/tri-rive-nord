@@ -18,6 +18,19 @@ export interface PhotoAnswer {
   sources: AssistantSource[];
 }
 
+/**
+ * Whether this deployment can identify photos at all. It needs AWS behind it,
+ * and the free deployment has none; asking keeps the button off the page
+ * there instead of letting it fail after every upload. Off when in doubt.
+ */
+export async function photosEnabled(): Promise<boolean> {
+  try {
+    return (await api.get<{ enabled: boolean }>("/photos/status")).enabled === true;
+  } catch {
+    return false;
+  }
+}
+
 function requestUploadUrl(file: File) {
   return api.post<UploadTicket>("/photos/upload-url", {
     contentType: file.type,

@@ -65,7 +65,7 @@ class PhotoSortingServiceTest {
         when(municipalities.requireById(MUNI)).thenReturn(new Municipality(MUNI, "rosemere", "Rosemere", "QC",
                 "https://www.ville.rosemere.qc.ca/", true, true, null, null, null));
         service = new PhotoSortingService(storage, identifier, retriever, composer, queries,
-                new PhotoProperties("bucket", "ca-central-1", "", 300, 10_000_000, 0), municipalities);
+                new PhotoProperties("bucket", "ca-central-1", "", 300, 10_000_000, 0, true), municipalities);
     }
 
     @Test

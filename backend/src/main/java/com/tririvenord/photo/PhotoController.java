@@ -62,8 +62,22 @@ public class PhotoController {
      * Hands back a URL the browser uploads to directly. The bytes never pass
      * through this application.
      */
+    /** Whether to offer the photo button at all; see {@link PhotoProperties#enabled()}. */
+    @GetMapping("/status")
+    public java.util.Map<String, Boolean> status() {
+        return java.util.Map.of("enabled", properties.enabled());
+    }
+
+    private void requireEnabled() {
+        if (!properties.enabled()) {
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+                    "Photo identification is not available here. Describe the item in words instead.");
+        }
+    }
+
     @PostMapping("/upload-url")
     public UploadTicket uploadUrl(@Valid @RequestBody UploadRequest request, HttpServletRequest http) {
+        requireEnabled();
         // Signing an upload URL is cheap, but each one issued is storage
         // someone else pays for, so it shares the assistant's per-IP quota.
         rateLimiter.check(http.getRemoteAddr());
@@ -98,6 +112,7 @@ public class PhotoController {
             @RequestParam String municipality,
             HttpServletRequest http
     ) {
+        requireEnabled();
         requirePhotoId(photoId);
         // A vision call is the most expensive request this application can
         // make, so it shares the assistant's per-IP quota.
@@ -123,6 +138,7 @@ public class PhotoController {
      */
     @GetMapping("/{photoId}")
     public ResponseEntity<byte[]> processed(@PathVariable String photoId) {
+        requireEnabled();
         requirePhotoId(photoId);
 
         return storage.readProcessed(photoId)
