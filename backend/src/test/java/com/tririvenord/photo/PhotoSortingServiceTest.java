@@ -7,6 +7,8 @@ import com.tririvenord.assistant.SortingGuideRetriever;
 import com.tririvenord.collection.BinColor;
 import com.tririvenord.common.LanguageCode;
 import com.tririvenord.insights.QueryEventPublisher;
+import com.tririvenord.municipality.Municipality;
+import com.tririvenord.municipality.MunicipalityService;
 import com.tririvenord.photo.dto.PhotoAnswer;
 import com.tririvenord.sorting.DestinationType;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,6 +53,8 @@ class PhotoSortingServiceTest {
     private AnswerComposer composer;
     @Mock
     private QueryEventPublisher queries;
+    @Mock
+    private MunicipalityService municipalities;
 
     private PhotoSortingService service;
 
@@ -58,8 +62,10 @@ class PhotoSortingServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         when(composer.providerName()).thenReturn("template");
+        when(municipalities.requireById(MUNI)).thenReturn(new Municipality(MUNI, "rosemere", "Rosemere", "QC",
+                "https://www.ville.rosemere.qc.ca/", true, true));
         service = new PhotoSortingService(storage, identifier, retriever, composer, queries,
-                new PhotoProperties("bucket", "ca-central-1", "", 300, 10_000_000, 0));
+                new PhotoProperties("bucket", "ca-central-1", "", 300, 10_000_000, 0), municipalities);
     }
 
     @Test
@@ -85,6 +91,12 @@ class PhotoSortingServiceTest {
         assertThat(answer.grounded()).isTrue();
         assertThat(answer.identifiedAs()).isEqualTo("boîte à pizza");
         assertThat(answer.answer()).isEqualTo("Bac brun.");
+        // Composed for the town the photo was taken in, not a fixed one.
+        ArgumentCaptor<com.tririvenord.assistant.AssistantQuestion> asked =
+                ArgumentCaptor.forClass(com.tririvenord.assistant.AssistantQuestion.class);
+        verify(composer).composeWithMetadata(asked.capture(), any());
+        assertThat(asked.getValue().city())
+                .isEqualTo(new com.tririvenord.assistant.GuideCity("Rosemere", "ville.rosemere.qc.ca"));
         assertThat(answer.sources()).singleElement()
                 .satisfies(source -> assertThat(source.binColor()).isEqualTo("brown"));
     }

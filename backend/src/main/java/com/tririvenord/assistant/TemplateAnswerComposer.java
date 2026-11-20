@@ -18,10 +18,11 @@ import java.util.Map;
  * composer something to be compared against rather than merely replacing.
  */
 public class TemplateAnswerComposer implements AnswerComposer {
+    /** Names the town asked about; see {@link GuideCity} for why it is not fixed. */
     private static final Map<LanguageCode, String> LEAD = Map.of(
-            LanguageCode.fr, "D'après le guide de tri de Blainville :",
-            LanguageCode.en, "According to the Blainville sorting guide:",
-            LanguageCode.zh, "根据 Blainville 分类指南："
+            LanguageCode.fr, "D'après le guide de tri de %s :",
+            LanguageCode.en, "According to the %s sorting guide:",
+            LanguageCode.zh, "根据 %s 分类指南："
     );
 
     private static final Map<LanguageCode, String> ALSO = Map.of(
@@ -39,7 +40,7 @@ public class TemplateAnswerComposer implements AnswerComposer {
     public String compose(AssistantQuestion question, List<RetrievedItem> context) {
         RetrievedItem best = context.get(0);
         StringBuilder answer = new StringBuilder()
-                .append(LEAD.get(question.language())).append(' ')
+                .append(LEAD.get(question.language()).formatted(question.city().name())).append(' ')
                 .append(best.name()).append(" — ").append(best.instruction());
 
         if (best.location() != null && !best.location().isBlank()) {

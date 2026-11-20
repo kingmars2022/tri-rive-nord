@@ -51,21 +51,9 @@ public class AssistantService {
             LanguageCode.zh, "市政府网站"
     );
 
-    private static String refusalFor(Municipality municipality, LanguageCode language) {
-        String where = municipality.sourceUrl() == null || municipality.sourceUrl().isBlank()
-                ? NO_SOURCE.get(language)
-                : hostOf(municipality.sourceUrl());
-        return NO_ANSWER_TEMPLATE.get(language).formatted(municipality.name(), where);
-    }
-
-    /** The bare host, because a resident is being told where to look, not given a link. */
-    private static String hostOf(String url) {
-        try {
-            String host = java.net.URI.create(url).getHost();
-            return host == null ? url : host.replaceFirst("^www\\.", "");
-        } catch (RuntimeException e) {
-            return url;
-        }
+    private static String refusalFor(GuideCity city, LanguageCode language) {
+        String where = city.website() == null ? NO_SOURCE.get(language) : city.website();
+        return NO_ANSWER_TEMPLATE.get(language).formatted(city.name(), where);
     }
 
     private final MunicipalityService municipalities;
@@ -94,7 +82,8 @@ public class AssistantService {
         Municipality municipality = municipalities.requireBySlug(request.municipality());
         long municipalityId = municipality.id();
 
-        AssistantQuestion question = new AssistantQuestion(request.question(), request.language());
+        AssistantQuestion question =
+                new AssistantQuestion(request.question(), request.language(), GuideCity.of(municipality));
 
         // A municipal sorting guide gets the same twenty questions over and
         // over. Serving a repeat from cache skips retrieval and, with Claude
@@ -128,7 +117,7 @@ public class AssistantService {
 
         if (context.isEmpty()) {
             AssistantAnswer refusal = new AssistantAnswer(
-                    refusalFor(municipality, question.language()),
+                    refusalFor(question.city(), question.language()),
                     false,
                     "template",
                     List.of());
