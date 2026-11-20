@@ -203,7 +203,7 @@ class RosemereCalendarIntegrationTest {
     void theTownIsLoaded_withFourCollectionSectors() {
         Municipality rosemere = municipalities.requireBySlug("rosemere");
         assertThat(rosemere.calendarVerified()).isTrue();
-        assertThat(rosemere.guideVerified()).isFalse();
+        // Its guide is V33; see RosemereGuideIntegrationTest.
 
         assertThat(municipalities.sectorsOf(rosemere)).hasSize(5);
         assertThat(municipalities.defaultSectorOf(rosemere).isAll()).isFalse();

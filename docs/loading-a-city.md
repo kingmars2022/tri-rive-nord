@@ -38,11 +38,11 @@ that the city stays unloaded. The application already renders that honestly.
      boulevard; another city may use three zones, or none)
    - statutory holidays, and how many days a collection moves when one lands
      on its day
-3. **Write the migration.** `V33` onward (`V22` and `V23` are Sainte-Therese, `V24` a Blainville
+3. **Write the migration.** `V34` onward (`V22` and `V23` are Sainte-Therese, `V24` a Blainville
    search fix that loading it made necessary, `V25`, `V26` and `V28` Boisbriand, `V27` per-city
    notices, `V29` a Sainte-Therese search fix that loading Boisbriand made necessary, `V30` the
-   accent-folding function the PostgreSQL move needed, `V31` Boisbriand checked against 2026, `V32`
-   Rosemere's calendar). Insert the sectors into
+   accent-folding function the PostgreSQL move needed, `V31` Boisbriand checked against 2026, `V32` and `V33`
+   Rosemere's calendar and guide). Insert the sectors into
    `municipality_sector`, the rules into `collection_schedule_rule`, the
    holidays into `collection_holiday`, and the guide into `sorting_item` and
    its three child tables. Set `calendar_verified` and `guide_verified` on the
@@ -57,7 +57,7 @@ that the city stays unloaded. The application already renders that honestly.
    Sainte-Therese, 243 after its calendar and guide, 254 after Boisbriand and its street table,
    259 after the admin console learned each city's sectors, 265 after notices became per city,
    271 after Boisbriand's guide, 279 after the move to PostgreSQL, 280 after
-   Boisbriand's 2026 check, 285 after Rosemere's calendar. Each city's
+   Boisbriand's 2026 check, 285 after Rosemere's calendar, 292 after its guide. Each city's
    guide test searches every entry by its own name; give the new city one.
 
 ## Loaded so far
@@ -67,7 +67,7 @@ that the city stays unloaded. The application already renders that honestly.
 | Blainville | yes | yes | V15, V17 |
 | Sainte-Therese | yes, 2026 grids | yes, regulation 1373 | V22, V23 |
 | Boisbriand | yes for 2026: projected from 2025 (V25), then checked date by date against the 2026 calendar (V31); 2027 carried on at the same rhythm until the city publishes it | yes: 2026 page + 2025 calendar pp. 3-5 | V25, V26, V28, V31 |
-| Rosemere | yes: 2026 municipal calendar, by hand (the site does not answer automated requests); 2027 carried on at the same rhythm | not yet: the same calendar's page 30 has it | V32 |
+| Rosemere | yes: 2026 municipal calendar, by hand (the site does not answer automated requests); 2027 carried on at the same rhythm | yes: page 30 of the same calendar, plus the 2026 pickup Mondays | V32, V33 |
 
 ## What Sainte-Therese added to the list of things to get wrong
 
@@ -189,6 +189,21 @@ reads it (`docs/verification/generate_v32_rosemere_calendar.py`):
   bin colours, labels and swatches.
 - Dates after 31 December 2026 carry the 2026 rhythm on, and every note says
   so, as for Boisbriand.
+
+The guide (V33, `docs/verification/generate_v33_rosemere_guide.py`, 32
+cards) is page 30's accepted lists for the three bins, green waste going
+with organics (page 31), and the 2026 Mondays for large items, branches and
+Christmas trees off the month grids. Two things worth knowing:
+
+- Page 30 refuses a long list of things - plastic wrap, styrofoam, windows,
+  propane, aerosols, small appliances, construction materials, hazardous
+  waste, computer equipment - without ever saying where they go, and the
+  ecocentre appears only with its address and hours. None of those get a
+  card, so the assistant refuses rather than guesses; the test asks it about
+  tires and batteries to hold it to that.
+- The sorting page labelled every garbage card "Bac noir". Bin destinations
+  are now labelled from the colour the entries carry, so Rosemere's read
+  "Bac gris".
 
 It is a downloader, not a parser. It follows only links on the city's own host
 that look like they are about collection, honours robots.txt, and waits two
