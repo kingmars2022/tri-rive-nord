@@ -88,7 +88,7 @@ public class CollectionService {
      */
     public Page<CollectionEvent> page(long municipalityId, int page, int size) {
         long total = mapper.countAll(municipalityId);
-        return new Page<>(mapper.findPage(municipalityId, page * size, size), page, size, total);
+        return new Page<>(mapper.findPage(municipalityId, today(), page * size, size), page, size, total);
     }
 
     // allEntries: a single schedule edit can change the answer for several

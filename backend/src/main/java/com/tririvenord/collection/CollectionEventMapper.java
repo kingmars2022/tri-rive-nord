@@ -25,6 +25,7 @@ public interface CollectionEventMapper {
     List<CollectionEvent> findAll(@Param("municipalityId") long municipalityId);
 
     List<CollectionEvent> findPage(@Param("municipalityId") long municipalityId,
+                                   @Param("today") java.time.LocalDate today,
                                    @Param("offset") int offset,
                                    @Param("limit") int limit);
 

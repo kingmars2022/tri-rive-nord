@@ -36,16 +36,20 @@
     </select>
 
     <!--
-        Same ordering as findAll, so a page is a window onto the same list
-        rather than a differently sorted one. collection_type breaks ties so
-        the window is stable: two events on one date must not swap places
-        between page one and page two.
+        The administrator's list: what is coming first, nearest date first,
+        then what has passed, latest first. Sorted newest-first, page one was
+        the far end of the calendar (May 2027) and this week was on the last
+        page - the one an administrator is least likely to open and most
+        likely to need. collection_type and id break ties so the window is
+        stable: two events on one date must not swap places between pages.
     -->
     <select id="findPage" resultType="com.tririvenord.collection.CollectionEvent">
         select <include refid="columns"/>
         from collection_event
         where municipality_id = #{municipalityId}
-        order by collection_date desc, collection_type asc, id asc
+        order by case when collection_date &gt;= #{today} then 0 else 1 end,
+                 case when collection_date &gt;= #{today} then collection_date end asc,
+                 collection_date desc, collection_type asc, id asc
         limit #{limit} offset #{offset}
     </select>
 

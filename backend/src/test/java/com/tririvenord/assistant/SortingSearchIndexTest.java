@@ -139,4 +139,42 @@ class SortingSearchIndexTest {
         assertThat(SortingSearchIndex.rank(guide, List.of(), "verre", false, 1))
                 .extracting(Scored::itemId).containsExactly(5L);
     }
+
+    @Test
+    void aRunnerUpMatchingOnlyPartOfWhatTheBestMatchesIsDropped() {
+        // Rosemere: "boite" is a bare keyword of the cardboard card, and the
+        // guide's example "boite de pizza" names the soiled-paper card.
+        List<Document> guide = List.of(
+                new Document(1, "Carton", "Le carton va au bac bleu."),
+                new Document(2, "Papier et carton souilles", "Au bac brun."),
+                new Document(3, "Boite de conserve", "Au bac bleu."));
+        List<Keyword> keywords = List.of(
+                new Keyword(1, "boite"),
+                new Keyword(2, "pizza"),
+                new Keyword(2, "boite de pizza"),
+                // A real guide has many keywords, which is what makes a rare
+                // one ("pizza") weigh more than a common one.
+                new Keyword(1, "carton ondule"), new Keyword(1, "rouleau"), new Keyword(1, "emballage"),
+                new Keyword(2, "assiette"), new Keyword(2, "essuie-tout"), new Keyword(3, "conserve"),
+                new Keyword(3, "canette"), new Keyword(3, "aluminium"), new Keyword(3, "metal"));
+
+        assertThat(SortingSearchIndex.rank(guide, keywords, "boite pizza", false, 5))
+                .extracting(Scored::itemId).containsExactly(2L);
+    }
+
+    @Test
+    void runnerUpsMatchingTheSameWordsOrOtherWordsStay() {
+        List<Document> guide = List.of(
+                new Document(1, "Carton", "Au bac bleu."),
+                new Document(2, "Papier et carton souilles", "Au bac brun."),
+                new Document(3, "Piles", "A l'ecocentre."),
+                new Document(4, "Ampoules", "A l'ecocentre."));
+
+        // The same word, another way: both, so the resident sees the choice.
+        assertThat(SortingSearchIndex.rank(guide, List.of(), "carton", false, 5))
+                .extracting(Scored::itemId).containsExactlyInAnyOrder(1L, 2L);
+        // Another part of the question: both.
+        assertThat(SortingSearchIndex.rank(guide, List.of(), "piles ampoules", false, 5))
+                .extracting(Scored::itemId).containsExactlyInAnyOrder(3L, 4L);
+    }
 }

@@ -110,6 +110,7 @@ final class SortingSearchIndex {
         // "old paint cans" a blue-bin question. Not for character pairs:
         // "7 号塑料" typed with a space still means the keyword "7号塑料".
         Map<Long, Double> keywordScores = new HashMap<>();
+        Map<Long, Set<String>> matched = new HashMap<>();
         Set<Long> named = new HashSet<>();
         for (int i = 0; i < keywords.size(); i++) {
             List<String> phrase = keywordTokens.get(i);
@@ -120,6 +121,8 @@ final class SortingSearchIndex {
                 continue;
             }
             named.add(keywords.get(i).itemId());
+            Set<String> hit = matched.computeIfAbsent(keywords.get(i).itemId(), id -> new HashSet<>());
+            phrase.stream().filter(terms::contains).forEach(hit::add);
             double score = score(terms, phrase, keywordIdf);
             if (score > 0) {
                 keywordScores.merge(keywords.get(i).itemId(), score, Double::sum);
@@ -146,11 +149,28 @@ final class SortingSearchIndex {
             double score = score(terms, documentTokens.get(i), documentIdf)
                     + keywordScores.getOrDefault(itemId, 0.0);
             if (score > 0) {
+                Set<String> hit = matched.computeIfAbsent(itemId, id -> new HashSet<>());
+                documentTokens.get(i).stream().filter(terms::contains).forEach(hit::add);
                 scored.add(new Scored(itemId, score));
             }
         }
         scored.sort(Comparator.comparingDouble(Scored::score).reversed()
                 .thenComparingLong(Scored::itemId));
+
+        // A runner-up is worth showing when it answers part of the question
+        // the best entry does not, or the same words another way (a bare
+        // "carton": the clean and the soiled entry). One that matches only
+        // some of the words the best entry matches adds nothing: "boite a
+        // pizza" listed "Boite de conserve" beside the pizza-box entry, on
+        // "boite" alone.
+        if (!scored.isEmpty()) {
+            Scored top = scored.get(0);
+            Set<String> best = matched.getOrDefault(top.itemId(), Set.of());
+            scored.removeIf(s -> {
+                Set<String> own = matched.getOrDefault(s.itemId(), Set.of());
+                return s != top && own.size() < best.size() && best.containsAll(own);
+            });
+        }
         return scored.size() > limit ? List.copyOf(scored.subList(0, limit)) : List.copyOf(scored);
     }
 
