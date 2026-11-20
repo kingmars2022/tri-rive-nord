@@ -2,12 +2,14 @@ package com.tririvenord.photo;
 
 import com.tririvenord.assistant.AnswerComposer;
 import com.tririvenord.assistant.AssistantQuestion;
+import com.tririvenord.assistant.GuideCity;
 import com.tririvenord.assistant.RetrievedItem;
 import com.tririvenord.assistant.SortingGuideRetriever;
 import com.tririvenord.assistant.dto.AssistantSource;
 import com.tririvenord.common.LanguageCode;
 import com.tririvenord.insights.QueryEventPublisher;
 import com.tririvenord.photo.dto.PhotoAnswer;
+import com.tririvenord.municipality.MunicipalityService;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -60,6 +62,7 @@ public class PhotoSortingService {
     private final AnswerComposer composer;
     private final QueryEventPublisher queries;
     private final PhotoProperties properties;
+    private final MunicipalityService municipalities;
 
     public PhotoSortingService(
             PhotoStorage storage,
@@ -67,7 +70,8 @@ public class PhotoSortingService {
             SortingGuideRetriever retriever,
             AnswerComposer composer,
             QueryEventPublisher queries,
-            PhotoProperties properties
+            PhotoProperties properties,
+            MunicipalityService municipalities
     ) {
         this.storage = storage;
         this.identifier = identifier;
@@ -75,6 +79,7 @@ public class PhotoSortingService {
         this.composer = composer;
         this.queries = queries;
         this.properties = properties;
+        this.municipalities = municipalities;
     }
 
     /**
@@ -131,7 +136,8 @@ public class PhotoSortingService {
         }
 
         String answer = composer.composeWithMetadata(
-                new AssistantQuestion(material.searchQuery(), language), context).text();
+                new AssistantQuestion(material.searchQuery(), language,
+                        GuideCity.of(municipalities.requireById(municipalityId))), context).text();
 
         return Optional.of(new PhotoAnswer(
                 material.material(),

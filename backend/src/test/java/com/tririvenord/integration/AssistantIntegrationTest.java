@@ -238,11 +238,36 @@ class AssistantIntegrationTest {
                         org.hamcrest.Matchers.containsString("Too many assistant questions")));
     }
 
+    /**
+     * Every grounded answer used to open "According to the Blainville sorting
+     * guide", whichever town was asked; the refusal already named the right
+     * one. Now both do.
+     */
+    @Test
+    void aGroundedAnswerNamesTheTownAsked() throws Exception {
+        JsonNode rosemere = ask("rosemere", "Where do lightbulbs go?", "en");
+        assertThat(rosemere.get("grounded").asBoolean()).isTrue();
+        assertThat(rosemere.get("answer").asText())
+                .startsWith("According to the Rosemere sorting guide:")
+                .doesNotContain("Blainville");
+
+        JsonNode boisbriand = ask("boisbriand", "Ou apporter de la peinture ?", "fr");
+        assertThat(boisbriand.get("grounded").asBoolean()).isTrue();
+        assertThat(boisbriand.get("answer").asText()).startsWith("D'après le guide de tri de Boisbriand :");
+
+        assertThat(ask("Where does soiled cardboard go?", "en").get("answer").asText())
+                .startsWith("According to the Blainville sorting guide:");
+    }
+
     private JsonNode ask(String question, String language) throws Exception {
+        return ask(CITY, question, language);
+    }
+
+    private JsonNode ask(String city, String question, String language) throws Exception {
         MvcResult result = mockMvc.perform(post("/api/assistant/ask")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(Map.of(
-                                "municipality", CITY,
+                                "municipality", city,
                                 "question", question,
                                 "language", language))))
                 .andExpect(status().isOk())

@@ -11,11 +11,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class TemplateAnswerComposerTest {
     private final TemplateAnswerComposer composer = new TemplateAnswerComposer();
+    private static final GuideCity BLAINVILLE = new GuideCity("Blainville", "blainville.ca");
+    private static final GuideCity ROSEMERE = new GuideCity("Rosemere", "ville.rosemere.qc.ca");
 
     @Test
     void leadsWithTheBestMatchInTheAskedLanguage() {
         String answer = composer.compose(
-                new AssistantQuestion("boîte à pizza", LanguageCode.fr),
+                new AssistantQuestion("boîte à pizza", LanguageCode.fr, BLAINVILLE),
                 List.of(item("Papiers et cartons souilles", "Dans le bac brun.", null),
                         item("Contenants et emballages", "Dans le bac bleu.", null)));
 
@@ -27,7 +29,7 @@ class TemplateAnswerComposerTest {
     @Test
     void includesTheDropOffLocationWhenTheEntryHasOne() {
         String answer = composer.compose(
-                new AssistantQuestion("peinture", LanguageCode.en),
+                new AssistantQuestion("peinture", LanguageCode.en, BLAINVILLE),
                 List.of(item("Items to bring to the ecocentre", "Bring it to the ecocentre.",
                         "302 rue Omer-DeSerres")));
 
@@ -37,10 +39,24 @@ class TemplateAnswerComposerTest {
     @Test
     void answersChineseInChinese() {
         String answer = composer.compose(
-                new AssistantQuestion("废电池", LanguageCode.zh),
+                new AssistantQuestion("废电池", LanguageCode.zh, BLAINVILLE),
                 List.of(item("需要送去 ecocentre 的物品", "请送去 ecocentre。", null)));
 
         assertThat(answer).startsWith("根据 Blainville 分类指南：");
+    }
+
+    /** Answers named Blainville for every town until each question carried its own. */
+    @Test
+    void namesTheTownAsked_notBlainville() {
+        List<RetrievedItem> litter = List.of(item("Litiere souillee", "Au bac gris.", null));
+
+        assertThat(composer.compose(new AssistantQuestion("litiere", LanguageCode.fr, ROSEMERE), litter))
+                .startsWith("D'après le guide de tri de Rosemere :")
+                .doesNotContain("Blainville");
+        assertThat(composer.compose(new AssistantQuestion("litter", LanguageCode.en, ROSEMERE), litter))
+                .startsWith("According to the Rosemere sorting guide:");
+        assertThat(composer.compose(new AssistantQuestion("猫砂", LanguageCode.zh, ROSEMERE), litter))
+                .startsWith("根据 Rosemere 分类指南：");
     }
 
     private static RetrievedItem item(String name, String instruction, String location) {
