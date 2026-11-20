@@ -40,7 +40,39 @@ class SortingSearchIndexTest {
     @Test
     void ignoresAccentsAndCase() {
         assertThat(rank("BOITE souillee", List.of())).extracting(Scored::itemId).containsExactly(1L);
-        assertThat(rank("ecocentre", List.of())).extracting(Scored::itemId).containsExactly(3L, 4L);
+        assertThat(rank("ECOCENTRE", List.of(new Keyword(3, "écocentre"), new Keyword(4, "Écocentre"))))
+                .extracting(Scored::itemId).containsExactly(3L, 4L);
+    }
+
+    @Test
+    void anEntryMustBeNamed_aWordOnlyInItsInstructionIsIncidental() {
+        // "dans" and "bac" are only in instructions: nothing names an entry.
+        assertThat(rank("dans le bac", List.of())).isEmpty();
+        // The same word, once a keyword names the entry, counts in full.
+        assertThat(rank("ecocentre", List.of(new Keyword(3, "ecocentre"))))
+                .extracting(Scored::itemId).containsExactly(3L);
+    }
+
+    @Test
+    void aKeywordOfSeveralWordsIsAPhrase() {
+        List<Keyword> keywords = List.of(new Keyword(2, "food can"), new Keyword(4, "paint"));
+        List<Document> guide = List.of(
+                new Document(2, "Metal", "Metal (food cans, etc.) goes in the blue bin."),
+                new Document(4, "Refused in the bins", "Household hazardous waste."));
+
+        assertThat(SortingSearchIndex.rank(guide, keywords, "old paint cans", false, 5))
+                .extracting(Scored::itemId).containsExactly(4L);
+        assertThat(SortingSearchIndex.rank(guide, keywords, "food cans", false, 5))
+                .extracting(Scored::itemId).containsExactly(2L);
+    }
+
+    @Test
+    void pluralsMeetTheirSingulars_andShortFormsTheirWords() {
+        assertThat(SortingSearchIndex.tokens("chaudrons pelures glass bus", false))
+                .containsExactly("chaudron", "pelure", "glass", "bus");
+        assertThat(SortingSearchIndex.tokens("old TV", false))
+                .containsExactly("old", "television", "televiseur");
+        assertThat(rank("piles", List.of())).extracting(Scored::itemId).containsExactly(3L);
     }
 
     @Test
@@ -68,12 +100,13 @@ class SortingSearchIndexTest {
                 new Keyword(3, "batteries"));
 
         List<Scored> withKeywords = rank("boite", keywords);
-        // Entry 1 has the word in its name; entry 2 only through keywords,
-        // where it appears in two of three keyword rows.
+        // Entry 1 has the word in its name; entry 2 only through its one-word
+        // keyword ("boite de carton" is a phrase the question does not have),
+        // which is one of three keyword rows holding the word.
         assertThat(withKeywords).extracting(Scored::itemId).containsExactlyInAnyOrder(1L, 2L);
         double keywordIdf = Math.log10(3.0 / 2.0);
         Scored carton = withKeywords.stream().filter(s -> s.itemId() == 2).findFirst().orElseThrow();
-        assertThat(carton.score()).isCloseTo(2 * keywordIdf * keywordIdf, within(1e-9));
+        assertThat(carton.score()).isCloseTo(keywordIdf * keywordIdf, within(1e-9));
     }
 
     @Test

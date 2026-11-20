@@ -5,7 +5,8 @@
 
     <sql id="columns">
         id, slug, name, province, source_url as sourceUrl,
-        calendar_verified as calendarVerified, guide_verified as guideVerified
+        calendar_verified as calendarVerified, guide_verified as guideVerified,
+        bins_out_from as binsOutFrom, bins_out_by as binsOutBy, bins_in_by as binsInBy
     </sql>
 
     <select id="findAll" resultType="com.tririvenord.municipality.Municipality">

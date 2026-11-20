@@ -248,7 +248,7 @@ class AssistantIntegrationTest {
         JsonNode rosemere = ask("rosemere", "Where do lightbulbs go?", "en");
         assertThat(rosemere.get("grounded").asBoolean()).isTrue();
         assertThat(rosemere.get("answer").asText())
-                .startsWith("According to the Rosemere sorting guide:")
+                .startsWith("According to the Rosemère sorting guide:")
                 .doesNotContain("Blainville");
 
         JsonNode boisbriand = ask("boisbriand", "Ou apporter de la peinture ?", "fr");

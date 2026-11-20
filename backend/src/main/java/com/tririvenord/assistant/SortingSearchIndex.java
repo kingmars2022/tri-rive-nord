@@ -4,6 +4,7 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -59,6 +60,15 @@ final class SortingSearchIndex {
             "this", "to", "was", "what", "when", "where", "who", "will", "with", "und",
             "www");
 
+    /**
+     * Words residents use that are too short to index, or that the guides
+     * spell out: "TV" is two letters, under the three-letter minimum, so "old
+     * TV" used to search for "old" alone.
+     */
+    private static final Map<String, List<String>> ABBREVIATIONS = Map.of(
+            "tv", List.of("television", "televiseur"),
+            "tele", List.of("television", "televiseur"));
+
     private SortingSearchIndex() {
     }
 
@@ -95,17 +105,44 @@ final class SortingSearchIndex {
         Map<String, Double> documentIdf = idf(terms, documentTokens);
         Map<String, Double> keywordIdf = idf(terms, keywordTokens);
 
+        // A keyword of several words is a phrase: it counts only when the
+        // question has all of them. Word by word, Rosemere's "food can" made
+        // "old paint cans" a blue-bin question. Not for character pairs:
+        // "7 号塑料" typed with a space still means the keyword "7号塑料".
         Map<Long, Double> keywordScores = new HashMap<>();
+        Set<Long> named = new HashSet<>();
         for (int i = 0; i < keywords.size(); i++) {
-            double score = score(terms, keywordTokens.get(i), keywordIdf);
+            List<String> phrase = keywordTokens.get(i);
+            boolean matches = ngram
+                    ? phrase.stream().anyMatch(terms::contains)
+                    : !phrase.isEmpty() && terms.containsAll(phrase);
+            if (!matches) {
+                continue;
+            }
+            named.add(keywords.get(i).itemId());
+            double score = score(terms, phrase, keywordIdf);
             if (score > 0) {
                 keywordScores.merge(keywords.get(i).itemId(), score, Double::sum);
+            }
+        }
+
+        // An entry is a candidate only if the question names it: a word of its
+        // name, or one of its keywords. A word that occurs only in an entry's
+        // instruction is incidental - "open" in "Requests open in December"
+        // made "What time does the mayor's office open?" an answer about
+        // Christmas trees.
+        for (Document d : documents) {
+            if (tokens(d.name(), ngram).stream().anyMatch(terms::contains)) {
+                named.add(d.itemId());
             }
         }
 
         List<Scored> scored = new ArrayList<>();
         for (int i = 0; i < documents.size(); i++) {
             long itemId = documents.get(i).itemId();
+            if (!named.contains(itemId)) {
+                continue;
+            }
             double score = score(terms, documentTokens.get(i), documentIdf)
                     + keywordScores.getOrDefault(itemId, 0.0);
             if (score > 0) {
@@ -152,12 +189,27 @@ final class SortingSearchIndex {
                 for (int i = 0; i + NGRAM <= word.length(); i++) {
                     tokens.add(word.substring(i, i + NGRAM));
                 }
+            } else if (ABBREVIATIONS.containsKey(word)) {
+                tokens.addAll(ABBREVIATIONS.get(word));
             } else if (word.length() >= MIN_WORD_LENGTH && word.length() <= MAX_WORD_LENGTH
                     && !INNODB_STOPWORDS.contains(word)) {
-                tokens.add(word);
+                tokens.add(singular(word));
             }
         }
         return tokens;
+    }
+
+    /**
+     * One trailing "s" off, so a plural finds its singular: "chaudrons" the
+     * keyword "chaudron", "pelures" the keyword "pelure". MySQL did not stem
+     * either, and residents type plurals the guide lists in the singular.
+     * Applied to the guide and the question alike, so both sides agree; "ss"
+     * endings ("glass") and short words are left as they are.
+     */
+    static String singular(String word) {
+        return word.length() >= 4 && word.endsWith("s") && !word.endsWith("ss")
+                ? word.substring(0, word.length() - 1)
+                : word;
     }
 
     /** Lowercase without accents: what utf8mb4_0900_ai_ci compared on. */

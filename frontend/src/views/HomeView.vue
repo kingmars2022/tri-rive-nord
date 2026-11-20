@@ -130,6 +130,40 @@ watch(() => preferences.municipality, loadCollections);
 
 const city = computed(() => municipalities.current);
 
+/** "20 h", "8:00 PM", "8 点": a time of day as a resident reads it. */
+function clock(hhmm: string): string {
+  const [h, m] = hhmm.split(":").map(Number);
+  if (language.value === "fr") {
+    return m ? `${h} h ${String(m).padStart(2, "0")}` : `${h} h`;
+  }
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  if (language.value === "en") {
+    return `${h12}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
+  }
+  return m ? `${h12} 点 ${m} 分` : `${h12} 点`;
+}
+
+/**
+ * When to put the bin out or bring it back, in the town's own hours.
+ * "Tonight" only when the collection is tomorrow; further off, "the evening
+ * before". Nothing for a town that prints no rule.
+ */
+const binHours = computed(() => {
+  const town = city.value;
+  if (!town || !nextEvent.value) {
+    return null;
+  }
+  if (isToday.value) {
+    return town.binsInBy ? t("home.bringBack").replace("{in}", clock(town.binsInBy)) : null;
+  }
+  if (!town.binsOutFrom || !town.binsOutBy) {
+    return null;
+  }
+  return t(isTomorrow.value ? "home.putOutTonight" : "home.putOutEve")
+    .replace("{from}", clock(town.binsOutFrom))
+    .replace("{by}", clock(town.binsOutBy));
+});
+
 /**
  * True when this city is offered but its calendar has not been read from its
  * own published document yet. Kept separate from "no collection this week",
@@ -224,7 +258,7 @@ function formatDateShort(dateKey: string) {
         </p>
         <h1>{{ binLabel(nextEvent.binColor) }}</h1>
         <p>{{ typeLabel(nextEvent.collectionType) }}</p>
-        <p>{{ isToday ? t("home.bringBack") : t("home.putOut") }}</p>
+        <p v-if="binHours">{{ binHours }}</p>
         <p v-if="noteFor(nextEvent)">{{ noteFor(nextEvent) }}</p>
       </div>
 

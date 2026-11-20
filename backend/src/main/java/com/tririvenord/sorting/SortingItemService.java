@@ -92,7 +92,9 @@ public class SortingItemService {
 
         Map<String, Object> params = new HashMap<>();
         params.put("municipalityId", municipalityId);
-        params.put("itemKey", request.itemKey());
+        params.put("itemKey", request.itemKey() == null || request.itemKey().isBlank()
+                ? freeKey(municipalityId, request.en().name())
+                : request.itemKey());
         params.put("destinationType", request.destinationType());
         params.put("binColor", request.binColor());
         params.put("sourceUrl", request.sourceUrl());
@@ -135,6 +137,31 @@ public class SortingItemService {
         translationMapper.deleteByItemId(id);
         itemMapper.delete(id);
         answerCache.invalidateAll();
+    }
+
+    /**
+     * A key for a new entry made in the admin console, which does not ask for
+     * one: its English name in lowercase words joined by hyphens, as V20 made
+     * the first keys, with "-2", "-3" added if the town already has it.
+     */
+    String freeKey(long municipalityId, String englishName) {
+        String base = java.text.Normalizer.normalize(englishName == null ? "" : englishName,
+                        java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "")
+                .toLowerCase(java.util.Locale.ROOT)
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("^-+|-+$", "");
+        if (base.isEmpty()) {
+            base = "item";
+        }
+        base = base.length() > 70 ? base.substring(0, 70).replaceAll("-+$", "") : base;
+        java.util.Set<String> taken = new java.util.HashSet<>();
+        itemMapper.findAll(municipalityId).forEach(item -> taken.add(item.itemKey()));
+        String key = base;
+        for (int n = 2; taken.contains(key); n++) {
+            key = base + "-" + n;
+        }
+        return key;
     }
 
     private void saveTranslationsAndKeywords(Long itemId, SortingItemRequest request) {

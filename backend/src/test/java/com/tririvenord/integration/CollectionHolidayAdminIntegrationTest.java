@@ -245,7 +245,7 @@ class CollectionHolidayAdminIntegrationTest {
                         .content(objectMapper.writeValueAsString(collection("north"))))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString(
-                        "Sainte-Therese has no sector 'north'. Its sectors are: all, a, b, c, d")));
+                        "Sainte-Thérèse has no sector 'north'. Its sectors are: all, a, b, c, d")));
 
         Map<String, Object> holiday = request(LocalDate.now().plusDays(40), 1);
         holiday.put("sector", "south");

@@ -19,7 +19,11 @@ public record PhotoProperties(
         String endpoint,
         long uploadTtl,
         long maxUploadBytes,
-        long processingTimeout
+        long processingTimeout,
+        // Off unless the storage and the Lambda behind it exist. The free
+        // deployment has neither, and a photo button that can only ever fail
+        // is worse than no button.
+        boolean enabled
 ) {
     public static final String ORIGINAL_PREFIX = "original/";
     public static final String PROCESSED_PREFIX = "processed/";

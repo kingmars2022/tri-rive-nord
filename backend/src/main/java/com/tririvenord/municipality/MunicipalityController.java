@@ -53,6 +53,13 @@ public class MunicipalityController {
                 municipality.calendarVerified(),
                 municipality.guideVerified(),
                 sectors,
-                service.hasStreetDirectory(municipality));
+                service.hasStreetDirectory(municipality),
+                hhmm(municipality.binsOutFrom()),
+                hhmm(municipality.binsOutBy()),
+                hhmm(municipality.binsInBy()));
+    }
+
+    private static String hhmm(java.time.LocalTime time) {
+        return time == null ? null : time.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
     }
 }

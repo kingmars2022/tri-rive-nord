@@ -17,6 +17,10 @@ public record Municipality(
         String province,
         String sourceUrl,
         boolean calendarVerified,
-        boolean guideVerified
+        boolean guideVerified,
+        // The town's own set-out rule (V35); null where it prints none.
+        java.time.LocalTime binsOutFrom,
+        java.time.LocalTime binsOutBy,
+        java.time.LocalTime binsInBy
 ) {
 }

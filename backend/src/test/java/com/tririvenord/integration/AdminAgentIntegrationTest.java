@@ -281,7 +281,7 @@ class AdminAgentIntegrationTest {
         assertThat(tools).contains("[\"all\",\"a\",\"b\",\"c\",\"d\"]").doesNotContain("north");
 
         assertThat(catalog.describeCity(sainteTherese()))
-                .contains("Sainte-Therese")
+                .contains("Sainte-Thérèse")
                 .contains("a (Zone A)");
     }
 
@@ -295,7 +295,7 @@ class AdminAgentIntegrationTest {
                 "sourceUrl", MARKER), "Add a bulky collection");
 
         assertThatThrownBy(() -> catalog.executeWrite(sainteTherese(), north))
-                .hasMessageContaining("Sainte-Therese has no sector 'north'")
+                .hasMessageContaining("Sainte-Thérèse has no sector 'north'")
                 .hasMessageContaining("all, a, b, c, d");
         assertThat(countCollections()).isZero();
     }
