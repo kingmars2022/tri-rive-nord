@@ -755,6 +755,7 @@ watch(
               <option value="brown">brown</option>
               <option value="blue">blue</option>
               <option value="black">black</option>
+              <option value="grey">grey</option>
               <option value="none">none</option>
             </select>
           </label>
@@ -864,6 +865,7 @@ watch(
               <option value="brown">brown</option>
               <option value="blue">blue</option>
               <option value="black">black</option>
+              <option value="grey">grey</option>
               <option value="none">none</option>
             </select>
           </label>

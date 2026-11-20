@@ -267,7 +267,7 @@ public class AgentToolCatalog {
                 enumSchema("Which sector of this city; \"all\" for the whole city.", sectors.toArray(String[]::new)));
         builder.putAdditionalProperty("collectionType",
                 enumSchema("What is collected.", "organic", "recycling", "garbage", "bulky", "ecocentre", "special"));
-        builder.putAdditionalProperty("binColor", enumSchema("Bin colour.", "brown", "blue", "black", "none"));
+        builder.putAdditionalProperty("binColor", enumSchema("Bin colour.", "brown", "blue", "black", "grey", "none"));
         builder.putAdditionalProperty("noteFr", stringSchema("Optional note in French."));
         builder.putAdditionalProperty("noteEn", stringSchema("Optional note in English."));
         builder.putAdditionalProperty("noteZh", stringSchema("Optional note in Chinese."));

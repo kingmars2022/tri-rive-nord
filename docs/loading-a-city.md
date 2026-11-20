@@ -38,10 +38,11 @@ that the city stays unloaded. The application already renders that honestly.
      boulevard; another city may use three zones, or none)
    - statutory holidays, and how many days a collection moves when one lands
      on its day
-3. **Write the migration.** `V32` onward (`V22` and `V23` are Sainte-Therese, `V24` a Blainville
+3. **Write the migration.** `V33` onward (`V22` and `V23` are Sainte-Therese, `V24` a Blainville
    search fix that loading it made necessary, `V25`, `V26` and `V28` Boisbriand, `V27` per-city
    notices, `V29` a Sainte-Therese search fix that loading Boisbriand made necessary, `V30` the
-   accent-folding function the PostgreSQL move needed, `V31` Boisbriand checked against 2026). Insert the sectors into
+   accent-folding function the PostgreSQL move needed, `V31` Boisbriand checked against 2026, `V32`
+   Rosemere's calendar). Insert the sectors into
    `municipality_sector`, the rules into `collection_schedule_rule`, the
    holidays into `collection_holiday`, and the guide into `sorting_item` and
    its three child tables. Set `calendar_verified` and `guide_verified` on the
@@ -56,7 +57,7 @@ that the city stays unloaded. The application already renders that honestly.
    Sainte-Therese, 243 after its calendar and guide, 254 after Boisbriand and its street table,
    259 after the admin console learned each city's sectors, 265 after notices became per city,
    271 after Boisbriand's guide, 279 after the move to PostgreSQL, 280 after
-   Boisbriand's 2026 check. Each city's
+   Boisbriand's 2026 check, 285 after Rosemere's calendar. Each city's
    guide test searches every entry by its own name; give the new city one.
 
 ## Loaded so far
@@ -66,7 +67,7 @@ that the city stays unloaded. The application already renders that honestly.
 | Blainville | yes | yes | V15, V17 |
 | Sainte-Therese | yes, 2026 grids | yes, regulation 1373 | V22, V23 |
 | Boisbriand | yes for 2026: projected from 2025 (V25), then checked date by date against the 2026 calendar (V31); 2027 carried on at the same rhythm until the city publishes it | yes: 2026 page + 2025 calendar pp. 3-5 | V25, V26, V28, V31 |
-| Rosemere | no -- site does not answer automated requests | no | |
+| Rosemere | yes: 2026 municipal calendar, by hand (the site does not answer automated requests); 2027 carried on at the same rhythm | not yet: the same calendar's page 30 has it | V32 |
 
 ## What Sainte-Therese added to the list of things to get wrong
 
@@ -166,6 +167,28 @@ ten seconds. Same conclusion: download by hand.
 A third run on 2026-11-19 (`data/municipal-sources/rosemere/2026-11-19/`)
 timed out on the same four URLs. Three days running is a policy, not an
 outage; further runs are not worth making.
+
+**Loaded by hand on 2026-11-20.** The owner downloaded the town's 2026
+municipal calendar (32 pages, bilingual, archived under
+`data/municipal-sources/rosemere/2026-11-20/`). What it holds and how V32
+reads it (`docs/verification/generate_v32_rosemere_calendar.py`):
+
+- Page 31 maps four **collection** sectors - not the six council sectors of
+  page 2, which residents may confuse them with, so the app names them
+  "Secteur de collecte N (weekday)". There is no street list, only the map,
+  so no street lookup either.
+- Each month's grid prints every day's collections: sector 1 on Tuesday to
+  sector 4 on Friday, garbage and recycling in alternate weeks, organics on
+  Thursday for the whole town (weekly May to November, every other week
+  December to April, through April 2027 per page 31).
+- Holidays are not moved the same way each time: 1 January 2026, a Thursday,
+  was collected the day after; 25 December 2026, a Friday, the day before.
+  So nothing is assumed for 1 January 2027, a Friday, which the calendar
+  does not print: sector 4's garbage that day is left out, not guessed.
+- Rosemere's garbage bin is **grey** ("bac gris"), which added `grey` to the
+  bin colours, labels and swatches.
+- Dates after 31 December 2026 carry the 2026 rhythm on, and every note says
+  so, as for Boisbriand.
 
 It is a downloader, not a parser. It follows only links on the city's own host
 that look like they are about collection, honours robots.txt, and waits two

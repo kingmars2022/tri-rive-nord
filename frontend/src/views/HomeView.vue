@@ -12,7 +12,7 @@ import {
 } from "../api/notifications";
 import type { MessageKey } from "../i18n/messages";
 
-type BinColor = "brown" | "blue" | "black" | "none";
+type BinColor = "brown" | "blue" | "black" | "grey" | "none";
 type CollectionType = "organic" | "recycling" | "garbage" | "bulky" | "ecocentre" | "special";
 
 type CollectionEvent = {

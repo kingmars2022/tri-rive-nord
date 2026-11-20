@@ -1,0 +1,15 @@
+{
+  "slug": "rosemere",
+  "name": "Rosemere",
+  "note": "Downloaded by hand by the project owner and uploaded to the session on 2026-11-20; the city's site does not answer automated clients (see the three fetcher runs alongside). Raw copy, not modified. V32 is read from it.",
+  "files": [
+    {
+      "file": "manual_calendrier-municipal-2026.pdf",
+      "url": null,
+      "content_type": "application/pdf",
+      "bytes": 9193300,
+      "sha256": "8498ea324c43644d9f372e6bd9464ebcf515850ff1a5d625d5bc398d85346e1c",
+      "obtained": "the Town of Rosemere's 2026 municipal calendar (32 pages, bilingual, created 2025-12-04). Uploaded as 'download.pdf'; the address it was downloaded from was not recorded. Page 31 is the collection-sector map and schedule, page 30 the accepted and refused materials, and the odd pages 7 to 29 are January to December with each day's collections."
+    }
+  ]
+}
